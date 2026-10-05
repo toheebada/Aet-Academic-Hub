@@ -306,16 +306,16 @@
       background: #11157b;
     }
 
-    .level-card span {
+    .level-card > span {
       color: #c8cbed;
       font-size: 12px;
     }
 
-    .level-card strong {
+    .level-card > strong {
       font-size: 27px;
     }
 
-    .level-card a {
+    .level-card > span:last-child {
       color: var(--yellow);
       font-size: 13px;
       font-weight: 700;
@@ -432,6 +432,35 @@
       font-weight: 800;
     }
 
+    /* COURSE HUB APP VIEWS */
+    .app-view { display: none; min-height: 55vh; }
+    body.app-mode > :not(.navbar):not(#app-view):not(footer) { display: none; }
+    body.app-mode #app-view { display: block; }
+    .app-view .section { padding-top: 38px; }
+    .breadcrumbs { display: flex; flex-wrap: wrap; gap: 8px; color: var(--muted); font-size: 13px; margin-bottom: 24px; }
+    .breadcrumbs a { color: var(--navy); font-weight: 700; }
+    .back-link { display: inline-flex; margin: 0 0 18px; color: var(--navy); font-weight: 700; font-size: 14px; }
+    .course-grid, .hub-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .course-card, .hub-card { display: block; background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 23px; transition: .2s ease; }
+    .course-card:hover, .hub-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+    .course-code { color: var(--navy); font-size: 18px; font-weight: 800; }
+    .course-card p, .hub-card p { color: var(--muted); font-size: 13px; margin-top: 5px; }
+    .hub-card { min-height: 180px; }
+    .hub-card .icon { margin-bottom: 16px; }
+    .hub-card h3 { font-size: 18px; }
+    .hub-count { color: var(--navy) !important; font-weight: 700; margin-top: 15px !important; }
+    .sample-note { margin-top: 22px; padding: 13px 16px; background: var(--yellow-soft); border-radius: 12px; color: #5f5112; font-size: 13px; }
+    .resource-list a.resource { transition: .2s ease; }
+    .resource-list a.resource:hover { border-color: var(--navy); box-shadow: var(--shadow); }
+    .resource-action { border: 0; background: none; cursor: pointer; font: inherit; }
+    .quiz-card { max-width: 760px; background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; }
+    .quiz-card h3 { font-size: 21px; margin-bottom: 18px; }
+    .quiz-options { display: grid; gap: 10px; }
+    .quiz-options button { border: 1px solid var(--border); border-radius: 11px; padding: 13px 15px; text-align: left; background: white; cursor: pointer; font: inherit; }
+    .quiz-options button:hover, .quiz-options button:focus { border-color: var(--navy); background: #f4f5ff; }
+    .quiz-feedback { min-height: 28px; margin-top: 14px; font-weight: 700; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
     /* MOBILE */
 
     @media (max-width: 850px) {
@@ -464,6 +493,7 @@
       .footer-inner {
         flex-direction: column;
       }
+      .course-grid, .hub-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
     @media (max-width: 520px) {
@@ -476,9 +506,12 @@
         padding: 55px 18px;
       }
 
+      .hero-inner { gap: 30px; }
       .hero h1 {
-        font-size: 44px;
+        font-size: clamp(36px, 10vw, 44px);
+        letter-spacing: -1.4px;
       }
+      .hero-card { width: 100%; padding: 22px; }
 
       .hero p {
         font-size: 16px;
@@ -497,8 +530,16 @@
       }
 
       .resource-action {
-        display: none;
+        display: inline;
+        white-space: nowrap;
       }
+      .resource { padding: 15px; gap: 10px; }
+      .resource-info { gap: 10px; min-width: 0; }
+      .resource-info > div:last-child { min-width: 0; }
+      .resource h3 { overflow-wrap: anywhere; }
+      .course-grid, .hub-grid { grid-template-columns: 1fr; }
+      .hub-card { min-height: 0; }
+      .section-heading h2 { font-size: 27px; }
     }
   </style>
 </head>
@@ -521,10 +562,10 @@
 
       <nav class="nav-links">
         <a href="#courses">Courses</a>
-        <a href="#past-questions">Past Questions</a>
-        <a href="#cbt">CBT</a>
+        <a href="#courses">Past Questions</a>
+        <a href="#courses">CBT</a>
         <a href="#resources">Resources</a>
-        <a href="#cbt" class="nav-button">Practice Now</a>
+        <a href="#level/200" class="nav-button">Practice Now</a>
       </nav>
 
     </div>
@@ -559,7 +600,7 @@
             Browse Courses
           </a>
 
-          <a href="#cbt" class="secondary-button">
+          <a href="#level/200" class="secondary-button">
             Start a CBT
           </a>
         </div>
@@ -577,17 +618,17 @@
 
         <div class="mini-stat">
           <span>Study Materials</span>
-          <strong>Coming soon</strong>
+          <strong>Sample library</strong>
         </div>
 
         <div class="mini-stat">
           <span>Past Questions</span>
-          <strong>Coming soon</strong>
+          <strong>Sample library</strong>
         </div>
 
         <div class="mini-stat">
           <span>CBT Practice</span>
-          <strong>Coming soon</strong>
+          <strong>Try a question</strong>
         </div>
 
       </div>
@@ -608,28 +649,28 @@
 
     <div class="quick-grid">
 
-      <a href="#resources" class="quick-card">
+      <a href="#courses" class="quick-card">
         <div class="icon">01</div>
         <h3>Study Materials</h3>
         <p>Find useful lecture notes and academic resources.</p>
       </a>
 
-      <a href="#past-questions" class="quick-card">
+      <a href="#courses" class="quick-card">
         <div class="icon">02</div>
         <h3>Past Questions</h3>
         <p>Practise with previous examination questions.</p>
       </a>
 
-      <a href="#cbt" class="quick-card">
+      <a href="#courses" class="quick-card">
         <div class="icon">03</div>
         <h3>CBT Practice</h3>
         <p>Test yourself and see how well you understand a topic.</p>
       </a>
 
-      <a href="#updates" class="quick-card">
+      <a href="#resources" class="quick-card">
         <div class="icon">04</div>
-        <h3>AET Updates</h3>
-        <p>Stay informed about tutorials and academic activities.</p>
+        <h3>Recently Added</h3>
+        <p>See the latest sample resources across courses.</p>
       </a>
 
     </div>
@@ -648,34 +689,36 @@
 
     <div class="level-grid">
 
-      <div class="level-card">
+      <a class="level-card" href="#level/100">
         <span>FIRST YEAR</span>
         <strong>100L</strong>
-        <a href="#">Explore →</a>
-      </div>
+        <span>Explore →</span>
+      </a>
 
-      <div class="level-card">
+      <a class="level-card" href="#level/200">
         <span>SECOND YEAR</span>
         <strong>200L</strong>
-        <a href="#">Explore →</a>
-      </div>
+        <span>Explore →</span>
+      </a>
 
-      <div class="level-card">
+      <a class="level-card" href="#level/300">
         <span>THIRD YEAR</span>
         <strong>300L</strong>
-        <a href="#">Explore →</a>
-      </div>
+        <span>Explore →</span>
+      </a>
 
-      <div class="level-card">
+      <a class="level-card" href="#level/400">
         <span>FOURTH YEAR</span>
         <strong>400L</strong>
-        <a href="#">Explore →</a>
-      </div>
+        <span>Explore →</span>
+      </a>
 
     </div>
 
   </section>
 
+
+  <main id="app-view" class="app-view" aria-live="polite"></main>
 
   <!-- CBT -->
 
@@ -696,7 +739,7 @@
           </p>
         </div>
 
-        <a href="#" class="cbt-button">
+        <a href="#level/200" class="cbt-button">
           Start Practice →
         </a>
 
@@ -718,58 +761,38 @@
 
     <div class="resource-list">
 
-      <div class="resource">
-
+      <a href="#course/100/PHY102/materials" class="resource">
         <div class="resource-info">
-
           <div class="resource-icon">PDF</div>
-
           <div>
             <h3>PHY102 Study Materials</h3>
             <p>Study Material • PHY102</p>
           </div>
-
         </div>
-
         <span class="resource-action">View →</span>
+      </a>
 
-      </div>
-
-
-      <div class="resource">
-
+      <a href="#course/100/MTH102/past-questions" class="resource">
         <div class="resource-info">
-
           <div class="resource-icon">PQ</div>
-
           <div>
             <h3>MTH102 Past Questions</h3>
             <p>Past Questions • MTH102</p>
           </div>
-
         </div>
-
         <span class="resource-action">View →</span>
+      </a>
 
-      </div>
-
-
-      <div class="resource">
-
+      <a href="#course/100/CHM102/cbt" class="resource">
         <div class="resource-info">
-
           <div class="resource-icon">CBT</div>
-
           <div>
             <h3>CHM102 Practice Quiz</h3>
             <p>CBT Practice • CHM102</p>
           </div>
-
         </div>
-
         <span class="resource-action">Start →</span>
-
-      </div>
+      </a>
 
     </div>
 
@@ -779,34 +802,404 @@
   <!-- FOOTER -->
 
   <footer>
-
     <div class="footer-inner">
-
       <div>
         <strong>AET Academic Hub</strong>
-
-        <p>
-          Academic Excellence Team (AET)
-        </p>
-
-        <p class="footer-tag">
-          Learn Better. Prepare Better. Become Better.
-        </p>
+        <p>Academic Excellence Team (AET)</p>
+        <p class="footer-tag">Learn Better. Prepare Better. Become Better.</p>
       </div>
 
       <div>
-        <p>
-          Built for FUTMINNA students.
-        </p>
-
-        <p>
-          © 2026 Academic Excellence Team
-        </p>
+        <p>Built for FUTMINNA students.</p>
+        <p>© 2026 Academic Excellence Team</p>
       </div>
-
     </div>
-
   </footer>
 
+  <script>
+    // Replace this sample catalog with an API-backed repository later; the views
+    // consume the same course/resource shape and derive their counts from it.
+    const catalog = {
+      100: [
+        {
+          code: 'MTH102',
+          title: 'Elementary Mathematics II',
+          materials: [
+            { title: 'Algebra and Functions Notes', detail: 'PDF · Study material' }
+          ],
+          past: [
+            { title: 'MTH102 Past Questions', detail: 'PDF · 2022–2024' }
+          ],
+          quiz: {
+            question: 'If f(x) = 2x + 3, what is f(4)?',
+            options: ['8', '11', '14'],
+            answer: 1
+          }
+        },
+        {
+          code: 'PHY102',
+          title: 'General Physics II',
+          materials: [
+            { title: 'PHY102 Study Materials', detail: 'PDF · Lecture notes' }
+          ],
+          past: [
+            { title: 'PHY102 Past Questions', detail: 'PDF · 2021–2024' }
+          ],
+          quiz: {
+            question: 'Which quantity is measured in ohms?',
+            options: ['Current', 'Resistance', 'Charge'],
+            answer: 1
+          }
+        },
+        {
+          code: 'CHM102',
+          title: 'General Chemistry II',
+          materials: [
+            { title: 'Introduction to Chemical Bonding', detail: 'PDF · Study material' }
+          ],
+          past: [
+            { title: 'CHM102 Past Questions', detail: 'PDF · 2023–2024' }
+          ],
+          quiz: {
+            question: 'The pH of a neutral solution at 25°C is:',
+            options: ['0', '7', '14'],
+            answer: 1
+          }
+        }
+      ],
+      200: [
+        {
+          code: 'MTH202',
+          title: 'Mathematics II',
+          materials: [
+            { title: 'MTH202 Lecture Notes', detail: 'PDF · Study material' },
+            { title: 'Revision Guide: Differential Equations', detail: 'PDF · Revision' }
+          ],
+          past: [
+            { title: 'MTH202 Past Questions', detail: 'PDF · 2022–2024' }
+          ],
+          quiz: {
+            question: 'The derivative of x² is:',
+            options: ['x', '2x', '2'],
+            answer: 1
+          }
+        },
+        {
+          code: 'PHY202',
+          title: 'Electricity and Magnetism',
+          materials: [
+            { title: 'Electromagnetism Summary', detail: 'PDF · Study material' }
+          ],
+          past: [
+            { title: 'PHY202 Past Questions', detail: 'PDF · 2023–2024' }
+          ],
+          quiz: {
+            question: 'The SI unit of magnetic flux is:',
+            options: ['Tesla', 'Weber', 'Henry'],
+            answer: 1
+          }
+        },
+        {
+          code: 'CSC202',
+          title: 'Computer Programming II',
+          materials: [
+            { title: 'Programming Concepts Notes', detail: 'PDF · Study material' }
+          ],
+          past: [
+            { title: 'CSC202 Past Questions', detail: 'PDF · 2022–2024' }
+          ],
+          quiz: {
+            question: 'Which structure repeats a block while a condition is true?',
+            options: ['Loop', 'Variable', 'Function call'],
+            answer: 0
+          }
+        }
+      ],
+      300: [
+        {
+          code: 'MTH302',
+          title: 'Advanced Mathematics',
+          materials: [],
+          past: [],
+          quiz: {
+            question: 'A function with continuous first derivatives is:',
+            options: ['Differentiable', 'Periodic', 'Discrete'],
+            answer: 0
+          }
+        }
+      ],
+      400: [
+        {
+          code: 'CSC402',
+          title: 'Final Year Project Seminar',
+          materials: [],
+          past: [],
+          quiz: {
+            question: 'A good research question should be:',
+            options: ['Broad and vague', 'Focused and answerable', 'Unrelated to evidence'],
+            answer: 1
+          }
+        }
+      ]
+    };
+
+    const app = document.getElementById('app-view');
+
+    const findCourse = (level, code) =>
+      (catalog[level] || []).find(course => course.code === code);
+
+    const esc = value =>
+      String(value).replace(/[&<>"']/g, character => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[character]));
+
+    function render() {
+      const parts = location.hash.slice(1).split('/');
+
+      if (!parts[0] || parts[0] === 'courses') {
+        document.body.classList.remove('app-mode');
+        app.innerHTML = '';
+        return;
+      }
+
+      document.body.classList.add('app-mode');
+
+      if (parts[0] === 'level') {
+        return renderLevel(parts[1]);
+      }
+
+      if (parts[0] === 'course') {
+        return renderCourse(parts[1], parts[2], parts[3]);
+      }
+
+      app.innerHTML = `
+        <section class="section">
+          <h1>Page not found</h1>
+          <a class="back-link" href="#courses">← Back to courses</a>
+        </section>
+      `;
+    }
+
+    function crumb(items) {
+      return `
+        <div class="breadcrumbs">
+          <a href="#courses">Home</a>
+          ${items.map(item => `<span>›</span><span>${esc(item)}</span>`).join('')}
+        </div>
+      `;
+    }
+
+    function renderLevel(level) {
+      const courses = catalog[level];
+
+      if (!courses) {
+        app.innerHTML = `
+          <section class="section">
+            <h1>Level not found</h1>
+            <a class="back-link" href="#courses">← Browse courses</a>
+          </section>
+        `;
+        return;
+      }
+
+      app.innerHTML = `
+        <section class="section">
+          ${crumb([`${level} Level`])}
+          <a class="back-link" href="#courses">← All levels</a>
+
+          <div class="section-heading">
+            <h2>${level} Level courses</h2>
+            <p>Choose a course to open its study hub.</p>
+          </div>
+
+          <div class="course-grid">
+            ${courses.map(course => `
+              <a class="course-card" href="#course/${level}/${course.code}">
+                <span class="course-code">${esc(course.code)}</span>
+                <p>${esc(course.title)}</p>
+                <p class="hub-count">
+                  ${course.materials.length} materials ·
+                  ${course.past.length} past questions
+                </p>
+              </a>
+            `).join('')}
+          </div>
+
+          <p class="sample-note">
+            Sample course catalog for preview. Course availability will grow with the library.
+          </p>
+        </section>
+      `;
+    }
+
+    function renderCourse(level, code, section) {
+      const course = findCourse(level, code);
+
+      if (!course) {
+        app.innerHTML = `
+          <section class="section">
+            <h1>Course not found</h1>
+            <a class="back-link" href="#courses">← Browse courses</a>
+          </section>
+        `;
+        return;
+      }
+
+      if (section === 'materials' || section === 'past-questions') {
+        return renderResources(level, course, section);
+      }
+
+      if (section === 'cbt') {
+        return renderQuiz(level, course);
+      }
+
+      app.innerHTML = `
+        <section class="section">
+          ${crumb([`${level} Level`, course.code])}
+          <a class="back-link" href="#level/${level}">← ${level} Level courses</a>
+
+          <div class="section-heading">
+            <h2>
+              ${esc(course.code)}
+              <span style="font-weight:400;color:var(--muted)">· ${esc(course.title)}</span>
+            </h2>
+            <p>Your course home for notes, past questions and practice.</p>
+          </div>
+
+          <div class="hub-grid">
+            <a class="hub-card" href="#course/${level}/${course.code}/materials">
+              <div class="icon">01</div>
+              <h3>Study Materials</h3>
+              <p>Lecture notes, handouts and revision resources.</p>
+              <p class="hub-count">${course.materials.length} sample resources →</p>
+            </a>
+
+            <a class="hub-card" href="#course/${level}/${course.code}/past-questions">
+              <div class="icon">02</div>
+              <h3>Past Questions</h3>
+              <p>Previous examination questions for this course.</p>
+              <p class="hub-count">${course.past.length} sample resources →</p>
+            </a>
+
+            <a class="hub-card" href="#course/${level}/${course.code}/cbt">
+              <div class="icon">03</div>
+              <h3>CBT Practice</h3>
+              <p>Try a question and check your understanding.</p>
+              <p class="hub-count">Practice question →</p>
+            </a>
+          </div>
+
+          <p class="sample-note">
+            These are demonstration entries. Resource files and quiz sets will be connected when the content library is ready.
+          </p>
+        </section>
+      `;
+    }
+
+    function renderResources(level, course, section) {
+      const isPastQuestions = section === 'past-questions';
+      const resources = isPastQuestions ? course.past : course.materials;
+      const title = isPastQuestions ? 'Past Questions' : 'Study Materials';
+
+      app.innerHTML = `
+        <section class="section">
+          ${crumb([`${level} Level`, course.code, title])}
+          <a class="back-link" href="#course/${level}/${course.code}">
+            ← ${esc(course.code)} course hub
+          </a>
+
+          <div class="section-heading">
+            <h2>${esc(title)}</h2>
+            <p>${esc(course.code)} · ${esc(course.title)}</p>
+          </div>
+
+          ${
+            resources.length
+              ? `
+                <div class="resource-list">
+                  ${resources.map(resource => `
+                    <a class="resource" href="#course/${level}/${course.code}">
+                      <div class="resource-info">
+                        <div class="resource-icon">PDF</div>
+                        <div>
+                          <h3>${esc(resource.title)}</h3>
+                          <p>${esc(resource.detail)}</p>
+                        </div>
+                      </div>
+                      <span class="resource-action">Preview →</span>
+                    </a>
+                  `).join('')}
+                </div>
+
+                <p class="sample-note">
+                  Sample listings only; downloads will be enabled when the real files are added.
+                </p>
+              `
+              : `
+                <div class="sample-note">
+                  No sample resources are available here yet. Check back as the course library grows.
+                </div>
+              `
+          }
+        </section>
+      `;
+    }
+
+    function renderQuiz(level, course) {
+      const quiz = course.quiz;
+
+      app.innerHTML = `
+        <section class="section">
+          ${crumb([`${level} Level`, course.code, 'CBT Practice'])}
+          <a class="back-link" href="#course/${level}/${course.code}">
+            ← ${esc(course.code)} course hub
+          </a>
+
+          <div class="section-heading">
+            <h2>CBT Practice · ${esc(course.code)}</h2>
+            <p>Choose an answer to check it immediately.</p>
+          </div>
+
+          <div class="quiz-card">
+            <h3>${esc(quiz.question)}</h3>
+
+            <div class="quiz-options">
+              ${quiz.options.map((option, index) => `
+                <button type="button" data-choice="${index}">
+                  ${esc(option)}
+                </button>
+              `).join('')}
+            </div>
+
+            <p class="quiz-feedback" aria-live="polite"></p>
+          </div>
+
+          <p class="sample-note">
+            One demonstration question. A full practice set and score tracking can be added with the question bank.
+          </p>
+        </section>
+      `;
+
+      app.querySelectorAll('[data-choice]').forEach(button => {
+        button.addEventListener('click', () => {
+          const isCorrect = Number(button.dataset.choice) === quiz.answer;
+          const feedback = app.querySelector('.quiz-feedback');
+
+          feedback.textContent = isCorrect
+            ? 'Correct — nice work.'
+            : `Not quite. The correct answer is ${quiz.options[quiz.answer]}.`;
+
+          feedback.style.color = isCorrect ? '#16723b' : '#a33333';
+        });
+      });
+    }
+
+    window.addEventListener('hashchange', render);
+    render();
+  </script>
 </body>
 </html>
