@@ -542,7 +542,7 @@
       .section-heading h2 { font-size: 27px; }
     }
   </style>
-</<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>head>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>/head>
 
 <body>
 
@@ -820,128 +820,37 @@
     // Replace this sample catalog with an API-backed repository later; the views
     // consume the same course/resource shape and derive their counts from it.
     const catalog = {
-      100: [
-        {
-          code: 'MTH102',
-          title: 'Elementary Mathematics II',
-          materials: [
-            { title: 'Algebra and Functions Notes', detail: 'PDF · Study material' }
-          ],
-          past: [
-            { title: 'MTH102 Past Questions', detail: 'PDF · 2022–2024' }
-          ],
-          quiz: {
-            question: 'If f(x) = 2x + 3, what is f(4)?',
-            options: ['8', '11', '14'],
-            answer: 1
-          }
-        },
-        {
-          code: 'PHY102',
-          title: 'General Physics II',
-          materials: [
-            { title: 'PHY102 Study Materials', detail: 'PDF · Lecture notes' }
-          ],
-          past: [
-            { title: 'PHY102 Past Questions', detail: 'PDF · 2021–2024' }
-          ],
-          quiz: {
-            question: 'Which quantity is measured in ohms?',
-            options: ['Current', 'Resistance', 'Charge'],
-            answer: 1
-          }
-        },
-        {
-          code: 'CHM102',
-          title: 'General Chemistry II',
-          materials: [
-            { title: 'Introduction to Chemical Bonding', detail: 'PDF · Study material' }
-          ],
-          past: [
-            { title: 'CHM102 Past Questions', detail: 'PDF · 2023–2024' }
-          ],
-          quiz: {
-            question: 'The pH of a neutral solution at 25°C is:',
-            options: ['0', '7', '14'],
-            answer: 1
-          }
-        }
-      ],
-      200: [
-        {
-          code: 'MTH202',
-          title: 'Mathematics II',
-          materials: [
-            { title: 'MTH202 Lecture Notes', detail: 'PDF · Study material' },
-            { title: 'Revision Guide: Differential Equations', detail: 'PDF · Revision' }
-          ],
-          past: [
-            { title: 'MTH202 Past Questions', detail: 'PDF · 2022–2024' }
-          ],
-          quiz: {
-            question: 'The derivative of x² is:',
-            options: ['x', '2x', '2'],
-            answer: 1
-          }
-        },
-        {
-          code: 'PHY202',
-          title: 'Electricity and Magnetism',
-          materials: [
-            { title: 'Electromagnetism Summary', detail: 'PDF · Study material' }
-          ],
-          past: [
-            { title: 'PHY202 Past Questions', detail: 'PDF · 2023–2024' }
-          ],
-          quiz: {
-            question: 'The SI unit of magnetic flux is:',
-            options: ['Tesla', 'Weber', 'Henry'],
-            answer: 1
-          }
-        },
-        {
-          code: 'CSC202',
-          title: 'Computer Programming II',
-          materials: [
-            { title: 'Programming Concepts Notes', detail: 'PDF · Study material' }
-          ],
-          past: [
-            { title: 'CSC202 Past Questions', detail: 'PDF · 2022–2024' }
-          ],
-          quiz: {
-            question: 'Which structure repeats a block while a condition is true?',
-            options: ['Loop', 'Variable', 'Function call'],
-            answer: 0
-          }
-        }
-      ],
-      300: [
-        {
-          code: 'MTH302',
-          title: 'Advanced Mathematics',
-          materials: [],
-          past: [],
-          quiz: {
-            question: 'A function with continuous first derivatives is:',
-            options: ['Differentiable', 'Periodic', 'Discrete'],
-            answer: 0
-          }
-        }
-      ],
-      400: [
-        {
-          code: 'CSC402',
-          title: 'Final Year Project Seminar',
-          materials: [],
-          past: [],
-          quiz: {
-            question: 'A good research question should be:',
-            options: ['Broad and vague', 'Focused and answerable', 'Unrelated to evidence'],
-            answer: 1
-          }
-        }
-      ]
-    };
+     const supabaseUrl = 'https://phkqmlgyfxxuaberhked.supabase.co';
+const supabaseKey = 'sb_publishable_0JSD7Zsr3fMWdDWGGE9qSw_J9AsOi-2';
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+let catalog = { 100: [], 200: [], 300: [], 400: [] };
+
+async function loadCatalog() {
+  const { data: courses, error } = await supabase.from('courses').select('*');
+
+  if (error) {
+    console.error('Failed to load courses:', error);
+    return;
+  }
+
+  catalog = { 100: [], 200: [], 300: [], 400: [] };
+
+  for (const course of courses) {
+    if (!catalog[course.level]) catalog[course.level] = [];
+
+    catalog[course.level].push({
+      id: course.id,
+      code: course.code,
+      title: course.title,
+      materials: [],
+      past: [],
+      quiz: null
+    });
+  }
+
+  render();
+}
 
     const app = document.getElementById('app-view');
 
