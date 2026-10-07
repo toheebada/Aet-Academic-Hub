@@ -670,6 +670,7 @@
     .course-hub-header::before { content: ""; position: absolute; top: 0; left: 0; width: 6px; height: 100%; background: var(--yellow); }
     .course-hub-header h2 { font-size: 28px; color: var(--navy); line-height: 1.1; margin-bottom: 6px; }
     .course-hub-header p { font-size: 15px; color: var(--muted); }
+    .course-hub-meta { font-size: 13px; color: var(--muted); font-weight: 600; margin-top: 12px; }
 
     .hub-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
     .hub-card { display: flex; flex-direction: column; background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.2s ease; }
@@ -1093,7 +1094,7 @@
       <a href="#resources" class="quick-card">
         <div class="icon">04</div>
         <h3>Recently Added</h3>
-        <p>See the latest sample resources across courses.</p>
+        <p>See the featured academic resources across courses.</p>
       </a>
 
     </div>
@@ -1570,7 +1571,7 @@
     function crumb(items) {
       return `
         <div class="breadcrumbs">
-          <a href="#courses">Home</a>
+          <a href="#courses">Courses</a>
           ${items.map(item => `<span class="sep">›</span><span>${esc(item)}</span>`).join('')}
         </div>
       `;
@@ -1653,15 +1654,22 @@
         return renderQuiz(level, course);
       }
 
+      const matCount = course.materials.length;
+      const pqCount = course.past.length;
+      const matText = matCount === 1 ? '1 study material' : `${matCount} study materials`;
+      const pqText = pqCount === 1 ? '1 past question' : `${pqCount} past questions`;
+      const cbtText = course.quiz ? 'CBT available' : 'No CBT yet';
+
       app.innerHTML = `
         <section class="section">
           ${crumb([`${level} Level`, course.code])}
           <a class="back-link" href="#level/${level}">← Back to ${level}L</a>
 
           <div class="course-hub-header">
-            <span class="preview-badge">${level}L Course</span>
+            <span class="preview-badge">Preview Content</span>
             <h2>${esc(course.code)}</h2>
             <p>${esc(course.title)}</p>
+            <div class="course-hub-meta">${level}L · ${matText} · ${pqText} · ${cbtText}</div>
           </div>
 
           <div class="hub-grid">
@@ -1719,7 +1727,7 @@
                           <div class="academic-resource-detail">${esc(resource.detail)}</div>
                         </div>
                       </div>
-                      <div class="academic-resource-action">View →</div>
+                      <div class="academic-resource-action">Preview →</div>
                     </a>
                   `).join('')}
                 </div>
