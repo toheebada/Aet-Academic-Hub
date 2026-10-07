@@ -705,8 +705,9 @@
     .rp-info-wrap { display: flex; gap: 16px; align-items: center; min-width: 0; flex: 1; }
     .rp-icon { width: 48px; height: 48px; border-radius: 12px; background: #eef0ff; color: var(--navy); font-weight: 800; font-size: 14px; display: grid; place-items: center; flex-shrink: 0; }
     .rp-text { min-width: 0; }
-    .rp-text h2 { font-size: 20px; color: var(--navy); margin-bottom: 4px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .rp-text p { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* Changed white-space: nowrap to allow wrapping on mobile */
+    .rp-text h2 { font-size: 20px; color: var(--navy); margin-bottom: 4px; line-height: 1.3; overflow-wrap: anywhere; }
+    .rp-text p { font-size: 13px; color: var(--muted); overflow-wrap: break-word; }
     .rp-actions { display: flex; gap: 10px; flex-shrink: 0; }
     .rp-btn { padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease; cursor: pointer; text-decoration: none; }
     .rp-btn-primary { background: var(--navy); color: white; border: 1px solid var(--navy); }
@@ -715,7 +716,6 @@
     .rp-btn-secondary:hover { border-color: var(--navy); color: var(--navy); }
     .pdf-preview-container { background: white; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; height: 70vh; min-height: 500px; display: flex; flex-direction: column; }
     .pdf-iframe { width: 100%; height: 100%; border: none; flex-grow: 1; background: #f7f8fc; }
-    .pdf-placeholder-notice { background: var(--yellow-soft); color: #705e07; padding: 12px 20px; font-size: 13px; font-weight: 600; border-bottom: 1px solid rgba(255, 210, 28, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; }
 
     /* CBT Interface */
     .cbt-header-box { text-align: center; margin-bottom: 32px; }
@@ -1268,7 +1268,7 @@
   </footer>
 
   <script>
-    // 1. UPDATE THE RESOURCE DATA MODEL
+    // RESOURCE DATA MODEL
     const catalog = {
       100: [
         {
@@ -1279,7 +1279,6 @@
               title: 'Algebra and Functions Notes', 
               detail: 'PDF · Study material',
               type: 'pdf',
-              // IMPORTANT PLACEHOLDER: Ensure a file exists at this exact path to view the PDF preview
               fileUrl: 'resources/algebra-functions-notes.pdf' 
             }
           ],
@@ -1288,7 +1287,7 @@
               title: 'MTH102 Past Questions', 
               detail: 'PDF · 2022–2024',
               type: 'pdf',
-              fileUrl: '' // Missing fileUrl safely handled by architecture
+              fileUrl: '' 
             }
           ],
           quiz: {
@@ -1445,7 +1444,6 @@
 
       Object.keys(catalog).forEach(level => {
         catalog[level].forEach(course => {
-          // 5. UPDATE SEARCH RESULTS - Link directly to individual resources via their index
           course.materials.forEach((mat, index) => {
             items.push({
               level: level,
@@ -1474,7 +1472,7 @@
             });
           });
 
-          // CBT Practice (Remains course-level linking)
+          // CBT Practice 
           if (course.quiz) {
             items.push({
               level: level,
@@ -1598,9 +1596,7 @@
         return renderCourse(parts[1], parts[2], parts[3]);
       }
       
-      // 2. ADD INDIVIDUAL RESOURCE ROUTING
       if (parts[0] === 'resource') {
-        // Expected format: #resource/[level]/[code]/[section]/[index]
         return renderResource(parts[1], parts[2], parts[3], parts[4]);
       }
 
@@ -1742,14 +1738,12 @@
       `;
     }
 
-    // Resource List View (Re-named slightly from renderResources to renderResourcesList for clarity)
+    // Resource List View
     function renderResourcesList(level, course, section) {
       const isPastQuestions = section === 'past-questions';
       const resources = isPastQuestions ? course.past : course.materials;
       const title = isPastQuestions ? 'Past Questions' : 'Study Materials';
 
-      // 4. MAKE RESOURCE CARDS ACTUALLY OPEN THE RESOURCE
-      // Modified the href inside map() to point to the individual resource hash route
       app.innerHTML = `
         <section class="section">
           ${crumb([`${level} Level`, course.code, title])}
@@ -1791,12 +1785,12 @@
       `;
     }
 
-    // 3. ADD A RESOURCE PREVIEW PAGE & 6. RESOURCE PREVIEW DESIGN
+    // INDIVIDUAL RESOURCE PREVIEW
     function renderResource(level, code, section, resourceIndexStr) {
       const course = findCourse(level, code);
       const resourceIndex = parseInt(resourceIndexStr, 10);
       
-      // 8. ERROR HANDLING (Invalid Course)
+      // ERROR HANDLING (Invalid Course)
       if (!course) {
         app.innerHTML = `
           <section class="section">
@@ -1807,12 +1801,23 @@
         return;
       }
 
+      // VALIDATE RESOURCE SECTION
+      if (section !== 'materials' && section !== 'past-questions') {
+        app.innerHTML = `
+          <section class="section">
+            <h1>Resource not found</h1>
+            <a class="back-link" href="#course/${level}/${course.code}">← Back to ${esc(course.code)} Hub</a>
+          </section>
+        `;
+        return;
+      }
+
       const isPastQuestions = section === 'past-questions';
       const resources = isPastQuestions ? course.past : course.materials;
       const sectionTitle = isPastQuestions ? 'Past Questions' : 'Study Materials';
       const resource = resources[resourceIndex];
 
-      // 8. ERROR HANDLING (Invalid Resource Index)
+      // ERROR HANDLING (Invalid Resource Index)
       if (!resource) {
         app.innerHTML = `
           <section class="section">
@@ -1852,10 +1857,12 @@
 
           <div class="pdf-preview-container">
             ${hasFile ? `
-              <div class="pdf-placeholder-notice">
-                <span>⚠️ Note: You must place your real PDF at <code>${esc(fileUrl)}</code> in your project directory to see the preview here.</span>
-              </div>
-              <iframe src="${esc(fileUrl)}" class="pdf-iframe" title="${esc(resource.title)}"></iframe>
+              <iframe src="${esc(fileUrl)}" class="pdf-iframe" title="${esc(resource.title)}">
+                <div style="padding: 20px; text-align: center;">
+                  <p>Your browser does not support inline PDFs.</p>
+                  <a href="${esc(fileUrl)}" target="_blank" class="rp-btn rp-btn-primary" style="margin-top: 10px;">Open PDF</a>
+                </div>
+              </iframe>
             ` : `
               <div class="clean-empty-state" style="height: 100%; display: flex; flex-direction: column; justify-content: center; border:none; margin:0;">
                 <div class="clean-empty-icon">📄</div>
@@ -1867,7 +1874,6 @@
         </section>
       `;
     }
-
 
     // CBT Practice Interface
     function renderQuiz(level, course) {
