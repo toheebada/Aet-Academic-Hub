@@ -1406,12 +1406,12 @@
     // SUPABASE INTEGRATION START
     const SUPABASE_URL = 'https://dyagromcobshqyyecjio.supabase.co';
     const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_rcoCuTPzB6KBh3ajLB4OnQ_Grtt6RSW';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
     async function loadSupabaseCatalog() {
       try {
         // Fetch MTH101 course details
-        const { data: courseData, error: courseError } = await supabase
+        const { data: courseData, error: courseError } = await supabaseClient
           .from('courses')
           .select('*')
           .eq('code', 'MTH101')
@@ -1421,7 +1421,7 @@
         if (!courseData) return; // If course isn't there, rely on hardcoded fallback
 
         // Fetch resources for MTH101
-        const { data: resourceData, error: resourceError } = await supabase
+        const { data: resourceData, error: resourceError } = await supabaseClient
           .from('resources')
           .select('*')
           .eq('course_id', courseData.id);
@@ -1443,7 +1443,7 @@
             
             // Build public storage URL if file_path exists
             if (res.file_path) {
-              const { data } = supabase.storage
+              const { data } = supabaseClient.storage
                 .from('academic-resources')
                 .getPublicUrl(res.file_path);
               fileUrl = data.publicUrl;
@@ -1592,7 +1592,8 @@
       const courseFilter = document.getElementById('filter-course').value;
       const resultsArea = document.getElementById('search-results-area');
       const resultsGrid = document.getElementById('search-results-grid');
-      const clearBtn = document.getElementById('clear-filters-btn');
+thought
+    const clearBtn = document.getElementById('clear-filters-btn');
 
       const isActive = query || levelFilter || typeFilter || courseFilter;
 
