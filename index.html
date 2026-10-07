@@ -2140,12 +2140,13 @@
     initApp();
     // SUPABASE INTEGRATION END
 // ===============================
+      
 // AET ADMIN - LEVEL & COURSE DROPDOWNS
 // ===============================
 
 async function initAdminDropdowns() {
   // Only show the admin panel when the URL contains #admin
-  if (window.location.hash !== '#admin') return;
+  if (new URLSearchParams(window.location.search).get('admin') !== '1') return;
 
   // Create the admin panel
   const adminPanel = document.createElement('section');
