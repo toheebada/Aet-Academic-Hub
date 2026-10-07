@@ -682,7 +682,7 @@
 
     /* Resource Views & Empty States */
     .academic-resource-list { display: grid; gap: 12px; }
-    .academic-resource-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; transition: all 0.2s ease; }
+    .academic-resource-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; transition: all 0.2s ease; text-decoration: none; }
     .academic-resource-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(8, 11, 99, 0.06); border-color: var(--navy); }
     .academic-resource-info { display: flex; align-items: center; gap: 16px; min-width: 0; }
     .academic-resource-icon { width: 42px; height: 42px; border-radius: 10px; background: var(--background); color: var(--navy); font-weight: 800; font-size: 12px; display: grid; place-items: center; flex-shrink: 0; }
@@ -695,6 +695,27 @@
     .clean-empty-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.6; }
     .clean-empty-state h3 { font-size: 16px; color: var(--navy); margin-bottom: 6px; }
     .clean-empty-state p { font-size: 14px; color: var(--muted); max-width: 400px; margin: 0 auto; }
+
+    /* INDIVIDUAL RESOURCE PREVIEW */
+    .resource-preview-header { 
+      background: white; border: 1px solid var(--border); border-radius: var(--radius); 
+      padding: 24px; margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 20px; 
+      justify-content: space-between; align-items: center; 
+    }
+    .rp-info-wrap { display: flex; gap: 16px; align-items: center; min-width: 0; flex: 1; }
+    .rp-icon { width: 48px; height: 48px; border-radius: 12px; background: #eef0ff; color: var(--navy); font-weight: 800; font-size: 14px; display: grid; place-items: center; flex-shrink: 0; }
+    .rp-text { min-width: 0; }
+    .rp-text h2 { font-size: 20px; color: var(--navy); margin-bottom: 4px; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rp-text p { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rp-actions { display: flex; gap: 10px; flex-shrink: 0; }
+    .rp-btn { padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease; cursor: pointer; text-decoration: none; }
+    .rp-btn-primary { background: var(--navy); color: white; border: 1px solid var(--navy); }
+    .rp-btn-primary:hover { background: var(--navy-dark); border-color: var(--navy-dark); color: white; box-shadow: 0 4px 12px rgba(8, 11, 99, 0.15); }
+    .rp-btn-secondary { background: white; border: 1px solid var(--border); color: var(--text); }
+    .rp-btn-secondary:hover { border-color: var(--navy); color: var(--navy); }
+    .pdf-preview-container { background: white; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; height: 70vh; min-height: 500px; display: flex; flex-direction: column; }
+    .pdf-iframe { width: 100%; height: 100%; border: none; flex-grow: 1; background: #f7f8fc; }
+    .pdf-placeholder-notice { background: var(--yellow-soft); color: #705e07; padding: 12px 20px; font-size: 13px; font-weight: 600; border-bottom: 1px solid rgba(255, 210, 28, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; }
 
     /* CBT Interface */
     .cbt-header-box { text-align: center; margin-bottom: 32px; }
@@ -814,6 +835,12 @@
       }
 
       .course-grid, .hub-grid, .search-results-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 650px) {
+      .resource-preview-header { flex-direction: column; align-items: stretch; }
+      .rp-actions { width: 100%; }
+      .rp-btn { flex: 1; justify-content: center; }
     }
 
     @media (max-width: 520px) {
@@ -1184,8 +1211,8 @@
     </div>
 
     <div class="resource-list">
-
-      <a href="#course/100/PHY102/materials" class="resource">
+      <!-- Search results from the homepage link to the actual resource pages via hash -->
+      <a href="#resource/100/PHY102/materials/0" class="resource">
         <div class="resource-info">
           <div class="resource-icon">PDF</div>
           <div>
@@ -1196,7 +1223,7 @@
         <span class="resource-action">Preview →</span>
       </a>
 
-      <a href="#course/100/MTH102/past-questions" class="resource">
+      <a href="#resource/100/MTH102/past-questions/0" class="resource">
         <div class="resource-info">
           <div class="resource-icon">PQ</div>
           <div>
@@ -1241,16 +1268,28 @@
   </footer>
 
   <script>
+    // 1. UPDATE THE RESOURCE DATA MODEL
     const catalog = {
       100: [
         {
           code: 'MTH102',
           title: 'Elementary Mathematics II',
           materials: [
-            { title: 'Algebra and Functions Notes', detail: 'PDF · Study material' }
+            { 
+              title: 'Algebra and Functions Notes', 
+              detail: 'PDF · Study material',
+              type: 'pdf',
+              // IMPORTANT PLACEHOLDER: Ensure a file exists at this exact path to view the PDF preview
+              fileUrl: 'resources/algebra-functions-notes.pdf' 
+            }
           ],
           past: [
-            { title: 'MTH102 Past Questions', detail: 'PDF · 2022–2024' }
+            { 
+              title: 'MTH102 Past Questions', 
+              detail: 'PDF · 2022–2024',
+              type: 'pdf',
+              fileUrl: '' // Missing fileUrl safely handled by architecture
+            }
           ],
           quiz: {
             question: 'If f(x) = 2x + 3, what is f(4)?',
@@ -1262,10 +1301,10 @@
           code: 'PHY102',
           title: 'General Physics II',
           materials: [
-            { title: 'PHY102 Study Materials', detail: 'PDF · Lecture notes' }
+            { title: 'PHY102 Study Materials', detail: 'PDF · Lecture notes', type: 'pdf', fileUrl: '' }
           ],
           past: [
-            { title: 'PHY102 Past Questions', detail: 'PDF · 2021–2024' }
+            { title: 'PHY102 Past Questions', detail: 'PDF · 2021–2024', type: 'pdf', fileUrl: '' }
           ],
           quiz: {
             question: 'Which quantity is measured in ohms?',
@@ -1277,10 +1316,10 @@
           code: 'CHM102',
           title: 'General Chemistry II',
           materials: [
-            { title: 'Introduction to Chemical Bonding', detail: 'PDF · Study material' }
+            { title: 'Introduction to Chemical Bonding', detail: 'PDF · Study material', type: 'pdf', fileUrl: '' }
           ],
           past: [
-            { title: 'CHM102 Past Questions', detail: 'PDF · 2023–2024' }
+            { title: 'CHM102 Past Questions', detail: 'PDF · 2023–2024', type: 'pdf', fileUrl: '' }
           ],
           quiz: {
             question: 'The pH of a neutral solution at 25°C is:',
@@ -1294,11 +1333,11 @@
           code: 'MTH202',
           title: 'Mathematics II',
           materials: [
-            { title: 'MTH202 Lecture Notes', detail: 'PDF · Study material' },
-            { title: 'Revision Guide: Differential Equations', detail: 'PDF · Revision' }
+            { title: 'MTH202 Lecture Notes', detail: 'PDF · Study material', type: 'pdf', fileUrl: '' },
+            { title: 'Revision Guide: Differential Equations', detail: 'PDF · Revision', type: 'pdf', fileUrl: '' }
           ],
           past: [
-            { title: 'MTH202 Past Questions', detail: 'PDF · 2022–2024' }
+            { title: 'MTH202 Past Questions', detail: 'PDF · 2022–2024', type: 'pdf', fileUrl: '' }
           ],
           quiz: {
             question: 'The derivative of x² is:',
@@ -1310,10 +1349,10 @@
           code: 'PHY202',
           title: 'Electricity and Magnetism',
           materials: [
-            { title: 'Electromagnetism Summary', detail: 'PDF · Study material' }
+            { title: 'Electromagnetism Summary', detail: 'PDF · Study material', type: 'pdf', fileUrl: '' }
           ],
           past: [
-            { title: 'PHY202 Past Questions', detail: 'PDF · 2023–2024' }
+            { title: 'PHY202 Past Questions', detail: 'PDF · 2023–2024', type: 'pdf', fileUrl: '' }
           ],
           quiz: {
             question: 'The SI unit of magnetic flux is:',
@@ -1325,10 +1364,10 @@
           code: 'CSC202',
           title: 'Computer Programming II',
           materials: [
-            { title: 'Programming Concepts Notes', detail: 'PDF · Study material' }
+            { title: 'Programming Concepts Notes', detail: 'PDF · Study material', type: 'pdf', fileUrl: '' }
           ],
           past: [
-            { title: 'CSC202 Past Questions', detail: 'PDF · 2022–2024' }
+            { title: 'CSC202 Past Questions', detail: 'PDF · 2022–2024', type: 'pdf', fileUrl: '' }
           ],
           quiz: {
             question: 'Which structure repeats a block while a condition is true?',
@@ -1406,8 +1445,8 @@
 
       Object.keys(catalog).forEach(level => {
         catalog[level].forEach(course => {
-          // Study Materials
-          course.materials.forEach(mat => {
+          // 5. UPDATE SEARCH RESULTS - Link directly to individual resources via their index
+          course.materials.forEach((mat, index) => {
             items.push({
               level: level,
               code: course.code,
@@ -1416,13 +1455,12 @@
               typeName: 'Study Materials',
               title: mat.title,
               detail: mat.detail,
-              link: `#course/${level}/${course.code}/materials`,
-              actionText: 'View →'
+              link: `#resource/${level}/${course.code}/materials/${index}`,
+              actionText: 'Preview →'
             });
           });
 
-          // Past Questions
-          course.past.forEach(pq => {
+          course.past.forEach((pq, index) => {
             items.push({
               level: level,
               code: course.code,
@@ -1431,12 +1469,12 @@
               typeName: 'Past Questions',
               title: pq.title,
               detail: pq.detail,
-              link: `#course/${level}/${course.code}/past-questions`,
-              actionText: 'View →'
+              link: `#resource/${level}/${course.code}/past-questions/${index}`,
+              actionText: 'Preview →'
             });
           });
 
-          // CBT Practice
+          // CBT Practice (Remains course-level linking)
           if (course.quiz) {
             items.push({
               level: level,
@@ -1559,6 +1597,12 @@
       if (parts[0] === 'course') {
         return renderCourse(parts[1], parts[2], parts[3]);
       }
+      
+      // 2. ADD INDIVIDUAL RESOURCE ROUTING
+      if (parts[0] === 'resource') {
+        // Expected format: #resource/[level]/[code]/[section]/[index]
+        return renderResource(parts[1], parts[2], parts[3], parts[4]);
+      }
 
       app.innerHTML = `
         <section class="section">
@@ -1577,7 +1621,7 @@
       `;
     }
 
-    // 1. Level View (Academic Course Cards)
+    // Level View (Academic Course Cards)
     function renderLevel(level) {
       const courses = catalog[level];
 
@@ -1632,7 +1676,7 @@
       `;
     }
 
-    // 2. Course Hub View
+    // Course Hub View
     function renderCourse(level, code, section) {
       const course = findCourse(level, code);
 
@@ -1647,7 +1691,7 @@
       }
 
       if (section === 'materials' || section === 'past-questions') {
-        return renderResources(level, course, section);
+        return renderResourcesList(level, course, section);
       }
 
       if (section === 'cbt') {
@@ -1698,12 +1742,14 @@
       `;
     }
 
-    // 3. & 4. Resources Views (with clean Empty States)
-    function renderResources(level, course, section) {
+    // Resource List View (Re-named slightly from renderResources to renderResourcesList for clarity)
+    function renderResourcesList(level, course, section) {
       const isPastQuestions = section === 'past-questions';
       const resources = isPastQuestions ? course.past : course.materials;
       const title = isPastQuestions ? 'Past Questions' : 'Study Materials';
 
+      // 4. MAKE RESOURCE CARDS ACTUALLY OPEN THE RESOURCE
+      // Modified the href inside map() to point to the individual resource hash route
       app.innerHTML = `
         <section class="section">
           ${crumb([`${level} Level`, course.code, title])}
@@ -1718,8 +1764,8 @@
             resources.length
               ? `
                 <div class="academic-resource-list">
-                  ${resources.map(resource => `
-                    <a class="academic-resource-card" href="#course/${level}/${course.code}">
+                  ${resources.map((resource, index) => `
+                    <a class="academic-resource-card" href="#resource/${level}/${course.code}/${section}/${index}">
                       <div class="academic-resource-info">
                         <div class="academic-resource-icon">${isPastQuestions ? 'PQ' : 'PDF'}</div>
                         <div class="academic-resource-text">
@@ -1731,7 +1777,7 @@
                     </a>
                   `).join('')}
                 </div>
-                <p class="content-notice">These resources are provided for demonstration purposes.</p>
+                <p class="content-notice">Select a resource above to view its contents.</p>
               `
               : `
                 <div class="clean-empty-state">
@@ -1745,7 +1791,85 @@
       `;
     }
 
-    // 5. CBT Practice Interface
+    // 3. ADD A RESOURCE PREVIEW PAGE & 6. RESOURCE PREVIEW DESIGN
+    function renderResource(level, code, section, resourceIndexStr) {
+      const course = findCourse(level, code);
+      const resourceIndex = parseInt(resourceIndexStr, 10);
+      
+      // 8. ERROR HANDLING (Invalid Course)
+      if (!course) {
+        app.innerHTML = `
+          <section class="section">
+            <h1>Course not found</h1>
+            <a class="back-link" href="#courses">← Browse courses</a>
+          </section>
+        `;
+        return;
+      }
+
+      const isPastQuestions = section === 'past-questions';
+      const resources = isPastQuestions ? course.past : course.materials;
+      const sectionTitle = isPastQuestions ? 'Past Questions' : 'Study Materials';
+      const resource = resources[resourceIndex];
+
+      // 8. ERROR HANDLING (Invalid Resource Index)
+      if (!resource) {
+        app.innerHTML = `
+          <section class="section">
+            <h1>Resource not found</h1>
+            <a class="back-link" href="#course/${level}/${course.code}/${section}">← Back to ${esc(sectionTitle)}</a>
+          </section>
+        `;
+        return;
+      }
+
+      const fileUrl = resource.fileUrl || '';
+      const hasFile = !!fileUrl;
+
+      app.innerHTML = `
+        <section class="section">
+          ${crumb([`${level} Level`, course.code, sectionTitle, resource.title])}
+          <a class="back-link" href="#course/${level}/${course.code}/${section}">← Back to ${esc(sectionTitle)}</a>
+
+          <div class="resource-preview-header">
+            <div class="rp-info-wrap">
+              <div class="rp-icon">${resource.type === 'pdf' ? 'PDF' : 'DOC'}</div>
+              <div class="rp-text">
+                <h2>${esc(resource.title)}</h2>
+                <p>${esc(course.code)} · ${esc(course.title)}</p>
+                <p style="margin-top:2px;">${esc(resource.detail)}</p>
+              </div>
+            </div>
+            <div class="rp-actions">
+              ${hasFile ? `
+                <a href="${esc(fileUrl)}" target="_blank" class="rp-btn rp-btn-primary">Open PDF ↗</a>
+                <a href="${esc(fileUrl)}" download class="rp-btn rp-btn-secondary">Download ↓</a>
+              ` : `
+                <button disabled class="rp-btn rp-btn-secondary" style="opacity: 0.5; cursor: not-allowed;">File Not Available</button>
+              `}
+            </div>
+          </div>
+
+          <div class="pdf-preview-container">
+            ${hasFile ? `
+              <div class="pdf-placeholder-notice">
+                <span>⚠️ Note: You must place your real PDF at <code>${esc(fileUrl)}</code> in your project directory to see the preview here.</span>
+              </div>
+              <iframe src="${esc(fileUrl)}" class="pdf-iframe" title="${esc(resource.title)}"></iframe>
+            ` : `
+              <div class="clean-empty-state" style="height: 100%; display: flex; flex-direction: column; justify-content: center; border:none; margin:0;">
+                <div class="clean-empty-icon">📄</div>
+                <h3>No Preview Available</h3>
+                <p>This resource does not have an associated file uploaded yet.</p>
+              </div>
+            `}
+          </div>
+        </section>
+      `;
+    }
+
+
+    // CBT Practice Interface
     function renderQuiz(level, course) {
       const quiz = course.quiz;
       
