@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>AET Academic Hub</title>
+  <title>FUTMINNA Academic Hub | Academic Excellence Team</title>
 
   <meta
     name="description"
@@ -238,6 +238,186 @@
 
     .section-heading p {
       color: var(--muted);
+    }
+
+    /* SEARCH & FILTERS SECTION */
+
+    .search-section {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 48px 22px;
+    }
+
+    .search-container {
+      max-width: 1180px;
+      margin: auto;
+    }
+
+    .search-box-wrap {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 16px 20px 16px 48px;
+      font-size: 16px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--background);
+      color: var(--text);
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--navy);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(8, 11, 99, 0.08);
+    }
+
+    .search-icon-pos {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 16px;
+      pointer-events: none;
+    }
+
+    .filters-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-select {
+      flex: 1;
+      min-width: 180px;
+      padding: 12px 16px;
+      font-size: 14px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: var(--background);
+      color: var(--text);
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s ease;
+    }
+
+    .filter-select:focus {
+      border-color: var(--navy);
+      background: white;
+    }
+
+    .clear-filters-btn {
+      padding: 12px 18px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--navy);
+      background: #eef0ff;
+      border: 1px solid transparent;
+      border-radius: 11px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .clear-filters-btn:hover {
+      background: #dfe3ff;
+      border-color: var(--navy);
+    }
+
+    .search-results-area {
+      margin-top: 32px;
+      display: none; /* Hidden by default */
+    }
+
+    .search-results-area.active {
+      display: block; /* Visible when searched/filtered */
+    }
+
+    .search-results-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .search-result-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .search-result-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow);
+      border-color: var(--navy);
+    }
+
+    .result-meta-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .result-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      background: var(--yellow-soft);
+      color: #705e07;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+
+    .result-level {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .search-result-card h3 {
+      font-size: 16px;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+
+    .search-result-card p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .result-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .no-results-msg {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 15px;
+      grid-column: 1 / -1;
     }
 
     /* QUICK ACCESS */
@@ -556,7 +736,7 @@
         gap: 4px;
       }
 
-      .course-grid, .hub-grid { grid-template-columns: repeat(2, 1fr); }
+      .course-grid, .hub-grid, .search-results-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
     @media (max-width: 520px) {
@@ -567,6 +747,10 @@
 
       .section {
         padding: 55px 18px;
+      }
+
+      .search-section {
+        padding: 40px 18px;
       }
 
       .hero-inner { gap: 30px; }
@@ -600,9 +784,11 @@
       .resource-info { gap: 10px; min-width: 0; }
       .resource-info > div:last-child { min-width: 0; }
       .resource h3 { overflow-wrap: anywhere; }
-      .course-grid, .hub-grid { grid-template-columns: 1fr; }
+      .course-grid, .hub-grid, .search-results-grid { grid-template-columns: 1fr; }
       .hub-card { min-height: 0; }
       .section-heading h2 { font-size: 27px; }
+      .filters-row { flex-direction: column; align-items: stretch; }
+      .filter-select, .clear-filters-btn { width: 100%; }
     }
   </style>
 </head>
@@ -717,6 +903,58 @@
   </div>
 
 </section>
+
+
+  <!-- SEARCH & FILTERS -->
+
+  <section class="search-section" id="search-section">
+    <div class="search-container">
+      <div class="section-heading">
+        <h2>Find what you need</h2>
+        <p>Search across courses, study materials, past questions and CBT practice.</p>
+      </div>
+
+      <div class="search-box-wrap">
+        <span class="search-icon-pos" aria-hidden="true">🔍</span>
+        <input
+          type="text"
+          id="hub-search-input"
+          class="search-input"
+          placeholder="Search by course code, course name, topic or resource..."
+          aria-label="Search academic resources"
+        >
+      </div>
+
+      <div class="filters-row">
+        <select id="filter-level" class="filter-select" aria-label="Filter by Level">
+          <option value="">All Levels</option>
+          <option value="100">100L</option>
+          <option value="200">200L</option>
+          <option value="300">300L</option>
+          <option value="400">400L</option>
+        </select>
+
+        <select id="filter-type" class="filter-select" aria-label="Filter by Resource Type">
+          <option value="">All Types</option>
+          <option value="materials">Study Materials</option>
+          <option value="past">Past Questions</option>
+          <option value="cbt">CBT Practice</option>
+        </select>
+
+        <select id="filter-course" class="filter-select" aria-label="Filter by Course">
+          <option value="">All Courses</option>
+        </select>
+
+        <button type="button" id="clear-filters-btn" class="clear-filters-btn">
+          Clear Filters
+        </button>
+      </div>
+
+      <div class="search-results-area" id="search-results-area">
+        <div class="search-results-grid" id="search-results-grid"></div>
+      </div>
+    </div>
+  </section>
 
 
   <!-- QUICK ACCESS -->
@@ -1036,6 +1274,164 @@
         "'": '&#39;'
       }[character]));
 
+    // Populate Dynamic Course Filter
+    function initCourseFilter() {
+      const courseSelect = document.getElementById('filter-course');
+      const uniqueCourses = new Map();
+
+      Object.keys(catalog).forEach(level => {
+        catalog[level].forEach(course => {
+          if (!uniqueCourses.has(course.code)) {
+            uniqueCourses.set(course.code, `${course.code} - ${course.title}`);
+          }
+        });
+      });
+
+      uniqueCourses.forEach((label, code) => {
+        const option = document.createElement('option');
+        option.value = code;
+        option.textContent = label;
+        courseSelect.appendChild(option);
+      });
+    }
+
+    // Build Flat Searchable Items Array
+    function getAllSearchableItems() {
+      const items = [];
+
+      Object.keys(catalog).forEach(level => {
+        catalog[level].forEach(course => {
+          // Study Materials
+          course.materials.forEach(mat => {
+            items.push({
+              level: level,
+              code: course.code,
+              courseTitle: course.title,
+              type: 'materials',
+              typeName: 'Study Materials',
+              title: mat.title,
+              detail: mat.detail,
+              link: `#course/${level}/${course.code}/materials`,
+              actionText: 'View →'
+            });
+          });
+
+          // Past Questions
+          course.past.forEach(pq => {
+            items.push({
+              level: level,
+              code: course.code,
+              courseTitle: course.title,
+              type: 'past',
+              typeName: 'Past Questions',
+              title: pq.title,
+              detail: pq.detail,
+              link: `#course/${level}/${course.code}/past-questions`,
+              actionText: 'View →'
+            });
+          });
+
+          // CBT Practice
+          if (course.quiz) {
+            items.push({
+              level: level,
+              code: course.code,
+              courseTitle: course.title,
+              type: 'cbt',
+              typeName: 'CBT Practice',
+              title: `${course.code} Practice Quiz`,
+              detail: course.quiz.question,
+              link: `#course/${level}/${course.code}/cbt`,
+              actionText: 'Start →'
+            });
+          }
+        });
+      });
+
+      return items;
+    }
+
+    const searchableItems = getAllSearchableItems();
+
+    function renderSearchResults() {
+      const query = document.getElementById('hub-search-input').value.toLowerCase().trim();
+      const levelFilter = document.getElementById('filter-level').value;
+      const typeFilter = document.getElementById('filter-type').value;
+      const courseFilter = document.getElementById('filter-course').value;
+      const resultsArea = document.getElementById('search-results-area');
+      const resultsGrid = document.getElementById('search-results-grid');
+
+      // Do not display any results if nothing is searched or filtered
+      if (!query && !levelFilter && !typeFilter && !courseFilter) {
+        resultsArea.classList.remove('active');
+        resultsGrid.innerHTML = '';
+        return;
+      }
+
+      resultsArea.classList.add('active');
+
+      const filtered = searchableItems.filter(item => {
+        if (levelFilter && item.level !== levelFilter) return false;
+        if (typeFilter && item.type !== typeFilter) return false;
+        if (courseFilter && item.code !== courseFilter) return false;
+
+        if (query) {
+          const combinedText = `${item.code} ${item.courseTitle} ${item.title} ${item.detail} ${item.typeName}`.toLowerCase();
+          return combinedText.includes(query);
+        }
+
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        resultsGrid.innerHTML = `
+          <div class="no-results-msg">
+            No results found. Try another search or clear your filters.
+          </div>
+        `;
+        return;
+      }
+
+      resultsGrid.innerHTML = filtered.map(item => `
+        <a class="search-result-card" href="${item.link}">
+          <div>
+            <div class="result-meta-top">
+              <span class="result-badge">${esc(item.typeName)}</span>
+              <span class="result-level">${esc(item.level)}L</span>
+            </div>
+            <h3>${esc(item.code)} · ${esc(item.title)}</h3>
+            <p>${esc(item.courseTitle)}</p>
+          </div>
+          <div class="result-footer">
+            <span>${esc(item.detail)}</span>
+            <span>${esc(item.actionText)}</span>
+          </div>
+        </a>
+      `).join('');
+    }
+
+    // Attach Search & Filter Listeners
+    function initSearchListeners() {
+      const searchInput = document.getElementById('hub-search-input');
+      const levelSelect = document.getElementById('filter-level');
+      const typeSelect = document.getElementById('filter-type');
+      const courseSelect = document.getElementById('filter-course');
+      const clearBtn = document.getElementById('clear-filters-btn');
+
+      [searchInput, levelSelect, typeSelect, courseSelect].forEach(el => {
+        el.addEventListener('input', renderSearchResults);
+        el.addEventListener('change', renderSearchResults);
+      });
+
+      clearBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        levelSelect.value = '';
+        typeSelect.value = '';
+        courseSelect.value = '';
+        renderSearchResults(); // Triggering this clears inputs and hides the active results box 
+      });
+    }
+
     function render() {
       const parts = location.hash.slice(1).split('/');
 
@@ -1311,6 +1707,11 @@
       closeMobileMenu();
       render();
     });
+
+    // Initialize search feature on load (results hidden by default)
+    initCourseFilter();
+    initSearchListeners();
+    renderSearchResults();
 
     render();
   </script>
