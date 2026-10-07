@@ -461,9 +461,66 @@
     .quiz-feedback { min-height: 28px; margin-top: 14px; font-weight: 700; }
     .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
+    /* MOBILE NAVIGATION */
+
+    .mobile-menu-toggle {
+      display: none;
+      width: 42px;
+      height: 42px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: white;
+      color: var(--navy);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .mobile-menu-toggle:hover,
+    .mobile-menu-toggle:focus-visible {
+      border-color: var(--navy);
+      outline: 3px solid rgba(8, 11, 99, 0.12);
+      outline-offset: 2px;
+    }
+
+    .mobile-nav {
+      display: none;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 22px 16px;
+    }
+
+    .mobile-nav a {
+      display: block;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .mobile-nav a:hover,
+    .mobile-nav a:focus-visible {
+      background: #f4f5ff;
+      color: var(--navy);
+      outline: none;
+    }
+
+    .mobile-nav .mobile-nav-button {
+      margin-top: 4px;
+      background: var(--navy);
+      color: white;
+      text-align: center;
+    }
+
     /* MOBILE */
 
     @media (max-width: 850px) {
+
+      .mobile-menu-toggle {
+        display: flex;
+      }
 
       .nav-links {
         display: none;
@@ -493,6 +550,12 @@
       .footer-inner {
         flex-direction: column;
       }
+
+      .mobile-nav.is-open {
+        display: grid;
+        gap: 4px;
+      }
+
       .course-grid, .hub-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
@@ -560,7 +623,7 @@
         </div>
       </a>
 
-      <nav class="nav-links">
+      <nav class="nav-links" aria-label="Primary navigation">
         <a href="#courses">Courses</a>
         <a href="#courses">Past Questions</a>
         <a href="#courses">CBT</a>
@@ -568,7 +631,25 @@
         <a href="#level/200" class="nav-button">Practice Now</a>
       </nav>
 
+      <button
+        class="mobile-menu-toggle"
+        type="button"
+        aria-label="Open navigation menu"
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+      >
+        <span aria-hidden="true">☰</span>
+      </button>
+
     </div>
+
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation">
+      <a href="#courses">Courses</a>
+      <a href="#courses">Past Questions</a>
+      <a href="#courses">CBT</a>
+      <a href="#resources">Resources</a>
+      <a href="#level/200" class="mobile-nav-button">Practice Now</a>
+    </nav>
   </header>
 
 
@@ -817,8 +898,6 @@
   </footer>
 
   <script>
-    // Replace this sample catalog with an API-backed repository later; the views
-    // consume the same course/resource shape and derive their counts from it.
     const catalog = {
       100: [
         {
@@ -1198,7 +1277,41 @@
       });
     }
 
-    window.addEventListener('hashchange', render);
+    const mobileMenuButton = document.querySelector('.mobile-menu-toggle');
+    const mobileNav = document.getElementById('mobile-nav');
+
+    function closeMobileMenu() {
+      mobileNav.classList.remove('is-open');
+      mobileMenuButton.setAttribute('aria-expanded', 'false');
+      mobileMenuButton.setAttribute('aria-label', 'Open navigation menu');
+      mobileMenuButton.querySelector('span').textContent = '☰';
+    }
+
+    function toggleMobileMenu() {
+      const isOpen = mobileNav.classList.toggle('is-open');
+      mobileMenuButton.setAttribute('aria-expanded', String(isOpen));
+      mobileMenuButton.setAttribute(
+        'aria-label',
+        isOpen ? 'Close navigation menu' : 'Open navigation menu'
+      );
+      mobileMenuButton.querySelector('span').textContent = isOpen ? '×' : '☰';
+    }
+
+    mobileMenuButton.addEventListener('click', toggleMobileMenu);
+
+    mobileNav.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', closeMobileMenu);
+    });
+
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') closeMobileMenu();
+    });
+
+    window.addEventListener('hashchange', () => {
+      closeMobileMenu();
+      render();
+    });
+
     render();
   </script>
 </body>
