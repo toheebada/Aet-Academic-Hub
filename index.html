@@ -11,6 +11,10 @@
     content="AET Academic Hub — study materials, past questions and CBT practice for FUTMINNA students."
   >
 
+  <!-- SUPABASE INTEGRATION START -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- SUPABASE INTEGRATION END -->
+
   <style>
     :root {
       --navy: #080b63;
@@ -1399,6 +1403,93 @@
       ]
     };
 
+    // SUPABASE INTEGRATION START
+    const SUPABASE_URL = 'https://dyagromcobshqyyecjio.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_rcoCuTPzB6KBh3ajLB4OnQ_Grtt6RSW';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+    async function loadSupabaseCatalog() {
+      try {
+        // Fetch MTH101 course details
+        const { data: courseData, error: courseError } = await supabase
+          .from('courses')
+          .select('*')
+          .eq('code', 'MTH101')
+          .single();
+
+        if (courseError) throw courseError;
+        if (!courseData) return; // If course isn't there, rely on hardcoded fallback
+
+        // Fetch resources for MTH101
+        const { data: resourceData, error: resourceError } = await supabase
+          .from('resources')
+          .select('*')
+          .eq('course_id', courseData.id);
+
+        if (resourceError) throw resourceError;
+
+        // Construct standard mapped format expected by the UI
+        const mappedCourse = {
+          code: courseData.code,
+          title: courseData.title,
+          materials: [],
+          past: [],
+          quiz: null
+        };
+
+        if (resourceData) {
+          resourceData.forEach(res => {
+            let fileUrl = '';
+            
+            // Build public storage URL if file_path exists
+            if (res.file_path) {
+              const { data } = supabase.storage
+                .from('academic-resources')
+                .getPublicUrl(res.file_path);
+              fileUrl = data.publicUrl;
+            }
+
+            const mappedRes = {
+              title: res.title,
+              detail: res.description || 'PDF · Resource',
+              type: 'pdf',
+              fileUrl: fileUrl
+            };
+
+            if (res.type === 'study_material') {
+              mappedCourse.materials.push(mappedRes);
+            } else if (res.type === 'past_question') {
+              mappedCourse.past.push(mappedRes);
+            }
+          });
+        }
+
+        // Determine Level fallback using the schema's level_id
+        const level = courseData.level_id;
+        
+        if (!catalog[level]) catalog[level] = [];
+        
+        // Inject MTH101 into the catalog, replacing it if it already exists
+        const existingIndex = catalog[level].findIndex(c => c.code === 'MTH101');
+        if (existingIndex >= 0) {
+          catalog[level][existingIndex] = mappedCourse;
+        } else {
+          catalog[level].push(mappedCourse);
+        }
+
+        console.log('Supabase MTH101:', {
+          level: courseData.level_id,
+          code: courseData.code,
+          title: courseData.title,
+          resources: resourceData?.length || 0
+        });
+
+      } catch (error) {
+        console.error('Supabase Setup Error: Falling back fully to the hardcoded catalog.', error.message);
+      }
+    }
+    // SUPABASE INTEGRATION END
+
     const app = document.getElementById('app-view');
 
     const findCourse = (level, code) =>
@@ -1416,6 +1507,10 @@
     // Populate Dynamic Course Filter
     function initCourseFilter() {
       const courseSelect = document.getElementById('filter-course');
+      
+      // Clear out existing options first to prevent duplicates after Supabase inject
+      courseSelect.innerHTML = '<option value="">Course ▾</option>';
+      
       const uniqueCourses = new Map();
 
       Object.keys(catalog).forEach(level => {
@@ -1488,7 +1583,7 @@
       return items;
     }
 
-    const searchableItems = getAllSearchableItems();
+    let searchableItems = []; // Changed to let so it waits for initialization
 
     function renderSearchResults() {
       const query = document.getElementById('hub-search-input').value.toLowerCase().trim();
@@ -1986,12 +2081,24 @@
       render();
     });
 
-    // Initialize search feature on load (results hidden by default)
-    initCourseFilter();
-    initSearchListeners();
-    renderSearchResults();
+    // SUPABASE INTEGRATION START
+    // Initialize the app cleanly
+    async function initApp() {
+      await loadSupabaseCatalog();
+      
+      initCourseFilter();
+      initSearchListeners();
+      
+      // Build the searchable items AFTER Supabase finishes processing
+      searchableItems = getAllSearchableItems();
+      
+      renderSearchResults();
+      render();
+    }
 
-    render();
+    initApp();
+    // SUPABASE INTEGRATION END
+
   </script>
 </body>
 </html>
