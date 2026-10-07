@@ -240,12 +240,12 @@
       color: var(--muted);
     }
 
-    /* SEARCH & FILTERS SECTION */
+    /* SEARCH & FILTERS SECTION (COMPACT UX) */
 
     .search-section {
       background: white;
       border-bottom: 1px solid var(--border);
-      padding: 48px 22px;
+      padding: 36px 22px;
     }
 
     .search-container {
@@ -253,17 +253,29 @@
       margin: auto;
     }
 
+    .search-section .section-heading {
+      margin-bottom: 18px;
+    }
+
+    .search-section .section-heading h2 {
+      font-size: 24px;
+    }
+
+    .search-section .section-heading p {
+      font-size: 14px;
+    }
+
     .search-box-wrap {
       position: relative;
-      margin-bottom: 20px;
+      margin-bottom: 12px;
     }
 
     .search-input {
       width: 100%;
-      padding: 16px 20px 16px 48px;
-      font-size: 16px;
+      padding: 14px 16px 14px 44px;
+      font-size: 15px;
       border: 1px solid var(--border);
-      border-radius: 14px;
+      border-radius: 12px;
       background: var(--background);
       color: var(--text);
       outline: none;
@@ -278,7 +290,7 @@
 
     .search-icon-pos {
       position: absolute;
-      left: 18px;
+      left: 16px;
       top: 50%;
       transform: translateY(-50%);
       color: var(--muted);
@@ -288,22 +300,22 @@
 
     .filters-row {
       display: flex;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
       align-items: center;
     }
 
     .filter-select {
-      flex: 1;
-      min-width: 180px;
-      padding: 12px 16px;
-      font-size: 14px;
+      flex: 0 1 auto;
+      padding: 8px 30px 8px 12px;
+      font-size: 13px;
       border: 1px solid var(--border);
-      border-radius: 11px;
+      border-radius: 8px;
       background: var(--background);
       color: var(--text);
       outline: none;
       cursor: pointer;
+      height: 36px;
       transition: border-color 0.2s ease;
     }
 
@@ -313,110 +325,115 @@
     }
 
     .clear-filters-btn {
-      padding: 12px 18px;
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--navy);
-      background: #eef0ff;
+      display: none; /* Hidden by default */
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      background: transparent;
       border: 1px solid transparent;
-      border-radius: 11px;
+      border-radius: 8px;
       cursor: pointer;
+      height: 36px;
+      text-decoration: underline;
       transition: all 0.2s ease;
       white-space: nowrap;
     }
 
     .clear-filters-btn:hover {
-      background: #dfe3ff;
-      border-color: var(--navy);
+      color: var(--navy);
+      background: #f4f5ff;
+      text-decoration: none;
     }
 
     .search-results-area {
-      margin-top: 32px;
+      margin-top: 24px;
       display: none; /* Hidden by default */
     }
 
     .search-results-area.active {
-      display: block; /* Visible when searched/filtered */
+      display: block;
     }
+
+    /* COMPACT RESULT CARDS */
 
     .search-results-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
     }
 
     .search-result-card {
       background: white;
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 22px;
+      border-radius: 12px;
+      padding: 14px 16px;
       display: flex;
-      flex-direction: column;
+      align-items: center;
       justify-content: space-between;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      gap: 12px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     }
 
     .search-result-card:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(8, 11, 99, 0.06);
       border-color: var(--navy);
     }
 
-    .result-meta-top {
+    .result-content {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
+      flex-direction: column;
+      min-width: 0; /* allows text truncation */
     }
 
-    .result-badge {
-      display: inline-block;
-      padding: 4px 10px;
-      background: var(--yellow-soft);
-      color: #705e07;
+    .result-meta {
       font-size: 11px;
-      font-weight: 700;
-      border-radius: 6px;
+      color: var(--muted);
       text-transform: uppercase;
+      letter-spacing: 0.3px;
+      margin-bottom: 3px;
     }
 
-    .result-level {
+    .result-meta strong {
+      color: var(--navy);
+      font-weight: 800;
+    }
+
+    .result-title {
+      font-size: 14px;
+      color: var(--navy);
+      font-weight: 700;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .result-sub {
       font-size: 12px;
       color: var(--muted);
-      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .search-result-card h3 {
-      font-size: 16px;
-      color: var(--navy);
-      margin-bottom: 6px;
-    }
-
-    .search-result-card p {
+    .result-action {
       font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 16px;
-    }
-
-    .result-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
-      font-size: 13px;
-      font-weight: 800;
+      font-weight: 700;
       color: var(--navy);
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .no-results-msg {
       background: white;
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 40px;
+      border-radius: 12px;
+      padding: 30px;
       text-align: center;
       color: var(--muted);
-      font-size: 15px;
+      font-size: 14px;
       grid-column: 1 / -1;
     }
 
@@ -736,7 +753,7 @@
         gap: 4px;
       }
 
-      .course-grid, .hub-grid, .search-results-grid { grid-template-columns: repeat(2, 1fr); }
+      .course-grid, .hub-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
     @media (max-width: 520px) {
@@ -750,7 +767,7 @@
       }
 
       .search-section {
-        padding: 40px 18px;
+        padding: 28px 18px;
       }
 
       .hero-inner { gap: 30px; }
@@ -787,8 +804,11 @@
       .course-grid, .hub-grid, .search-results-grid { grid-template-columns: 1fr; }
       .hub-card { min-height: 0; }
       .section-heading h2 { font-size: 27px; }
-      .filters-row { flex-direction: column; align-items: stretch; }
-      .filter-select, .clear-filters-btn { width: 100%; }
+      
+      /* Mobile filters optimization */
+      .filters-row { flex-direction: row; }
+      .filter-select { flex: 1 1 40%; min-width: 0; }
+      .clear-filters-btn { flex: 0 1 auto; }
     }
   </style>
 </head>
@@ -927,7 +947,7 @@
 
       <div class="filters-row">
         <select id="filter-level" class="filter-select" aria-label="Filter by Level">
-          <option value="">All Levels</option>
+          <option value="">Level ▾</option>
           <option value="100">100L</option>
           <option value="200">200L</option>
           <option value="300">300L</option>
@@ -935,18 +955,18 @@
         </select>
 
         <select id="filter-type" class="filter-select" aria-label="Filter by Resource Type">
-          <option value="">All Types</option>
+          <option value="">Type ▾</option>
           <option value="materials">Study Materials</option>
           <option value="past">Past Questions</option>
           <option value="cbt">CBT Practice</option>
         </select>
 
         <select id="filter-course" class="filter-select" aria-label="Filter by Course">
-          <option value="">All Courses</option>
+          <option value="">Course ▾</option>
         </select>
 
         <button type="button" id="clear-filters-btn" class="clear-filters-btn">
-          Clear Filters
+          Clear
         </button>
       </div>
 
@@ -1360,15 +1380,20 @@
       const courseFilter = document.getElementById('filter-course').value;
       const resultsArea = document.getElementById('search-results-area');
       const resultsGrid = document.getElementById('search-results-grid');
+      const clearBtn = document.getElementById('clear-filters-btn');
+
+      const isActive = query || levelFilter || typeFilter || courseFilter;
 
       // Do not display any results if nothing is searched or filtered
-      if (!query && !levelFilter && !typeFilter && !courseFilter) {
+      if (!isActive) {
         resultsArea.classList.remove('active');
         resultsGrid.innerHTML = '';
+        clearBtn.style.display = 'none';
         return;
       }
 
       resultsArea.classList.add('active');
+      clearBtn.style.display = 'inline-block';
 
       const filtered = searchableItems.filter(item => {
         if (levelFilter && item.level !== levelFilter) return false;
@@ -1392,20 +1417,15 @@
         return;
       }
 
+      // Compact layout structure
       resultsGrid.innerHTML = filtered.map(item => `
         <a class="search-result-card" href="${item.link}">
-          <div>
-            <div class="result-meta-top">
-              <span class="result-badge">${esc(item.typeName)}</span>
-              <span class="result-level">${esc(item.level)}L</span>
-            </div>
-            <h3>${esc(item.code)} · ${esc(item.title)}</h3>
-            <p>${esc(item.courseTitle)}</p>
+          <div class="result-content">
+            <div class="result-meta"><strong>${esc(item.code)}</strong> · ${esc(item.typeName)}</div>
+            <h3 class="result-title">${esc(item.title)}</h3>
+            <div class="result-sub">${esc(item.level)}L · ${esc(item.courseTitle)}</div>
           </div>
-          <div class="result-footer">
-            <span>${esc(item.detail)}</span>
-            <span>${esc(item.actionText)}</span>
-          </div>
+          <div class="result-action">${esc(item.actionText)}</div>
         </a>
       `).join('');
     }
@@ -1428,7 +1448,7 @@
         levelSelect.value = '';
         typeSelect.value = '';
         courseSelect.value = '';
-        renderSearchResults(); // Triggering this clears inputs and hides the active results box 
+        renderSearchResults(); // Triggering this hides the active results box and the Clear button
       });
     }
 
