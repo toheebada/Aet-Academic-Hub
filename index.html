@@ -2139,7 +2139,243 @@
 
     initApp();
     // SUPABASE INTEGRATION END
+    
+// ===============================
+// AET ADMIN - LEVEL & COURSE DROPDOWNS
+// ===============================
 
+async function initAdminDropdowns() {
+  // Only show the admin panel when the URL contains #admin
+  if (window.location.hash !== '#admin') return;
+
+  // Create the admin panel
+  const adminPanel = document.createElement('section');
+
+  adminPanel.id = 'aet-admin-upload';
+
+  adminPanel.style.cssText = `
+    max-width: 700px;
+    margin: 40px auto;
+    padding: 24px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    font-family: inherit;
+  `;
+
+  adminPanel.innerHTML = `
+    <h2 style="margin-top:0;">AET Admin Upload</h2>
+
+    <p style="color:#666;">
+      Select a level and course to manage academic resources.
+    </p>
+
+    <label style="display:block; margin-top:20px; font-weight:600;">
+      Level
+    </label>
+
+    <select
+      id="admin-level-select"
+      style="
+        width:100%;
+        padding:12px;
+        margin-top:8px;
+        border:1px solid #ccc;
+        border-radius:8px;
+        font-size:15px;
+      "
+    >
+      <option value="">Loading levels...</option>
+    </select>
+
+    <label style="display:block; margin-top:20px; font-weight:600;">
+      Course
+    </label>
+
+    <select
+      id="admin-course-select"
+      disabled
+      style="
+        width:100%;
+        padding:12px;
+        margin-top:8px;
+        border:1px solid #ccc;
+        border-radius:8px;
+        font-size:15px;
+      "
+    >
+      <option value="">Select a level first</option>
+    </select>
+
+    <p
+      id="admin-dropdown-status"
+      style="
+        margin-top:16px;
+        color:#666;
+        font-size:14px;
+      "
+    ></p>
+  `;
+
+  document.body.appendChild(adminPanel);
+
+  const levelSelect = document.getElementById('admin-level-select');
+  const courseSelect = document.getElementById('admin-course-select');
+  const statusText = document.getElementById('admin-dropdown-status');
+
+  // --------------------------------
+  // Load levels from Supabase
+  // --------------------------------
+
+  console.log('AET Admin: Loading levels...');
+
+  const { data: levels, error: levelError } = await supabaseClient
+    .from('levels')
+    .select('*')
+    .order('id');
+
+  if (levelError) {
+    console.error('AET Admin: Failed to load levels.', levelError);
+
+    levelSelect.innerHTML = `
+      <option value="">Failed to load levels</option>
+    `;
+
+    statusText.textContent =
+      'Could not load levels from Supabase. Check the browser console.';
+
+    return;
+  }
+
+  console.log('AET Admin: Levels loaded:', levels);
+
+  levelSelect.innerHTML = `
+    <option value="">Select a level</option>
+  `;
+
+  levels.forEach(level => {
+    const option = document.createElement('option');
+
+    option.value = level.id;
+
+    const levelName =
+      level.name ||
+      level.title ||
+      level.code ||
+      `${level.id}L`;
+
+    option.textContent = levelName;
+
+    levelSelect.appendChild(option);
+  });
+
+  // --------------------------------
+  // When level changes, load courses
+  // --------------------------------
+
+  levelSelect.addEventListener('change', async () => {
+    const selectedLevelId = levelSelect.value;
+
+    courseSelect.innerHTML = `
+      <option value="">Loading courses...</option>
+    `;
+
+    courseSelect.disabled = true;
+
+    statusText.textContent = '';
+
+    if (!selectedLevelId) {
+      courseSelect.innerHTML = `
+        <option value="">Select a level first</option>
+      `;
+
+      return;
+    }
+
+    console.log(
+      'AET Admin: Loading courses for level:',
+      selectedLevelId
+    );
+
+    const { data: courses, error: courseError } = await supabaseClient
+      .from('courses')
+      .select('*')
+      .eq('level_id', selectedLevelId)
+      .order('code');
+
+    if (courseError) {
+      console.error(
+        'AET Admin: Failed to load courses.',
+        courseError
+      );
+
+      courseSelect.innerHTML = `
+        <option value="">Failed to load courses</option>
+      `;
+
+      statusText.textContent =
+        'Could not load courses from Supabase.';
+
+      return;
+    }
+
+    console.log(
+      'AET Admin: Courses loaded:',
+      courses
+    );
+
+    courseSelect.innerHTML = `
+      <option value="">Select a course</option>
+    `;
+
+    if (!courses || courses.length === 0) {
+      courseSelect.innerHTML = `
+        <option value="">No courses found for this level</option>
+      `;
+
+      statusText.textContent =
+        'No courses are currently connected to this level.';
+
+      return;
+    }
+
+    courses.forEach(course => {
+      const option = document.createElement('option');
+
+      option.value = course.id;
+
+      option.textContent =
+        `${course.code} – ${course.title}`;
+
+      courseSelect.appendChild(option);
+    });
+
+    courseSelect.disabled = false;
+
+    statusText.textContent =
+      `${courses.length} course${courses.length === 1 ? '' : 's'} loaded.`;
+  });
+
+  // --------------------------------
+  // Course selection
+  // --------------------------------
+
+  courseSelect.addEventListener('change', () => {
+    const selectedCourseId = courseSelect.value;
+
+    if (!selectedCourseId) return;
+
+    console.log(
+      'AET Admin: Selected course:',
+      selectedCourseId
+    );
+  });
+}
+
+// Start the admin dropdown system
+initAdminDropdowns();
+    
   </script>
 </body>
 </html>
