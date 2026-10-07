@@ -1409,85 +1409,125 @@
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
     async function loadSupabaseCatalog() {
-      try {
-        // Fetch MTH101 course details
-        const { data: courseData, error: courseError } = await supabaseClient
-          .from('courses')
-          .select('*')
-          .eq('code', 'MTH101')
-          .single();
+  console.log('Supabase: Loading MTH101...');
 
-        if (courseError) throw courseError;
-        if (!courseData) return; // If course isn't there, rely on hardcoded fallback
+  try {
+    // Fetch MTH101 course details
+    const { data: courseData, error: courseError } = await supabaseClient
+      .from('courses')
+      .select('*')
+      .eq('code', 'MTH101')
+      .single();
 
-        // Fetch resources for MTH101
-        const { data: resourceData, error: resourceError } = await supabaseClient
-          .from('resources')
-          .select('*')
-          .eq('course_id', courseData.id);
+    if (courseError) {
+      console.error('Supabase Error: Failed to fetch MTH101 course.', {
+        error: courseError,
+        code: courseError.code,
+        message: courseError.message,
+        details: courseError.details,
+        hint: courseError.hint
+      });
 
-        if (resourceError) throw resourceError;
+      throw courseError;
+    }
 
-        // Construct standard mapped format expected by the UI
-        const mappedCourse = {
-          code: courseData.code,
-          title: courseData.title,
-          materials: [],
-          past: [],
-          quiz: null
+    if (!courseData) {
+      console.warn('Supabase: MTH101 course not found in database.');
+      throw new Error('Course data empty');
+    }
+
+    console.log('Supabase: MTH101 course found.');
+    console.log('Supabase: Loading MTH101 resources...');
+
+    // Fetch resources for MTH101
+    const { data: resourceData, error: resourceError } = await supabaseClient
+      .from('resources')
+      .select('*')
+      .eq('course_id', courseData.id);
+
+    if (resourceError) {
+      console.error('Supabase Error: Failed to fetch MTH101 resources.', {
+        error: resourceError,
+        code: resourceError.code,
+        message: resourceError.message,
+        details: resourceError.details,
+        hint: resourceError.hint
+      });
+
+      throw resourceError;
+    }
+
+    console.log('Supabase: MTH101 resources loaded.');
+
+    // Construct standard mapped format expected by the UI
+    const mappedCourse = {
+      code: courseData.code,
+      title: courseData.title,
+      materials: [],
+      past: [],
+      quiz: null
+    };
+
+    if (resourceData) {
+      resourceData.forEach(res => {
+        let fileUrl = '';
+
+        if (res.file_path) {
+          const { data } = supabaseClient.storage
+            .from('academic-resources')
+            .getPublicUrl(res.file_path);
+
+          fileUrl = data.publicUrl;
+        }
+
+        const mappedRes = {
+          title: res.title,
+          detail: res.description || 'PDF · Resource',
+          type: 'pdf',
+          fileUrl: fileUrl
         };
 
-        if (resourceData) {
-          resourceData.forEach(res => {
-            let fileUrl = '';
-            
-            // Build public storage URL if file_path exists
-            if (res.file_path) {
-              const { data } = supabaseClient.storage
-                .from('academic-resources')
-                .getPublicUrl(res.file_path);
-              fileUrl = data.publicUrl;
-            }
-
-            const mappedRes = {
-              title: res.title,
-              detail: res.description || 'PDF · Resource',
-              type: 'pdf',
-              fileUrl: fileUrl
-            };
-
-            if (res.type === 'study_material') {
-              mappedCourse.materials.push(mappedRes);
-            } else if (res.type === 'past_question') {
-              mappedCourse.past.push(mappedRes);
-            }
-          });
+        if (res.type === 'study_material') {
+          mappedCourse.materials.push(mappedRes);
+        } else if (res.type === 'past_question') {
+          mappedCourse.past.push(mappedRes);
         }
-
-        // Determine Level fallback using the schema's level_id
-        const level = courseData.level_id;
-        
-        if (!catalog[level]) catalog[level] = [];
-        
-        // Inject MTH101 into the catalog, replacing it if it already exists
-        const existingIndex = catalog[level].findIndex(c => c.code === 'MTH101');
-        if (existingIndex >= 0) {
-          catalog[level][existingIndex] = mappedCourse;
-        } else {
-          catalog[level].push(mappedCourse);
-        }
-
-        console.log('Supabase MTH101:', {
-          level: courseData.level_id,
-          code: courseData.code,
-          title: courseData.title,
-          resources: resourceData?.length || 0
-        });
-
-      } catch (error) {
-        console.error('Supabase Setup Error: Falling back fully to the hardcoded catalog.', error.message);
-      }
+      });
     }
+
+    // Determine Level using the existing schema
+    const level = courseData.level_id;
+
+    if (!catalog[level]) catalog[level] = [];
+
+    // Inject MTH101 into the catalog
+    const existingIndex = catalog[level].findIndex(
+      c => c.code === 'MTH101'
+    );
+
+    if (existingIndex >= 0) {
+      catalog[level][existingIndex] = mappedCourse;
+    } else {
+      catalog[level].push(mappedCourse);
+    }
+
+    console.log('Supabase: MTH101 successfully injected into catalog.');
+
+    console.log('Supabase SUCCESS: MTH101 loaded from database', {
+      level: courseData.level_id,
+      code: courseData.code,
+      title: courseData.title,
+      materialsCount: mappedCourse.materials.length,
+      pastQuestionsCount: mappedCourse.past.length
+    });
+
+  } catch (error) {
+    console.error(
+      'Supabase FALLBACK: Using hardcoded MTH101 because Supabase failed.',
+      error
+    );
+  }
+}
     // SUPABASE INTEGRATION END
 
     const app = document.getElementById('app-view');
