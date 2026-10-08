@@ -2352,15 +2352,895 @@ async function initAdminPanel() {
     await supabaseClient.auth.getSession();
 
   if (session) {
-    showAdminUploadForm();
-  } else {
-    showAdminLogin();
-  }
+  await showAdminUploadForm();
+  await showAdminCourseManagement();
+} else {
+  showAdminLogin();
+}
 
   // --------------------------------
   // LOGIN FORM
   // --------------------------------
 
+  async function showAdminCourseManagement() {
+
+  // ==========================================
+  // COURSE MANAGEMENT SECTION
+  // ==========================================
+
+  const coursePanel = document.createElement('section');
+
+  coursePanel.id = 'aet-admin-course-management';
+
+  coursePanel.style.cssText = `
+    margin-top:30px;
+    padding-top:30px;
+    border-top:1px solid #e5e7eb;
+  `;
+
+  coursePanel.innerHTML = `
+    <h3 style="margin-top:0;">
+      Course Management
+    </h3>
+
+    <p style="
+      color:#666;
+      font-size:14px;
+      margin-bottom:20px;
+    ">
+      Add, edit, and manage courses without editing the website code.
+    </p>
+
+    <!-- LEVEL -->
+
+    <label style="
+      display:block;
+      margin-top:15px;
+      font-weight:600;
+    ">
+      Level
+    </label>
+
+    <select
+      id="admin-course-level"
+      style="
+        width:100%;
+        padding:12px;
+        margin-top:8px;
+        border:1px solid #ccc;
+        border-radius:8px;
+        font-size:15px;
+      "
+    >
+      <option value="">
+        Loading levels...
+      </option>
+    </select>
+
+    <!-- COURSE CODE -->
+
+    <label style="
+      display:block;
+      margin-top:20px;
+      font-weight:600;
+    ">
+      Course Code
+    </label>
+
+    <input
+      id="admin-course-code"
+      type="text"
+      placeholder="e.g. MTH101"
+      style="
+        width:100%;
+        box-sizing:border-box;
+        padding:12px;
+        margin-top:8px;
+        border:1px solid #ccc;
+        border-radius:8px;
+        font-size:15px;
+        text-transform:uppercase;
+      "
+    >
+
+    <!-- COURSE TITLE -->
+
+    <label style="
+      display:block;
+      margin-top:20px;
+      font-weight:600;
+    ">
+      Course Title
+    </label>
+
+    <input
+      id="admin-course-title"
+      type="text"
+      placeholder="e.g. General Mathematics"
+      style="
+        width:100%;
+        box-sizing:border-box;
+        padding:12px;
+        margin-top:8px;
+        border:1px solid #ccc;
+        border-radius:8px;
+        font-size:15px;
+      "
+    >
+
+    <div style="
+      display:flex;
+      gap:10px;
+      margin-top:20px;
+    ">
+
+      <button
+        id="admin-save-course-button"
+        style="
+          flex:1;
+          padding:13px;
+          border:none;
+          border-radius:8px;
+          background:#111827;
+          color:white;
+          font-size:15px;
+          font-weight:600;
+          cursor:pointer;
+        "
+      >
+        Add Course
+      </button>
+
+      <button
+        id="admin-cancel-course-button"
+        style="
+          display:none;
+          padding:13px 16px;
+          border:1px solid #ccc;
+          border-radius:8px;
+          background:white;
+          color:#333;
+          font-size:15px;
+          font-weight:600;
+          cursor:pointer;
+        "
+      >
+        Cancel
+      </button>
+
+    </div>
+
+    <p
+      id="admin-course-status"
+      style="
+        margin-top:15px;
+        font-size:14px;
+      "
+    ></p>
+
+    <hr style="
+      margin:30px 0;
+      border:none;
+      border-top:1px solid #e5e7eb;
+    ">
+
+    <h4 style="margin:0;">
+      Existing Courses
+    </h4>
+
+    <div
+      id="admin-course-list"
+      style="margin-top:15px;"
+    >
+      <p style="color:#888;">
+        Loading courses...
+      </p>
+    </div>
+  `;
+
+  adminPanel.appendChild(coursePanel);
+
+
+  // ==========================================
+  // GET ELEMENTS
+  // ==========================================
+
+  const levelSelect =
+    document.getElementById('admin-course-level');
+
+  const codeInput =
+    document.getElementById('admin-course-code');
+
+  const titleInput =
+    document.getElementById('admin-course-title');
+
+  const saveButton =
+    document.getElementById('admin-save-course-button');
+
+  const cancelButton =
+    document.getElementById('admin-cancel-course-button');
+
+  const statusText =
+    document.getElementById('admin-course-status');
+
+  const courseList =
+    document.getElementById('admin-course-list');
+
+
+  let editingCourseId = null;
+
+
+  // ==========================================
+  // LOAD LEVELS
+  // ==========================================
+
+  async function loadCourseLevels() {
+
+    const {
+      data: levels,
+      error
+    } = await supabaseClient
+      .from('levels')
+      .select('*')
+      .order('id');
+
+    if (error) {
+
+      console.error(
+        'AET Admin: Failed to load course levels.',
+        error
+      );
+
+      levelSelect.innerHTML = `
+        <option value="">
+          Failed to load levels
+        </option>
+      `;
+
+      return;
+    }
+
+    levelSelect.innerHTML = `
+      <option value="">
+        Select a level
+      </option>
+    `;
+
+    (levels || []).forEach(level => {
+
+      const option =
+        document.createElement('option');
+
+      option.value = level.id;
+
+      option.textContent =
+        level.name ||
+        level.title ||
+        level.code ||
+        `${level.id} Level`;
+
+      levelSelect.appendChild(option);
+    });
+  }
+
+
+  // ==========================================
+  // LOAD COURSES
+  // ==========================================
+
+  async function loadCourses() {
+
+    courseList.innerHTML = `
+      <p style="color:#888;">
+        Loading courses...
+      </p>
+    `;
+
+    const {
+      data: levels,
+      error: levelError
+    } = await supabaseClient
+      .from('levels')
+      .select('*')
+      .order('id');
+
+    if (levelError) {
+
+      courseList.innerHTML = `
+        <p style="color:#b91c1c;">
+          Failed to load levels.
+        </p>
+      `;
+
+      return;
+    }
+
+    const levelMap = {};
+
+    (levels || []).forEach(level => {
+
+      levelMap[String(level.id)] =
+        level.name ||
+        level.title ||
+        level.code ||
+        `${level.id} Level`;
+    });
+
+
+    const {
+      data: courses,
+      error: courseError
+    } = await supabaseClient
+      .from('courses')
+      .select('*')
+      .order('code');
+
+    if (courseError) {
+
+      console.error(
+        'AET Admin: Failed to load courses.',
+        courseError
+      );
+
+      courseList.innerHTML = `
+        <p style="color:#b91c1c;">
+          Failed to load courses.
+        </p>
+      `;
+
+      return;
+    }
+
+
+    if (!courses || courses.length === 0) {
+
+      courseList.innerHTML = `
+        <div style="
+          padding:15px;
+          background:#f9fafb;
+          border-radius:10px;
+          color:#666;
+        ">
+          No courses have been added yet.
+        </div>
+      `;
+
+      return;
+    }
+
+
+    courseList.innerHTML = '';
+
+
+    courses.forEach(course => {
+
+      const item =
+        document.createElement('div');
+
+      item.style.cssText = `
+        padding:15px;
+        margin-bottom:10px;
+        border:1px solid #e5e7eb;
+        border-radius:10px;
+        background:#f9fafb;
+      `;
+
+
+      const levelName =
+        levelMap[String(course.level_id)] ||
+        'Unknown Level';
+
+
+      item.innerHTML = `
+        <div>
+          <strong style="font-size:15px;">
+            ${escapeHtml(course.code || '')}
+          </strong>
+
+          <div style="
+            margin-top:4px;
+            color:#444;
+          ">
+            ${escapeHtml(course.title || '')}
+          </div>
+
+          <div style="
+            margin-top:5px;
+            color:#888;
+            font-size:13px;
+          ">
+            ${escapeHtml(levelName)}
+          </div>
+        </div>
+
+        <div style="
+          display:flex;
+          gap:8px;
+          margin-top:12px;
+        ">
+
+          <button
+            class="admin-edit-course"
+            style="
+              padding:8px 12px;
+              border:1px solid #ccc;
+              border-radius:7px;
+              background:white;
+              cursor:pointer;
+              font-weight:600;
+            "
+          >
+            Edit
+          </button>
+
+          <button
+            class="admin-delete-course"
+            style="
+              padding:8px 12px;
+              border:none;
+              border-radius:7px;
+              background:#dc2626;
+              color:white;
+              cursor:pointer;
+              font-weight:600;
+            "
+          >
+            Delete
+          </button>
+
+        </div>
+      `;
+
+
+      // ======================================
+      // EDIT COURSE
+      // ======================================
+
+      const editButton =
+        item.querySelector('.admin-edit-course');
+
+      editButton.addEventListener(
+        'click',
+        () => {
+
+          editingCourseId = course.id;
+
+          levelSelect.value =
+            course.level_id;
+
+          codeInput.value =
+            course.code || '';
+
+          titleInput.value =
+            course.title || '';
+
+          saveButton.textContent =
+            'Update Course';
+
+          cancelButton.style.display =
+            'block';
+
+          statusText.textContent =
+            `Editing ${course.code}`;
+
+          window.scrollTo({
+            top: coursePanel.offsetTop - 20,
+            behavior: 'smooth'
+          });
+        }
+      );
+
+
+      // ======================================
+      // DELETE COURSE
+      // ======================================
+
+      const deleteButton =
+        item.querySelector('.admin-delete-course');
+
+      deleteButton.addEventListener(
+        'click',
+        async () => {
+
+          const confirmed =
+            confirm(
+              `Delete "${course.code} – ${course.title}"?\n\nA course with uploaded resources cannot be deleted until those resources are removed.`
+            );
+
+          if (!confirmed) return;
+
+
+          // Check whether the course has resources
+
+          const {
+            data: resources,
+            error: resourceError
+          } = await supabaseClient
+            .from('resources')
+            .select('id')
+            .eq('course_id', course.id);
+
+
+          if (resourceError) {
+
+            console.error(
+              'AET Admin: Could not check course resources.',
+              resourceError
+            );
+
+            alert(
+              'Could not check this course resources.'
+            );
+
+            return;
+          }
+
+
+          if (resources && resources.length > 0) {
+
+            alert(
+              `This course has ${resources.length} resource(s).\n\nDelete those resources first, then delete the course.`
+            );
+
+            return;
+          }
+
+
+          deleteButton.disabled = true;
+
+          deleteButton.textContent =
+            'Deleting...';
+
+
+          const {
+            error: deleteError
+          } = await supabaseClient
+            .from('courses')
+            .delete()
+            .eq('id', course.id);
+
+
+          if (deleteError) {
+
+            console.error(
+              'AET Admin: Course deletion failed.',
+              deleteError
+            );
+
+            alert(
+              'Could not delete this course.'
+            );
+
+            deleteButton.disabled = false;
+
+            deleteButton.textContent =
+              'Delete';
+
+            return;
+          }
+
+
+          statusText.style.color =
+            '#166534';
+
+          statusText.textContent =
+            'Course deleted successfully.';
+
+
+          await loadCourses();
+        }
+      );
+
+
+      courseList.appendChild(item);
+    });
+  }
+
+
+  // ==========================================
+  // SAVE / UPDATE COURSE
+  // ==========================================
+
+  saveButton.addEventListener(
+    'click',
+    async () => {
+
+      const levelId =
+        levelSelect.value;
+
+      const code =
+        codeInput.value
+          .trim()
+          .toUpperCase();
+
+      const title =
+        titleInput.value.trim();
+
+
+      if (!levelId) {
+
+        statusText.style.color =
+          '#b91c1c';
+
+        statusText.textContent =
+          'Please select a level.';
+
+        return;
+      }
+
+
+      if (!code) {
+
+        statusText.style.color =
+          '#b91c1c';
+
+        statusText.textContent =
+          'Please enter a course code.';
+
+        return;
+      }
+
+
+      if (!title) {
+
+        statusText.style.color =
+          '#b91c1c';
+
+        statusText.textContent =
+          'Please enter a course title.';
+
+        return;
+      }
+
+
+      saveButton.disabled = true;
+
+      saveButton.textContent =
+        editingCourseId
+          ? 'Updating...'
+          : 'Adding...';
+
+
+      // ======================================
+      // CHECK FOR DUPLICATE COURSE
+      // ======================================
+
+      let duplicateQuery =
+        supabaseClient
+          .from('courses')
+          .select('id')
+          .eq('level_id', levelId)
+          .eq('code', code);
+
+      if (editingCourseId) {
+
+        duplicateQuery =
+          duplicateQuery.neq(
+            'id',
+            editingCourseId
+          );
+      }
+
+
+      const {
+        data: duplicateCourses,
+        error: duplicateError
+      } = await duplicateQuery.limit(1);
+
+
+      if (duplicateError) {
+
+        console.error(
+          'AET Admin: Duplicate check failed.',
+          duplicateError
+        );
+
+        statusText.style.color =
+          '#b91c1c';
+
+        statusText.textContent =
+          'Could not check existing courses.';
+
+        saveButton.disabled = false;
+
+        saveButton.textContent =
+          editingCourseId
+            ? 'Update Course'
+            : 'Add Course';
+
+        return;
+      }
+
+
+      if (
+        duplicateCourses &&
+        duplicateCourses.length > 0
+      ) {
+
+        statusText.style.color =
+          '#b91c1c';
+
+        statusText.textContent =
+          `${code} already exists in this level.`;
+
+        saveButton.disabled = false;
+
+        saveButton.textContent =
+          editingCourseId
+            ? 'Update Course'
+            : 'Add Course';
+
+        return;
+      }
+
+
+      // ======================================
+      // UPDATE EXISTING COURSE
+      // ======================================
+
+      if (editingCourseId) {
+
+        const {
+          error
+        } = await supabaseClient
+          .from('courses')
+          .update({
+            level_id: levelId,
+            code: code,
+            title: title
+          })
+          .eq('id', editingCourseId);
+
+
+        if (error) {
+
+          console.error(
+            'AET Admin: Course update failed.',
+            error
+          );
+
+          statusText.style.color =
+            '#b91c1c';
+
+          statusText.textContent =
+            'Could not update the course.';
+
+          saveButton.disabled = false;
+
+          saveButton.textContent =
+            'Update Course';
+
+          return;
+        }
+
+
+        statusText.style.color =
+          '#166534';
+
+        statusText.textContent =
+          'Course updated successfully.';
+
+      }
+
+
+      // ======================================
+      // ADD NEW COURSE
+      // ======================================
+
+      else {
+
+        const {
+          error
+        } = await supabaseClient
+          .from('courses')
+          .insert({
+            level_id: levelId,
+            code: code,
+            title: title
+          });
+
+
+        if (error) {
+
+          console.error(
+            'AET Admin: Course creation failed.',
+            error
+          );
+
+          statusText.style.color =
+            '#b91c1c';
+
+          statusText.textContent =
+            'Could not add the course.';
+
+          saveButton.disabled = false;
+
+          saveButton.textContent =
+            'Add Course';
+
+          return;
+        }
+
+
+        statusText.style.color =
+          '#166534';
+
+        statusText.textContent =
+          'Course added successfully.';
+      }
+
+
+      // ======================================
+      // RESET FORM
+      // ======================================
+
+      editingCourseId = null;
+
+      levelSelect.value = '';
+
+      codeInput.value = '';
+
+      titleInput.value = '';
+
+      saveButton.disabled = false;
+
+      saveButton.textContent =
+        'Add Course';
+
+      cancelButton.style.display =
+        'none';
+
+
+      await loadCourses();
+
+      // Refresh the public catalog too
+      await loadSupabaseCatalog();
+
+      if (
+        typeof renderRoute === 'function'
+      ) {
+        renderRoute();
+      }
+    }
+  );
+
+
+  // ==========================================
+  // CANCEL EDIT
+  // ==========================================
+
+  cancelButton.addEventListener(
+    'click',
+    () => {
+
+      editingCourseId = null;
+
+      levelSelect.value = '';
+
+      codeInput.value = '';
+
+      titleInput.value = '';
+
+      saveButton.textContent =
+        'Add Course';
+
+      cancelButton.style.display =
+        'none';
+
+      statusText.textContent = '';
+    }
+  );
+
+
+  // ==========================================
+  // INITIAL LOAD
+  // ==========================================
+
+  await loadCourseLevels();
+
+  await loadCourses();
+}
+  
   function showAdminLogin() {
 
     adminPanel.innerHTML = `
