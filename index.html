@@ -2335,573 +2335,877 @@ async function initAdminPanel() {
 
   async function showAdminUploadForm() {
 
-    adminPanel.innerHTML = `
-      <div style="
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        gap:15px;
-      ">
-        <div>
-          <h2 style="margin:0;">
-            AET Admin Upload
-          </h2>
+  adminPanel.innerHTML = `
+    <div style="
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:15px;
+    ">
+      <div>
+        <h2 style="margin:0;">
+          AET Admin Upload
+        </h2>
 
-          <p style="
-            margin:6px 0 0;
-            color:#666;
-          ">
-            Upload academic resources.
-          </p>
-        </div>
-
-        <button
-          id="admin-logout-button"
-          style="
-            padding:8px 12px;
-            border:1px solid #ccc;
-            background:white;
-            border-radius:8px;
-            cursor:pointer;
-          "
-        >
-          Logout
-        </button>
+        <p style="
+          margin:6px 0 0;
+          color:#666;
+        ">
+          Upload and manage academic resources.
+        </p>
       </div>
 
-      <label style="
-        display:block;
-        margin-top:25px;
-        font-weight:600;
-      ">
-        Level
-      </label>
-
-      <select
-        id="admin-level-select"
-        style="
-          width:100%;
-          padding:12px;
-          margin-top:8px;
-          border:1px solid #ccc;
-          border-radius:8px;
-          font-size:15px;
-        "
-      >
-        <option value="">
-          Loading levels...
-        </option>
-      </select>
-
-      <label style="
-        display:block;
-        margin-top:20px;
-        font-weight:600;
-      ">
-        Course
-      </label>
-
-      <select
-        id="admin-course-select"
-        disabled
-        style="
-          width:100%;
-          padding:12px;
-          margin-top:8px;
-          border:1px solid #ccc;
-          border-radius:8px;
-          font-size:15px;
-        "
-      >
-        <option value="">
-          Select a level first
-        </option>
-      </select>
-
-      <label style="
-        display:block;
-        margin-top:20px;
-        font-weight:600;
-      ">
-        Resource Type
-      </label>
-
-      <select
-        id="admin-resource-type"
-        style="
-          width:100%;
-          padding:12px;
-          margin-top:8px;
-          border:1px solid #ccc;
-          border-radius:8px;
-          font-size:15px;
-        "
-      >
-        <option value="study_material">
-          Study Material
-        </option>
-
-        <option value="past_question">
-          Past Question
-        </option>
-      </select>
-
-      <label style="
-        display:block;
-        margin-top:20px;
-        font-weight:600;
-      ">
-        Resource Title
-      </label>
-
-      <input
-        id="admin-resource-title"
-        type="text"
-        placeholder="e.g. MTH101 Unit 2"
-        style="
-          width:100%;
-          box-sizing:border-box;
-          padding:12px;
-          margin-top:8px;
-          border:1px solid #ccc;
-          border-radius:8px;
-          font-size:15px;
-        "
-      >
-
-      <label style="
-        display:block;
-        margin-top:20px;
-        font-weight:600;
-      ">
-        PDF File
-      </label>
-
-      <input
-        id="admin-resource-file"
-        type="file"
-        accept="application/pdf,.pdf"
-        style="
-          width:100%;
-          margin-top:8px;
-          padding:10px 0;
-        "
-      >
-
       <button
-        id="admin-upload-button"
+        id="admin-logout-button"
         style="
-          width:100%;
-          margin-top:20px;
-          padding:13px;
-          border:none;
+          padding:8px 12px;
+          border:1px solid #ccc;
+          background:white;
           border-radius:8px;
-          background:#111827;
-          color:white;
-          font-size:15px;
-          font-weight:600;
           cursor:pointer;
         "
       >
-        Upload Resource
+        Logout
       </button>
+    </div>
 
-      <p
-        id="admin-upload-status"
-        style="
-          margin-top:15px;
-          font-size:14px;
-        "
-      ></p>
+    <!-- ========================= -->
+    <!-- UPLOAD SECTION -->
+    <!-- ========================= -->
+
+    <h3 style="margin-top:30px;">
+      Upload Resource
+    </h3>
+
+    <label style="
+      display:block;
+      margin-top:20px;
+      font-weight:600;
+    ">
+      Level
+    </label>
+
+    <select
+      id="admin-level-select"
+      style="
+        width:100%;
+        padding:12px;
+        margin-top:8px;
+        border:1px solid #ccc;
+        border-radius:8px;
+        font-size:15px;
+      "
+    >
+      <option value="">
+        Loading levels...
+      </option>
+    </select>
+
+    <label style="
+      display:block;
+      margin-top:20px;
+      font-weight:600;
+    ">
+      Course
+    </label>
+
+    <select
+      id="admin-course-select"
+      disabled
+      style="
+        width:100%;
+        padding:12px;
+        margin-top:8px;
+        border:1px solid #ccc;
+        border-radius:8px;
+        font-size:15px;
+      "
+    >
+      <option value="">
+        Select a level first
+      </option>
+    </select>
+
+    <label style="
+      display:block;
+      margin-top:20px;
+      font-weight:600;
+    ">
+      Resource Type
+    </label>
+
+    <select
+      id="admin-resource-type"
+      style="
+        width:100%;
+        padding:12px;
+        margin-top:8px;
+        border:1px solid #ccc;
+        border-radius:8px;
+        font-size:15px;
+      "
+    >
+      <option value="study_material">
+        Study Material
+      </option>
+
+      <option value="past_question">
+        Past Question
+      </option>
+    </select>
+
+    <label style="
+      display:block;
+      margin-top:20px;
+      font-weight:600;
+    ">
+      Resource Title
+    </label>
+
+    <input
+      id="admin-resource-title"
+      type="text"
+      placeholder="e.g. MTH101 Unit 2"
+      style="
+        width:100%;
+        box-sizing:border-box;
+        padding:12px;
+        margin-top:8px;
+        border:1px solid #ccc;
+        border-radius:8px;
+        font-size:15px;
+      "
+    >
+
+    <label style="
+      display:block;
+      margin-top:20px;
+      font-weight:600;
+    ">
+      PDF File
+    </label>
+
+    <input
+      id="admin-resource-file"
+      type="file"
+      accept="application/pdf,.pdf"
+      style="
+        width:100%;
+        margin-top:8px;
+        padding:10px 0;
+      "
+    >
+
+    <button
+      id="admin-upload-button"
+      style="
+        width:100%;
+        margin-top:20px;
+        padding:13px;
+        border:none;
+        border-radius:8px;
+        background:#111827;
+        color:white;
+        font-size:15px;
+        font-weight:600;
+        cursor:pointer;
+      "
+    >
+      Upload Resource
+    </button>
+
+    <p
+      id="admin-upload-status"
+      style="
+        margin-top:15px;
+        font-size:14px;
+      "
+    ></p>
+
+    <!-- ========================= -->
+    <!-- EXISTING RESOURCES -->
+    <!-- ========================= -->
+
+    <hr style="
+      margin:35px 0;
+      border:none;
+      border-top:1px solid #e5e7eb;
+    ">
+
+    <h3 style="margin-top:0;">
+      Existing Resources
+    </h3>
+
+    <p style="
+      color:#666;
+      font-size:14px;
+    ">
+      Select a course above to view and manage its resources.
+    </p>
+
+    <div
+      id="admin-resource-list"
+      style="margin-top:15px;"
+    >
+      <p style="color:#888;">
+        Select a course to load resources.
+      </p>
+    </div>
+  `;
+
+  const levelSelect =
+    document.getElementById('admin-level-select');
+
+  const courseSelect =
+    document.getElementById('admin-course-select');
+
+  const uploadButton =
+    document.getElementById('admin-upload-button');
+
+  const statusText =
+    document.getElementById('admin-upload-status');
+
+  const logoutButton =
+    document.getElementById('admin-logout-button');
+
+  const resourceList =
+    document.getElementById('admin-resource-list');
+
+
+  // ==========================================
+  // LOGOUT
+  // ==========================================
+
+  logoutButton.addEventListener('click', async () => {
+
+    await supabaseClient.auth.signOut();
+
+    showAdminLogin();
+  });
+
+
+  // ==========================================
+  // LOAD LEVELS
+  // ==========================================
+
+  console.log(
+    'AET Admin: Loading levels...'
+  );
+
+  const {
+    data: levels,
+    error: levelError
+  } = await supabaseClient
+    .from('levels')
+    .select('*')
+    .order('id');
+
+  if (levelError) {
+
+    console.error(
+      'AET Admin: Failed to load levels.',
+      levelError
+    );
+
+    levelSelect.innerHTML = `
+      <option value="">
+        Failed to load levels
+      </option>
     `;
 
-    const levelSelect =
-      document.getElementById('admin-level-select');
+    return;
+  }
 
-    const courseSelect =
-      document.getElementById('admin-course-select');
+  levelSelect.innerHTML = `
+    <option value="">
+      Select a level
+    </option>
+  `;
 
-    const uploadButton =
-      document.getElementById('admin-upload-button');
+  levels.forEach(level => {
 
-    const statusText =
-      document.getElementById('admin-upload-status');
+    const option =
+      document.createElement('option');
 
-    const logoutButton =
-      document.getElementById('admin-logout-button');
+    option.value = level.id;
 
-    // --------------------------------
-    // LOGOUT
-    // --------------------------------
+    option.textContent =
+      level.name ||
+      level.title ||
+      level.code ||
+      `${level.id}L`;
 
-    logoutButton.addEventListener('click', async () => {
+    levelSelect.appendChild(option);
+  });
 
-      await supabaseClient.auth.signOut();
 
-      showAdminLogin();
-    });
+  // ==========================================
+  // LOAD COURSES WHEN LEVEL CHANGES
+  // ==========================================
 
-    // --------------------------------
-    // LOAD LEVELS
-    // --------------------------------
+  levelSelect.addEventListener(
+    'change',
+    async () => {
+
+      const selectedLevelId =
+        levelSelect.value;
+
+      courseSelect.innerHTML = `
+        <option value="">
+          Loading courses...
+        </option>
+      `;
+
+      courseSelect.disabled = true;
+
+      resourceList.innerHTML = `
+        <p style="color:#888;">
+          Select a course to view resources.
+        </p>
+      `;
+
+      if (!selectedLevelId) {
+
+        courseSelect.innerHTML = `
+          <option value="">
+            Select a level first
+          </option>
+        `;
+
+        return;
+      }
+
+      const {
+        data: courses,
+        error: courseError
+      } = await supabaseClient
+        .from('courses')
+        .select('*')
+        .eq('level_id', selectedLevelId)
+        .order('code');
+
+      if (courseError) {
+
+        console.error(
+          'AET Admin: Failed to load courses.',
+          courseError
+        );
+
+        courseSelect.innerHTML = `
+          <option value="">
+            Failed to load courses
+          </option>
+        `;
+
+        return;
+      }
+
+      courseSelect.innerHTML = `
+        <option value="">
+          Select a course
+        </option>
+      `;
+
+      courses.forEach(course => {
+
+        const option =
+          document.createElement('option');
+
+        option.value = course.id;
+
+        option.dataset.code =
+          course.code;
+
+        option.textContent =
+          `${course.code} – ${course.title}`;
+
+        courseSelect.appendChild(option);
+      });
+
+      courseSelect.disabled = false;
+    }
+  );
+
+
+  // ==========================================
+  // LOAD RESOURCES WHEN COURSE CHANGES
+  // ==========================================
+
+  courseSelect.addEventListener(
+    'change',
+    async () => {
+
+      const courseId =
+        courseSelect.value;
+
+      if (!courseId) {
+
+        resourceList.innerHTML = `
+          <p style="color:#888;">
+            Select a course to view resources.
+          </p>
+        `;
+
+        return;
+      }
+
+      await loadAdminResources(courseId);
+    }
+  );
+
+
+  // ==========================================
+  // LOAD EXISTING RESOURCES
+  // ==========================================
+
+  async function loadAdminResources(courseId) {
+
+    resourceList.innerHTML = `
+      <p style="color:#888;">
+        Loading resources...
+      </p>
+    `;
 
     console.log(
-      'AET Admin: Loading levels...'
+      'AET Admin: Loading resources for course:',
+      courseId
     );
 
     const {
-      data: levels,
-      error: levelError
+      data: resources,
+      error
     } = await supabaseClient
-      .from('levels')
+      .from('resources')
       .select('*')
-      .order('id');
+      .eq('course_id', courseId)
+      .order('created_at', {
+        ascending: false
+      });
 
-    if (levelError) {
+    if (error) {
 
       console.error(
-        'AET Admin: Failed to load levels.',
-        levelError
+        'AET Admin: Failed to load resources.',
+        error
       );
 
-      levelSelect.innerHTML = `
-        <option value="">
-          Failed to load levels
-        </option>
+      resourceList.innerHTML = `
+        <p style="color:#b91c1c;">
+          Failed to load resources.
+        </p>
       `;
 
       return;
     }
 
-    levelSelect.innerHTML = `
-      <option value="">
-        Select a level
-      </option>
-    `;
+    if (!resources || resources.length === 0) {
 
-    levels.forEach(level => {
+      resourceList.innerHTML = `
+        <div style="
+          padding:15px;
+          background:#f9fafb;
+          border-radius:10px;
+          color:#666;
+        ">
+          No resources uploaded for this course yet.
+        </div>
+      `;
 
-      const option =
-        document.createElement('option');
+      return;
+    }
 
-      option.value = level.id;
+    resourceList.innerHTML = '';
 
-      option.textContent =
-        level.name ||
-        level.title ||
-        level.code ||
-        `${level.id}L`;
+    resources.forEach(resource => {
 
-      levelSelect.appendChild(option);
-    });
+      const item =
+        document.createElement('div');
 
-    // --------------------------------
-    // LOAD COURSES WHEN LEVEL CHANGES
-    // --------------------------------
+      item.style.cssText = `
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        gap:15px;
+        padding:15px;
+        margin-bottom:10px;
+        border:1px solid #e5e7eb;
+        border-radius:10px;
+        background:#f9fafb;
+      `;
 
-    levelSelect.addEventListener(
-      'change',
-      async () => {
+      const info =
+        document.createElement('div');
 
-        const selectedLevelId =
-          levelSelect.value;
+      info.style.flex = '1';
 
-        courseSelect.innerHTML = `
-          <option value="">
-            Loading courses...
-          </option>
-        `;
+      const typeLabel =
+        resource.type === 'past_question'
+          ? 'Past Question'
+          : 'Study Material';
 
-        courseSelect.disabled = true;
+      info.innerHTML = `
+        <strong>
+          ${escapeHtml(resource.title)}
+        </strong>
 
-        if (!selectedLevelId) {
+        <div style="
+          margin-top:5px;
+          color:#666;
+          font-size:13px;
+        ">
+          ${typeLabel}
+        </div>
+      `;
 
-          courseSelect.innerHTML = `
-            <option value="">
-              Select a level first
-            </option>
-          `;
+      const deleteButton =
+        document.createElement('button');
 
-          return;
-        }
+      deleteButton.textContent = 'Delete';
 
-        const {
-          data: courses,
-          error: courseError
-        } = await supabaseClient
-          .from('courses')
-          .select('*')
-          .eq('level_id', selectedLevelId)
-          .order('code');
+      deleteButton.style.cssText = `
+        padding:8px 12px;
+        border:none;
+        border-radius:7px;
+        background:#dc2626;
+        color:white;
+        cursor:pointer;
+        font-weight:600;
+      `;
 
-        if (courseError) {
+      deleteButton.addEventListener(
+        'click',
+        async () => {
 
-          console.error(
-            'AET Admin: Failed to load courses.',
-            courseError
+          const confirmed =
+            confirm(
+              `Delete "${resource.title}"?\n\nThis will permanently remove the PDF from the website.`
+            );
+
+          if (!confirmed) return;
+
+          deleteButton.disabled = true;
+          deleteButton.textContent =
+            'Deleting...';
+
+          console.log(
+            'AET Admin: Deleting resource:',
+            resource
           );
 
-          courseSelect.innerHTML = `
-            <option value="">
-              Failed to load courses
-            </option>
-          `;
+          // ------------------------------
+          // DELETE STORAGE FILE
+          // ------------------------------
 
-          return;
-        }
+          if (resource.file_path) {
 
-        courseSelect.innerHTML = `
-          <option value="">
-            Select a course
-          </option>
-        `;
+            const {
+              error: storageError
+            } = await supabaseClient
+              .storage
+              .from('academic-resources')
+              .remove([
+                resource.file_path
+              ]);
 
-        courses.forEach(course => {
+            if (storageError) {
 
-          const option =
-            document.createElement('option');
+              console.error(
+                'AET Admin: Storage deletion failed.',
+                storageError
+              );
 
-          option.value = course.id;
+              alert(
+                'Could not delete the PDF file.\n\nThe database record was NOT deleted.'
+              );
 
-          option.dataset.code =
-            course.code;
+              deleteButton.disabled = false;
+              deleteButton.textContent =
+                'Delete';
 
-          option.textContent =
-            `${course.code} – ${course.title}`;
-
-          courseSelect.appendChild(option);
-        });
-
-        courseSelect.disabled = false;
-      }
-    );
-
-    // --------------------------------
-    // UPLOAD RESOURCE
-    // --------------------------------
-
-    uploadButton.addEventListener(
-      'click',
-      async () => {
-
-        const selectedLevel =
-          levelSelect.options[
-            levelSelect.selectedIndex
-          ];
-
-        const selectedCourse =
-          courseSelect.options[
-            courseSelect.selectedIndex
-          ];
-
-        const resourceType =
-          document.getElementById(
-            'admin-resource-type'
-          ).value;
-
-        const title =
-          document.getElementById(
-            'admin-resource-title'
-          ).value.trim();
-
-        const file =
-          document.getElementById(
-            'admin-resource-file'
-          ).files[0];
-
-        if (
-          !levelSelect.value ||
-          !courseSelect.value ||
-          !title ||
-          !file
-        ) {
-
-          statusText.textContent =
-            'Please fill all fields and select a PDF.';
-
-          statusText.style.color =
-            '#b91c1c';
-
-          return;
-        }
-
-        if (
-          file.type !== 'application/pdf' &&
-          !file.name.toLowerCase().endsWith('.pdf')
-        ) {
-
-          statusText.textContent =
-            'Only PDF files are allowed.';
-
-          statusText.style.color =
-            '#b91c1c';
-
-          return;
-        }
-
-        // Standard uploads are best kept small.
-        // We will add resumable uploads later
-        // for larger PDFs.
-        if (file.size > 6 * 1024 * 1024) {
-
-          statusText.textContent =
-            'This PDF is larger than 6MB. We will add large-file upload support later.';
-
-          statusText.style.color =
-            '#b91c1c';
-
-          return;
-        }
-
-        const levelName =
-          selectedLevel.textContent.trim();
-
-        const courseCode =
-          selectedCourse.dataset.code;
-
-        // Clean filename
-        const safeFileName =
-          file.name
-            .replace(/\s+/g, ' ')
-            .replace(/[^\w.\- ]/g, '')
-            .trim();
-
-        const filePath =
-          `${levelName}/${courseCode}/${safeFileName}`;
-
-        uploadButton.disabled = true;
-        uploadButton.textContent =
-          'Uploading...';
-
-        statusText.textContent =
-          'Uploading PDF...';
-
-        statusText.style.color =
-          '#666';
-
-        console.log(
-          'AET Admin: Uploading:',
-          filePath
-        );
-
-        // --------------------------------
-        // UPLOAD PDF TO STORAGE
-        // --------------------------------
-
-        const {
-          data: uploadData,
-          error: uploadError
-        } = await supabaseClient
-          .storage
-          .from('academic-resources')
-          .upload(
-            filePath,
-            file,
-            {
-              contentType: 'application/pdf',
-              upsert: false
+              return;
             }
+          }
+
+          // ------------------------------
+          // DELETE DATABASE RECORD
+          // ------------------------------
+
+          const {
+            error: databaseError
+          } = await supabaseClient
+            .from('resources')
+            .delete()
+            .eq('id', resource.id);
+
+          if (databaseError) {
+
+            console.error(
+              'AET Admin: Database deletion failed.',
+              databaseError
+            );
+
+            alert(
+              'The PDF was removed, but the database record could not be deleted. We need to clean up this record.'
+            );
+
+            deleteButton.disabled = false;
+            deleteButton.textContent =
+              'Delete';
+
+            return;
+          }
+
+          console.log(
+            'AET Admin: Resource deleted successfully.'
           );
 
-        if (uploadError) {
-
-          console.error(
-            'AET Admin: Storage upload failed.',
-            uploadError
-          );
-
-          statusText.textContent =
-            'Upload failed: ' +
-            uploadError.message;
-
-          statusText.style.color =
-            '#b91c1c';
-
-          uploadButton.disabled = false;
-          uploadButton.textContent =
-            'Upload Resource';
-
-          return;
+          await loadAdminResources(courseId);
         }
+      );
 
-        console.log(
-          'AET Admin: PDF uploaded.',
-          uploadData
-        );
+      item.appendChild(info);
+      item.appendChild(deleteButton);
 
-        // --------------------------------
-        // CREATE RESOURCE DATABASE ROW
-        // --------------------------------
+      resourceList.appendChild(item);
+    });
+  }
 
-        const {
-          error: resourceError
-        } = await supabaseClient
-          .from('resources')
-          .insert({
-            course_id: courseSelect.value,
-            title: title,
-            type: resourceType,
-            file_path: filePath,
-            description:
-              `${title} - ${courseCode}`,
-            published: true
-          });
 
-        if (resourceError) {
+  // ==========================================
+  // UPLOAD RESOURCE
+  // ==========================================
 
-          console.error(
-            'AET Admin: Resource record failed.',
-            resourceError
-          );
+  uploadButton.addEventListener(
+    'click',
+    async () => {
 
-          // Remove uploaded file so we don't
-          // leave an orphaned Storage object.
-          await supabaseClient
-            .storage
-            .from('academic-resources')
-            .remove([filePath]);
+      const selectedLevel =
+        levelSelect.options[
+          levelSelect.selectedIndex
+        ];
 
-          statusText.textContent =
-            'PDF uploaded, but database record failed. The file was removed.';
+      const selectedCourse =
+        courseSelect.options[
+          courseSelect.selectedIndex
+        ];
 
-          statusText.style.color =
-            '#b91c1c';
+      const resourceType =
+        document.getElementById(
+          'admin-resource-type'
+        ).value;
 
-          uploadButton.disabled = false;
-          uploadButton.textContent =
-            'Upload Resource';
-
-          return;
-        }
-
-        console.log(
-          'AET Admin: Resource successfully created.'
-        );
-
-        statusText.textContent =
-          'Resource uploaded successfully!';
-
-        statusText.style.color =
-          '#15803d';
-
+      const title =
         document.getElementById(
           'admin-resource-title'
-        ).value = '';
+        ).value.trim();
 
+      const file =
         document.getElementById(
           'admin-resource-file'
-        ).value = '';
+        ).files[0];
+
+      if (
+        !levelSelect.value ||
+        !courseSelect.value ||
+        !title ||
+        !file
+      ) {
+
+        statusText.textContent =
+          'Please fill all fields and select a PDF.';
+
+        statusText.style.color =
+          '#b91c1c';
+
+        return;
+      }
+
+      if (
+        file.type !== 'application/pdf' &&
+        !file.name.toLowerCase().endsWith('.pdf')
+      ) {
+
+        statusText.textContent =
+          'Only PDF files are allowed.';
+
+        statusText.style.color =
+          '#b91c1c';
+
+        return;
+      }
+
+      if (file.size > 6 * 1024 * 1024) {
+
+        statusText.textContent =
+          'This PDF is larger than 6MB. We will add large-file upload support later.';
+
+        statusText.style.color =
+          '#b91c1c';
+
+        return;
+      }
+
+      const levelName =
+        selectedLevel.textContent.trim();
+
+      const courseCode =
+        selectedCourse.dataset.code;
+
+      const safeFileName =
+        file.name
+          .replace(/\s+/g, ' ')
+          .replace(/[^\w.\- ]/g, '')
+          .trim();
+
+      const filePath =
+        `${levelName}/${courseCode}/${safeFileName}`;
+
+      uploadButton.disabled = true;
+      uploadButton.textContent =
+        'Uploading...';
+
+      statusText.textContent =
+        'Uploading PDF...';
+
+      statusText.style.color =
+        '#666';
+
+      console.log(
+        'AET Admin: Uploading:',
+        filePath
+      );
+
+
+      // ------------------------------
+      // UPLOAD PDF
+      // ------------------------------
+
+      const {
+        data: uploadData,
+        error: uploadError
+      } = await supabaseClient
+        .storage
+        .from('academic-resources')
+        .upload(
+          filePath,
+          file,
+          {
+            contentType: 'application/pdf',
+            upsert: false
+          }
+        );
+
+      if (uploadError) {
+
+        console.error(
+          'AET Admin: Storage upload failed.',
+          uploadError
+        );
+
+        statusText.textContent =
+          'Upload failed: ' +
+          uploadError.message;
+
+        statusText.style.color =
+          '#b91c1c';
 
         uploadButton.disabled = false;
         uploadButton.textContent =
           'Upload Resource';
+
+        return;
       }
-    );
+
+
+      // ------------------------------
+      // CREATE DATABASE RECORD
+      // ------------------------------
+
+      const {
+        error: resourceError
+      } = await supabaseClient
+        .from('resources')
+        .insert({
+          course_id: courseSelect.value,
+          title: title,
+          type: resourceType,
+          file_path: filePath,
+          description:
+            `${title} - ${courseCode}`,
+          published: true
+        });
+
+      if (resourceError) {
+
+        console.error(
+          'AET Admin: Resource record failed.',
+          resourceError
+        );
+
+        // Remove orphaned file
+        await supabaseClient
+          .storage
+          .from('academic-resources')
+          .remove([filePath]);
+
+        statusText.textContent =
+          'PDF uploaded, but database record failed. The file was removed.';
+
+        statusText.style.color =
+          '#b91c1c';
+
+        uploadButton.disabled = false;
+        uploadButton.textContent =
+          'Upload Resource';
+
+        return;
+      }
+
+
+      // ------------------------------
+      // SUCCESS
+      // ------------------------------
+
+      statusText.textContent =
+        'Resource uploaded successfully!';
+
+      statusText.style.color =
+        '#15803d';
+
+      document.getElementById(
+        'admin-resource-title'
+      ).value = '';
+
+      document.getElementById(
+        'admin-resource-file'
+      ).value = '';
+
+      uploadButton.disabled = false;
+      uploadButton.textContent =
+        'Upload Resource';
+
+      // Refresh resource list
+      await loadAdminResources(
+        courseSelect.value
+      );
+    }
+  );
+
+
+  // ==========================================
+  // SMALL HTML ESCAPE HELPER
+  // ==========================================
+
+  function escapeHtml(value) {
+
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
   }
 }
-
-// Start AET Admin
-initAdminPanel();
     
   </script>
 </body>
