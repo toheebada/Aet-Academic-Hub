@@ -1409,125 +1409,98 @@
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
     async function loadSupabaseCatalog() {
-  console.log('Supabase: Loading MTH101...');
+      try {
+        // Fetch the complete course and resource catalogs in two requests.
+        const { data: courseData, error: courseError } = await supabaseClient
+          .from('courses')
+          .select('*');
 
-  try {
-    // Fetch MTH101 course details
-    const { data: courseData, error: courseError } = await supabaseClient
-      .from('courses')
-      .select('*')
-      .eq('code', 'MTH101')
-      .single();
-
-    if (courseError) {
-      console.error('Supabase Error: Failed to fetch MTH101 course.', {
-        error: courseError,
-        code: courseError.code,
-        message: courseError.message,
-        details: courseError.details,
-        hint: courseError.hint
-      });
-
-      throw courseError;
-    }
-
-    if (!courseData) {
-      console.warn('Supabase: MTH101 course not found in database.');
-      throw new Error('Course data empty');
-    }
-
-    console.log('Supabase: MTH101 course found.');
-    console.log('Supabase: Loading MTH101 resources...');
-
-    // Fetch resources for MTH101
-    const { data: resourceData, error: resourceError } = await supabaseClient
-      .from('resources')
-      .select('*')
-      .eq('course_id', courseData.id);
-
-    if (resourceError) {
-      console.error('Supabase Error: Failed to fetch MTH101 resources.', {
-        error: resourceError,
-        code: resourceError.code,
-        message: resourceError.message,
-        details: resourceError.details,
-        hint: resourceError.hint
-      });
-
-      throw resourceError;
-    }
-
-    console.log('Supabase: MTH101 resources loaded.');
-
-    // Construct standard mapped format expected by the UI
-    const mappedCourse = {
-      code: courseData.code,
-      title: courseData.title,
-      materials: [],
-      past: [],
-      quiz: null
-    };
-
-    if (resourceData) {
-      resourceData.forEach(res => {
-        let fileUrl = '';
-
-        if (res.file_path) {
-          const { data } = supabaseClient.storage
-            .from('academic-resources')
-            .getPublicUrl(res.file_path);
-
-          fileUrl = data.publicUrl;
+        if (courseError) throw courseError;
+        if (!courseData || courseData.length === 0) {
+          console.warn('Supabase: No courses found; keeping the local catalog.');
+          return;
         }
 
-        const mappedRes = {
-          title: res.title,
-          detail: res.description || 'PDF · Resource',
-          type: 'pdf',
-          fileUrl: fileUrl
-        };
+        const { data: resourceData, error: resourceError } = await supabaseClient
+          .from('resources')
+          .select('*');
 
-        if (res.type === 'study_material') {
-          mappedCourse.materials.push(mappedRes);
-        } else if (res.type === 'past_question') {
-          mappedCourse.past.push(mappedRes);
-        }
-      });
+        if (resourceError) throw resourceError;
+
+        const resourcesByCourse = new Map();
+        (resourceData || []).forEach(res => {
+          const courseResources = resourcesByCourse.get(res.course_id) || [];
+          courseResources.push(res);
+          resourcesByCourse.set(res.course_id, courseResources);
+        });
+
+        // Build all mapped courses before changing the local catalog. If either
+        // query fails, the existing hardcoded catalog remains available.
+        const mappedCourses = courseData.map(courseDataItem => {
+          const mappedCourse = {
+            code: courseDataItem.code,
+            title: courseDataItem.title,
+            materials: [],
+            past: [],
+            quiz: null
+          };
+
+          (resourcesByCourse.get(courseDataItem.id) || []).forEach(res => {
+            let fileUrl = '';
+
+            if (res.file_path) {
+              const { data } = supabaseClient.storage
+                .from('academic-resources')
+                .getPublicUrl(res.file_path);
+              fileUrl = data.publicUrl;
+            }
+
+            const mappedResource = {
+              title: res.title,
+              detail: res.description || 'PDF · Resource',
+              type: 'pdf',
+              fileUrl
+            };
+
+            if (res.type === 'study_material') {
+              mappedCourse.materials.push(mappedResource);
+            } else if (res.type === 'past_question') {
+              mappedCourse.past.push(mappedResource);
+            }
+          });
+
+          return { courseDataItem, mappedCourse };
+        });
+
+        mappedCourses.forEach(({ courseDataItem, mappedCourse }) => {
+          const level = String(courseDataItem.level_id);
+          const levelCourses = catalog[level] || (catalog[level] = []);
+          const code = String(courseDataItem.code || '').trim().toUpperCase();
+          const existingIndex = levelCourses.findIndex(
+            course => String(course.code).trim().toUpperCase() === code
+          );
+
+          // Keep any locally available CBT content while replacing course and
+          // resource details with the database values.
+          if (existingIndex >= 0) {
+            mappedCourse.quiz = levelCourses[existingIndex].quiz || null;
+            levelCourses[existingIndex] = mappedCourse;
+          } else {
+            levelCourses.push(mappedCourse);
+          }
+        });
+
+        console.log('Supabase: Course catalog loaded.', {
+          coursesCount: mappedCourses.length,
+          resourcesCount: (resourceData || []).length
+        });
+      } catch (error) {
+        console.error(
+          'Supabase: Failed to load the catalog; keeping the hardcoded courses.',
+          error
+        );
+      }
     }
-
-    // Determine Level using the existing schema
-    const level = courseData.level_id;
-
-    if (!catalog[level]) catalog[level] = [];
-
-    // Inject MTH101 into the catalog
-    const existingIndex = catalog[level].findIndex(
-      c => c.code === 'MTH101'
-    );
-
-    if (existingIndex >= 0) {
-      catalog[level][existingIndex] = mappedCourse;
-    } else {
-      catalog[level].push(mappedCourse);
-    }
-
-    console.log('Supabase: MTH101 successfully injected into catalog.');
-
-    console.log('Supabase SUCCESS: MTH101 loaded from database', {
-      level: courseData.level_id,
-      code: courseData.code,
-      title: courseData.title,
-      materialsCount: mappedCourse.materials.length,
-      pastQuestionsCount: mappedCourse.past.length
-    });
-
-  } catch (error) {
-    console.error(
-      'Supabase FALLBACK: Using hardcoded MTH101 because Supabase failed.',
-      error
-    );
-  }
-}
     // SUPABASE INTEGRATION END
 
     const app = document.getElementById('app-view');
