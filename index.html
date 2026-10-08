@@ -1409,98 +1409,302 @@
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
     async function loadSupabaseCatalog() {
-      try {
-        // Fetch the complete course and resource catalogs in two requests.
-        const { data: courseData, error: courseError } = await supabaseClient
-          .from('courses')
-          .select('*');
+  try {
+    // -----------------------------------------
+    // LOAD LEVELS
+    // -----------------------------------------
 
-        if (courseError) throw courseError;
-        if (!courseData || courseData.length === 0) {
-          console.warn('Supabase: No courses found; keeping the local catalog.');
-          return;
+    const {
+      data: levelData,
+      error: levelError
+    } = await supabaseClient
+      .from('levels')
+      .select('*')
+      .order('id');
+
+    if (levelError) throw levelError;
+
+    if (!levelData || levelData.length === 0) {
+      console.warn(
+        'Supabase: No levels found; keeping the local catalog.'
+      );
+      return;
+    }
+
+    // -----------------------------------------
+    // HELPER: FIND 100 / 200 / 300 / 400
+    // FROM THE LEVEL RECORD
+    // -----------------------------------------
+
+    function getLevelKey(level) {
+      const possibleValues = [
+        level.name,
+        level.title,
+        level.code,
+        level.id
+      ];
+
+      for (const value of possibleValues) {
+        if (value === null || value === undefined) continue;
+
+        const match = String(value).match(
+          /(100|200|300|400)/
+        );
+
+        if (match) {
+          return match[1];
+        }
+      }
+
+      return null;
+    }
+
+    // -----------------------------------------
+    // CREATE LEVEL ID → 100/200/300/400 MAP
+    // -----------------------------------------
+
+    const levelMap = new Map();
+
+    levelData.forEach(level => {
+      const levelKey = getLevelKey(level);
+
+      if (!levelKey) {
+        console.warn(
+          'Supabase: Could not determine level number for:',
+          level
+        );
+        return;
+      }
+
+      levelMap.set(String(level.id), levelKey);
+    });
+
+    // -----------------------------------------
+    // LOAD COURSES
+    // -----------------------------------------
+
+    const {
+      data: courseData,
+      error: courseError
+    } = await supabaseClient
+      .from('courses')
+      .select('*')
+      .order('code');
+
+    if (courseError) throw courseError;
+
+    if (!courseData || courseData.length === 0) {
+      console.warn(
+        'Supabase: No courses found; keeping the local catalog.'
+      );
+      return;
+    }
+
+    // -----------------------------------------
+    // LOAD RESOURCES
+    // -----------------------------------------
+
+    const {
+      data: resourceData,
+      error: resourceError
+    } = await supabaseClient
+      .from('resources')
+      .select('*');
+
+    if (resourceError) throw resourceError;
+
+    // -----------------------------------------
+    // GROUP RESOURCES BY COURSE
+    // -----------------------------------------
+
+    const resourcesByCourse = new Map();
+
+    (resourceData || []).forEach(resource => {
+      const existing =
+        resourcesByCourse.get(resource.course_id) || [];
+
+      existing.push(resource);
+
+      resourcesByCourse.set(
+        resource.course_id,
+        existing
+      );
+    });
+
+    // -----------------------------------------
+    // BUILD DATABASE COURSES
+    // -----------------------------------------
+
+    const mappedCourses = [];
+
+    courseData.forEach(courseDataItem => {
+
+      const levelKey =
+        levelMap.get(
+          String(courseDataItem.level_id)
+        );
+
+      if (!levelKey) {
+        console.warn(
+          'Supabase: Course has no matching level:',
+          courseDataItem
+        );
+        return;
+      }
+
+      const mappedCourse = {
+        code: String(
+          courseDataItem.code || ''
+        ).trim().toUpperCase(),
+
+        title:
+          courseDataItem.title ||
+          'Untitled Course',
+
+        materials: [],
+        past: [],
+        quiz: null
+      };
+
+      // -----------------------------------------
+      // ADD RESOURCES
+      // -----------------------------------------
+
+      (
+        resourcesByCourse.get(
+          courseDataItem.id
+        ) || []
+      ).forEach(resource => {
+
+        let fileUrl = '';
+
+        if (resource.file_path) {
+
+          const { data } =
+            supabaseClient.storage
+              .from('academic-resources')
+              .getPublicUrl(
+                resource.file_path
+              );
+
+          fileUrl =
+            data?.publicUrl || '';
         }
 
-        const { data: resourceData, error: resourceError } = await supabaseClient
-          .from('resources')
-          .select('*');
+        const mappedResource = {
+          title:
+            resource.title ||
+            'Untitled Resource',
 
-        if (resourceError) throw resourceError;
+          detail:
+            resource.description ||
+            'PDF · Academic Resource',
 
-        const resourcesByCourse = new Map();
-        (resourceData || []).forEach(res => {
-          const courseResources = resourcesByCourse.get(res.course_id) || [];
-          courseResources.push(res);
-          resourcesByCourse.set(res.course_id, courseResources);
-        });
+          type: 'pdf',
 
-        // Build all mapped courses before changing the local catalog. If either
-        // query fails, the existing hardcoded catalog remains available.
-        const mappedCourses = courseData.map(courseDataItem => {
-          const mappedCourse = {
-            code: courseDataItem.code,
-            title: courseDataItem.title,
-            materials: [],
-            past: [],
-            quiz: null
-          };
+          fileUrl
+        };
 
-          (resourcesByCourse.get(courseDataItem.id) || []).forEach(res => {
-            let fileUrl = '';
-
-            if (res.file_path) {
-              const { data } = supabaseClient.storage
-                .from('academic-resources')
-                .getPublicUrl(res.file_path);
-              fileUrl = data.publicUrl;
-            }
-
-            const mappedResource = {
-              title: res.title,
-              detail: res.description || 'PDF · Resource',
-              type: 'pdf',
-              fileUrl
-            };
-
-            if (res.type === 'study_material') {
-              mappedCourse.materials.push(mappedResource);
-            } else if (res.type === 'past_question') {
-              mappedCourse.past.push(mappedResource);
-            }
-          });
-
-          return { courseDataItem, mappedCourse };
-        });
-
-        mappedCourses.forEach(({ courseDataItem, mappedCourse }) => {
-          const level = String(courseDataItem.level_id);
-          const levelCourses = catalog[level] || (catalog[level] = []);
-          const code = String(courseDataItem.code || '').trim().toUpperCase();
-          const existingIndex = levelCourses.findIndex(
-            course => String(course.code).trim().toUpperCase() === code
+        if (
+          resource.type ===
+          'study_material'
+        ) {
+          mappedCourse.materials.push(
+            mappedResource
           );
+        }
 
-          // Keep any locally available CBT content while replacing course and
-          // resource details with the database values.
-          if (existingIndex >= 0) {
-            mappedCourse.quiz = levelCourses[existingIndex].quiz || null;
-            levelCourses[existingIndex] = mappedCourse;
-          } else {
-            levelCourses.push(mappedCourse);
-          }
-        });
+        if (
+          resource.type ===
+          'past_question'
+        ) {
+          mappedCourse.past.push(
+            mappedResource
+          );
+        }
+      });
 
-        console.log('Supabase: Course catalog loaded.', {
-          coursesCount: mappedCourses.length,
-          resourcesCount: (resourceData || []).length
-        });
-      } catch (error) {
-        console.error(
-          'Supabase: Failed to load the catalog; keeping the hardcoded courses.',
-          error
+      // -----------------------------------------
+      // KEEP EXISTING CBT IF AVAILABLE
+      // -----------------------------------------
+
+      const existingCourse =
+        (catalog[levelKey] || []).find(
+          course =>
+            String(course.code)
+              .trim()
+              .toUpperCase() ===
+            mappedCourse.code
+        );
+
+      if (existingCourse) {
+        mappedCourse.quiz =
+          existingCourse.quiz || null;
+      }
+
+      // -----------------------------------------
+      // ADD TO CATALOG
+      // -----------------------------------------
+
+      const levelCourses =
+        catalog[levelKey] ||
+        (catalog[levelKey] = []);
+
+      const existingIndex =
+        levelCourses.findIndex(
+          course =>
+            String(course.code)
+              .trim()
+              .toUpperCase() ===
+            mappedCourse.code
+        );
+
+      if (existingIndex >= 0) {
+        levelCourses[existingIndex] =
+          mappedCourse;
+      } else {
+        levelCourses.push(
+          mappedCourse
         );
       }
-    }
+
+      mappedCourses.push({
+        level: levelKey,
+        course: mappedCourse
+      });
+    });
+
+    // -----------------------------------------
+    // SORT COURSES
+    // -----------------------------------------
+
+    Object.keys(catalog).forEach(level => {
+      catalog[level].sort((a, b) =>
+        a.code.localeCompare(b.code)
+      );
+    });
+
+    console.log(
+      'Supabase: Course catalog loaded successfully.',
+      {
+        levels: levelData.length,
+        courses: mappedCourses.length,
+        resources: (resourceData || []).length
+      }
+    );
+
+  } catch (error) {
+
+    console.error(
+      'Supabase: Failed to load database catalog.',
+      error
+    );
+
+    console.warn(
+      'The website will continue using the local catalog.'
+    );
+  }
+}
     // SUPABASE INTEGRATION END
 
     const app = document.getElementById('app-view');
