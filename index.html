@@ -2628,7 +2628,16 @@ async function initAdminPanel() {
   // LOAD COURSES
   // ==========================================
 
-  async function loadCourses() {
+  function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, character => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  })[character]);
+}
+    async function loadCourses() {
 
     courseList.innerHTML = `
       <p style="color:#888;">
