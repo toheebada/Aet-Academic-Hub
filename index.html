@@ -721,6 +721,42 @@
     .quiz-feedback.show { display: block; }
     .quiz-feedback.correct { background: #eef9f2; color: #16723b; border: 1px solid #cceadd; }
     .quiz-feedback.incorrect { background: #fdf3f3; color: #a33333; border: 1px solid #fadcdc; }
+    .quiz-title { font-size: 22px; color: var(--text); margin-bottom: 16px; }
+    .quiz-rules { margin: 0 0 24px 20px; display: grid; gap: 10px; color: var(--text); font-size: 15px; line-height: 1.5; }
+    .quiz-notice { margin-bottom: 20px; padding: 14px 16px; border-radius: 12px; background: #fdf3f3; color: #a33333; border: 1px solid #fadcdc; font-size: 14px; font-weight: 600; }
+    .quiz-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    .quiz-topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; font-size: 13px; font-weight: 700; color: var(--muted); }
+    .quiz-timer { font-variant-numeric: tabular-nums; font-size: 16px; color: var(--navy); background: #f4f5ff; border-radius: 999px; padding: 6px 14px; }
+    .quiz-timer.warn { color: #a33333; background: #fdf3f3; }
+    .quiz-progress { height: 6px; border-radius: 999px; background: var(--border); overflow: hidden; margin-bottom: 20px; }
+    .quiz-progress span { display: block; height: 100%; background: var(--navy); transition: width 0.2s ease; }
+    .quiz-nav-row { display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+    .quiz-nav-row .rp-btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+    .quiz-clear { background: none; border: none; color: var(--muted); font-size: 13px; text-decoration: underline; cursor: pointer; margin-top: 12px; padding: 0; font-family: inherit; }
+    .quiz-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(40px, 1fr)); gap: 8px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border); }
+    .quiz-grid button { border: 1px solid var(--border); background: white; border-radius: 8px; padding: 8px 0; font-size: 13px; font-weight: 700; color: var(--muted); cursor: pointer; font-family: inherit; }
+    .quiz-grid button.answered { background: #f4f5ff; color: var(--navy); border-color: var(--navy); }
+    .quiz-grid button.current { background: var(--navy); color: white; border-color: var(--navy); }
+    .quiz-confirm { margin-top: 24px; padding: 18px; border-radius: 12px; background: #f9fafe; border: 1px solid var(--border); }
+    .quiz-confirm p { margin-bottom: 14px; line-height: 1.5; }
+    .quiz-score { text-align: center; padding: 8px 0 24px; }
+    .quiz-score-number { font-size: 44px; font-weight: 800; color: var(--navy); line-height: 1.1; }
+    .quiz-score-note { color: var(--muted); margin-top: 6px; }
+    .quiz-stats { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 16px; }
+    .quiz-stats span { border-radius: 999px; padding: 6px 14px; font-size: 13px; font-weight: 700; background: #f4f5ff; color: var(--navy); }
+    .quiz-review { display: grid; gap: 18px; margin-top: 24px; }
+    .quiz-review-item { border: 1px solid var(--border); border-radius: 14px; padding: 20px; background: white; }
+    .quiz-review-item h4 { font-size: 16px; line-height: 1.5; margin-bottom: 14px; color: var(--text); }
+    .quiz-review-item .review-status { font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+    .review-status.right { color: #16723b; }
+    .review-status.wrong { color: #a33333; }
+    .review-status.skipped { color: var(--muted); }
+    .quiz-review-options { display: grid; gap: 8px; list-style: none; padding: 0; margin: 0; }
+    .quiz-review-options li { border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 14px; display: flex; justify-content: space-between; gap: 10px; }
+    .quiz-review-options li.is-correct { background: #eef9f2; border-color: #cceadd; color: #16723b; font-weight: 600; }
+    .quiz-review-options li.is-wrong { background: #fdf3f3; border-color: #fadcdc; color: #a33333; font-weight: 600; }
+    .quiz-review-options .tag { font-size: 11px; font-weight: 800; text-transform: uppercase; white-space: nowrap; }
+    .quiz-explain { margin-top: 12px; font-size: 14px; line-height: 1.55; color: var(--text); background: #f9fafe; border-radius: 10px; padding: 12px 14px; }
 
     /* MOBILE NAVIGATION */
 
@@ -1497,6 +1533,7 @@
       }
 
       const mappedCourse = {
+        id: courseDataItem.id,
         code: String(
           courseDataItem.code || ''
         ).trim().toUpperCase(),
@@ -1671,23 +1708,78 @@
 
     const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
 
-    // A quiz counts as real CBT only when it carries a non-empty `questions` array.
-    // The old single-question demo shape ({ question, options, answer }) never qualifies.
-    const isUsableQuestion = question =>
-      !!(question && typeof question.question === 'string' &&
-        Array.isArray(question.options) && question.options.length > 0 &&
-        question.answer !== null && question.answer !== undefined &&
-        Number.isInteger(Number(question.answer)) &&
-        Number(question.answer) >= 0 && Number(question.answer) < question.options.length);
+    // ============================================================
+    // SECURE CBT HELPERS (talk to the cbt-api Edge Function)
+    // Questions and answers never live in this page. The server picks the
+    // questions, keeps the answer key, and does all the marking.
+    // ============================================================
+    const CBT_API_URL = `${SUPABASE_URL}/functions/v1/cbt-api`;
 
-    const hasRealCbt = course =>
-      !!(course.quiz && Array.isArray(course.quiz.questions) &&
-        course.quiz.questions.some(isUsableQuestion));
+    async function cbtRequest(body, timeoutMs = 15000) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
 
-    const cbtCount = course =>
-      course.quiz && Array.isArray(course.quiz.questions)
-        ? course.quiz.questions.filter(isUsableQuestion).length
-        : 0;
+      try {
+        const response = await fetch(CBT_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+          signal: controller.signal
+        });
+
+        let data = null;
+        try { data = await response.json(); } catch (error) { data = null; }
+
+        return { ok: response.ok, status: response.status, data };
+      } catch (error) {
+        return { ok: false, status: 0, data: null };
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    // Asks the server which courses have a quiz that is ready (published and
+    // with enough questions). If it fails, no quiz is shown. Nothing else breaks.
+    async function fetchCbtStatus() {
+      const ready = new Map();
+      const result = await cbtRequest({ action: 'status' }, 8000);
+
+      if (!result.ok || !result.data || !Array.isArray(result.data.courses)) {
+        return ready;
+      }
+
+      result.data.courses.forEach(item => {
+        if (!item || typeof item.courseId !== 'string') return;
+        if (item.mode !== 'practice' && item.mode !== 'exam') return;
+
+        const questionCount = Number(item.questionCount);
+        const durationSeconds = Number(item.durationSeconds);
+        if (!Number.isInteger(questionCount) || questionCount < 1) return;
+        if (!Number.isFinite(durationSeconds) || durationSeconds < 30) return;
+
+        const existing = ready.get(item.courseId);
+        if (existing && existing.mode === 'practice') return;
+
+        ready.set(item.courseId, {
+          mode: item.mode,
+          questionCount,
+          durationSeconds,
+          marksPerQuestion: Number(item.marksPerQuestion) || 1
+        });
+      });
+
+      return ready;
+    }
+
+    function applyCbtStatus(readyMap) {
+      Object.keys(catalog).forEach(level => {
+        catalog[level].forEach(course => {
+          course.quiz = (course.id && readyMap.get(course.id)) || null;
+        });
+      });
+    }
+
+    const cbtCount = course => (course.quiz ? course.quiz.questionCount : 0);
 
     // Keep placeholder-only content away from students (runs after the Supabase load).
     function sanitizeCatalog() {
@@ -1698,9 +1790,8 @@
           course.materials = course.materials.filter(resource => resource.fileUrl);
           course.past = course.past.filter(resource => resource.fileUrl);
 
-          if (!hasRealCbt(course)) {
-            course.quiz = null;
-          }
+          // CBT is decided by the server (see applyCbtStatus), never by local data
+          course.quiz = null;
         });
       });
     }
@@ -1716,8 +1807,12 @@
         catalog[level] = [...(sampleCatalogByLevel[level] || [])];
       });
 
-      const loaded = await loadSupabaseCatalog();
+      const [loaded, cbtReady] = await Promise.all([
+        loadSupabaseCatalog(),
+        fetchCbtStatus()
+      ]);
       sanitizeCatalog();
+      applyCbtStatus(cbtReady);
       catalogReady = true;
       catalogLoadFailed = !loaded;
       initCourseFilter();
@@ -1931,6 +2026,8 @@
       const isFirstRender = lastHash === null;
       const hashChanged = location.hash !== lastHash;
       lastHash = location.hash;
+
+      if (quizSession && !(route === 'course' && parts[3] === 'cbt')) stopQuiz();
 
       if (!route || HOME_ANCHORS.includes(route)) {
         return showHome(route, hashChanged && !isFirstRender);
@@ -2421,6 +2518,58 @@
       `;
     }
 
+    // ============================================================
+    // CBT QUIZ SCREEN (uses the secure cbt-api: start, then submit)
+    // ============================================================
+    let quizSession = null; // { running, hash, timer } while a quiz is in progress
+    let quizRunId = 0;      // changes whenever a quiz is stopped, so old replies are ignored
+
+    function stopQuiz() {
+      quizRunId++;
+      if (quizSession && quizSession.timer) clearInterval(quizSession.timer);
+      quizSession = null;
+    }
+
+    window.addEventListener('beforeunload', event => {
+      if (quizSession && quizSession.running) {
+        event.preventDefault();
+        event.returnValue = '';
+      }
+    });
+
+    function formatQuizDuration(totalSeconds) {
+      const seconds = Math.round(totalSeconds);
+      if (seconds % 60 === 0) {
+        const minutes = seconds / 60;
+        return `${minutes} minute${minutes === 1 ? '' : 's'}`;
+      }
+      return `${seconds} seconds`;
+    }
+
+    function formatQuizClock(totalSeconds) {
+      const safe = Math.max(0, totalSeconds);
+      const minutes = Math.floor(safe / 60);
+      const seconds = safe % 60;
+      return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    function quizStartError(result) {
+      if (result.status === 0) return 'Could not reach the server. Check your internet connection and try again.';
+      if (result.status === 429) return 'Many quizzes are being started right now. Please wait a few minutes and try again.';
+      if (result.status === 409) return 'This quiz does not have enough questions yet. Please check back later.';
+      if (result.status === 404) return 'This quiz is not available right now.';
+      return 'Something went wrong while starting the quiz. Please try again.';
+    }
+
+    function validQuizStart(data) {
+      return !!(data && typeof data.token === 'string' &&
+        Number.isFinite(Number(data.durationSeconds)) && Number(data.durationSeconds) >= 30 &&
+        Array.isArray(data.questions) && data.questions.length > 0 &&
+        data.questions.every(question => question && typeof question.id === 'string' &&
+          typeof question.question_text === 'string' &&
+          Array.isArray(question.options) && question.options.length === 4));
+    }
+
     // CBT Practice Interface
     function renderQuiz(level, course) {
       const base = `#course/${level}/${course.code}`;
@@ -2431,6 +2580,7 @@
       ]);
 
       if (!course.quiz) {
+        stopQuiz();
         app.innerHTML = `
           <section class="section">
             ${crumbs}
@@ -2449,22 +2599,8 @@
         return;
       }
 
-      const questions = Array.isArray(course.quiz.questions) ? course.quiz.questions : [course.quiz];
-      const validQuestions = questions.filter(isUsableQuestion);
-
-      if (!validQuestions.length) {
-        app.innerHTML = `
-          <section class="section">
-            ${crumbs}
-            <a class="back-link" href="${esc(base)}">← Back to ${esc(course.code)}</a>
-            <div class="clean-empty-state">
-              <h1 data-doc-title="CBT unavailable">CBT questions are unavailable</h1>
-              <p>The questions for this course could not be loaded in a usable format.</p>
-            </div>
-          </section>
-        `;
-        return;
-      }
+      stopQuiz();
+      const config = course.quiz;
 
       app.innerHTML = `
         <section class="section">
@@ -2473,85 +2609,311 @@
 
           <div class="quiz-container">
             <div class="cbt-header-box">
-              <span class="preview-badge">Practice</span>
+              <span class="preview-badge">${config.mode === 'exam' ? 'Exam' : 'Practice'}</span>
               <h1 data-doc-title="${esc(course.code)} CBT Practice">${esc(course.code)} CBT</h1>
-              <p>Answer each question to see your result.</p>
+              <p>${esc(course.title)}</p>
             </div>
-
-            <div class="quiz-card">
-              <div id="quiz-question-area"></div>
-              <div class="quiz-feedback" aria-live="polite"></div>
-              <div class="quiz-runner-actions">
-                <button type="button" class="rp-btn rp-btn-primary" id="quiz-next" disabled>Next question</button>
-              </div>
-            </div>
+            <div id="quiz-stage"></div>
           </div>
         </section>
       `;
 
-      const feedback = app.querySelector('.quiz-feedback');
-      const questionArea = app.querySelector('#quiz-question-area');
-      const nextButton = app.querySelector('#quiz-next');
-      let questionIndex = 0;
-      let score = 0;
-      let answered = false;
-      let completed = false;
+      const stage = app.querySelector('#quiz-stage');
 
-      function showQuestion() {
-        const question = validQuestions[questionIndex];
-        answered = false;
-        feedback.className = 'quiz-feedback';
-        feedback.textContent = '';
-        nextButton.disabled = true;
-        nextButton.textContent = questionIndex === validQuestions.length - 1 ? 'Finish quiz' : 'Next question';
-        questionArea.innerHTML = `
-          <div class="quiz-question-meta"><span>Question ${questionIndex + 1} of ${validQuestions.length}</span><span>Multiple Choice</span></div>
-          <h3>${esc(question.question)}</h3>
-          <div class="quiz-options">${question.options.map((option, index) => `
-            <button type="button" data-choice="${index}">${esc(option)}</button>
-          `).join('')}</div>
+      // ---------- Instructions ----------
+      function showIntro(message) {
+        stopQuiz();
+        const marks = config.marksPerQuestion;
+
+        stage.innerHTML = `
+          <div class="quiz-card">
+            <h2 class="quiz-title">Before you start</h2>
+            <ul class="quiz-rules">
+              <li>This quiz has <strong>${config.questionCount} questions</strong> and lasts <strong>${esc(formatQuizDuration(config.durationSeconds))}</strong>.</li>
+              <li>Each question is worth ${marks} mark${marks === 1 ? '' : 's'}.</li>
+              <li>Questions are picked at random, so every attempt is different.</li>
+              <li>The timer cannot be paused. Do not refresh or leave the page.</li>
+              <li>When time is up, your answers are submitted automatically.</li>
+              <li>Questions you leave unanswered score 0.</li>
+              <li>After you submit, you will see your score, the correct answers and explanations.</li>
+            </ul>
+            ${message ? `<div class="quiz-notice" role="alert">${esc(message)}</div>` : ''}
+            <div class="quiz-actions">
+              <button type="button" class="rp-btn rp-btn-primary" id="quiz-start">Start quiz</button>
+              <a class="rp-btn rp-btn-secondary" href="${esc(base)}">Back to ${esc(course.code)}</a>
+            </div>
+          </div>
         `;
-        questionArea.querySelectorAll('[data-choice]').forEach(button => {
-          button.addEventListener('click', () => {
-            if (answered) return;
-            answered = true;
-            const correct = Number(button.dataset.choice) === Number(question.answer);
-            if (correct) score++;
-            questionArea.querySelectorAll('[data-choice]').forEach(option => {
-              option.disabled = true;
-              if (Number(option.dataset.choice) === Number(question.answer)) option.classList.add('selected');
-            });
-            feedback.textContent = correct
-              ? 'Correct — well done.'
-              : `Not quite. The correct answer is: ${question.options[question.answer]}.`;
-            feedback.classList.add('show', correct ? 'correct' : 'incorrect');
-            nextButton.disabled = false;
-          });
-        });
+
+        stage.querySelector('#quiz-start').addEventListener('click', startQuiz);
       }
 
-      nextButton.addEventListener('click', () => {
-        if (completed) {
-          questionIndex = 0;
-          score = 0;
-          completed = false;
-          showQuestion();
-          return;
-        }
-        if (!answered) return;
-        if (questionIndex < validQuestions.length - 1) {
-          questionIndex++;
-          showQuestion();
-          return;
-        }
-        questionArea.innerHTML = `<h2>Quiz complete</h2><p>You scored ${score} out of ${validQuestions.length}.</p>`;
-        feedback.textContent = '';
-        nextButton.textContent = 'Try again';
-        nextButton.disabled = false;
-        completed = true;
-      });
+      // ---------- Ask the server for a quiz ----------
+      async function startQuiz() {
+        stopQuiz();
+        const run = quizRunId;
 
-      showQuestion();
+        stage.innerHTML = `<div class="quiz-card"><h2 class="quiz-title">Getting your questions...</h2><p>Please wait a moment.</p></div>`;
+
+        const result = await cbtRequest({ action: 'start', courseId: course.id, mode: config.mode });
+        if (run !== quizRunId) return;
+
+        if (!result.ok) {
+          showIntro(quizStartError(result));
+          return;
+        }
+
+        if (!validQuizStart(result.data)) {
+          showIntro('The quiz could not be loaded properly. Please try again.');
+          return;
+        }
+
+        runQuiz(result.data);
+      }
+
+      // ---------- The quiz itself ----------
+      function runQuiz(data) {
+        const run = quizRunId;
+        const questions = data.questions;
+        const total = questions.length;
+        const answers = new Array(total).fill(null);
+        const deadline = performance.now() + Number(data.durationSeconds) * 1000;
+        let index = 0;
+        let confirming = false;
+        let submitting = false;
+
+        quizSession = { running: true, hash: location.hash, timer: null };
+
+        const answeredCount = () => answers.filter(answer => answer !== null).length;
+        const secondsLeft = () => Math.max(0, Math.ceil((deadline - performance.now()) / 1000));
+
+        function updateTimer() {
+          const element = stage.querySelector('#quiz-timer');
+          if (!element) return;
+          const left = secondsLeft();
+          element.textContent = formatQuizClock(left);
+          element.classList.toggle('warn', left <= 60);
+        }
+
+        function draw() {
+          if (run !== quizRunId || submitting) return;
+          const question = questions[index];
+          const isLast = index === total - 1;
+          const unanswered = total - answeredCount();
+
+          stage.innerHTML = `
+            <div class="quiz-card">
+              <div class="quiz-topbar">
+                <span>Question ${index + 1} of ${total} · ${answeredCount()} answered</span>
+                <span class="quiz-timer" id="quiz-timer" role="timer" aria-label="Time left">--:--</span>
+              </div>
+              <div class="quiz-progress" aria-hidden="true"><span style="width:${Math.round(((index + 1) / total) * 100)}%"></span></div>
+
+              <h3>${esc(question.question_text)}</h3>
+              <div class="quiz-options" role="group" aria-label="Answer choices">
+                ${question.options.map((option, optionIndex) => `
+                  <button type="button" data-choice="${optionIndex}" class="${answers[index] === optionIndex ? 'selected' : ''}" aria-pressed="${answers[index] === optionIndex}">${esc(option)}</button>
+                `).join('')}
+              </div>
+              ${answers[index] !== null ? '<button type="button" class="quiz-clear" id="quiz-clear">Clear my answer</button>' : ''}
+
+              <div class="quiz-nav-row">
+                <button type="button" class="rp-btn rp-btn-secondary" id="quiz-prev" ${index === 0 ? 'disabled' : ''}>← Previous</button>
+                ${isLast
+                  ? '<button type="button" class="rp-btn rp-btn-primary" id="quiz-submit">Submit quiz</button>'
+                  : '<button type="button" class="rp-btn rp-btn-primary" id="quiz-next">Next →</button>'}
+              </div>
+
+              ${confirming ? `
+                <div class="quiz-confirm" role="alertdialog" aria-label="Confirm submit">
+                  <p><strong>Submit your quiz?</strong><br>You answered ${answeredCount()} of ${total} questions.${unanswered ? ` The ${unanswered} you left blank will score 0.` : ''} You cannot change your answers after this.</p>
+                  <div class="quiz-actions">
+                    <button type="button" class="rp-btn rp-btn-primary" id="quiz-confirm-yes">Yes, submit</button>
+                    <button type="button" class="rp-btn rp-btn-secondary" id="quiz-confirm-no">Keep working</button>
+                  </div>
+                </div>` : ''}
+
+              <div class="quiz-grid" aria-label="Jump to a question">
+                ${questions.map((item, itemIndex) => `
+                  <button type="button" data-jump="${itemIndex}" class="${itemIndex === index ? 'current' : (answers[itemIndex] !== null ? 'answered' : '')}" aria-label="Question ${itemIndex + 1}${answers[itemIndex] !== null ? ', answered' : ''}">${itemIndex + 1}</button>
+                `).join('')}
+              </div>
+              ${isLast ? '' : '<div class="quiz-actions" style="margin-top:20px"><button type="button" class="rp-btn rp-btn-secondary" id="quiz-submit-early">Submit quiz now</button></div>'}
+            </div>
+          `;
+
+          stage.querySelectorAll('[data-choice]').forEach(button => {
+            button.addEventListener('click', () => {
+              answers[index] = Number(button.dataset.choice);
+              confirming = false;
+              draw();
+            });
+          });
+
+          stage.querySelector('#quiz-clear')?.addEventListener('click', () => {
+            answers[index] = null;
+            draw();
+          });
+
+          stage.querySelector('#quiz-prev')?.addEventListener('click', () => {
+            if (index > 0) { index--; confirming = false; draw(); }
+          });
+
+          stage.querySelector('#quiz-next')?.addEventListener('click', () => {
+            if (index < total - 1) { index++; confirming = false; draw(); }
+          });
+
+          stage.querySelectorAll('[data-jump]').forEach(button => {
+            button.addEventListener('click', () => {
+              index = Number(button.dataset.jump);
+              confirming = false;
+              draw();
+            });
+          });
+
+          const askToSubmit = () => { confirming = true; draw(); };
+          stage.querySelector('#quiz-submit')?.addEventListener('click', askToSubmit);
+          stage.querySelector('#quiz-submit-early')?.addEventListener('click', askToSubmit);
+          stage.querySelector('#quiz-confirm-no')?.addEventListener('click', () => { confirming = false; draw(); });
+          stage.querySelector('#quiz-confirm-yes')?.addEventListener('click', () => submitAnswers(false));
+
+          updateTimer();
+        }
+
+        async function submitAnswers(timeUp) {
+          if (submitting || run !== quizRunId) return;
+          submitting = true;
+          if (quizSession && quizSession.timer) clearInterval(quizSession.timer);
+
+          stage.innerHTML = `<div class="quiz-card"><h2 class="quiz-title">${timeUp ? 'Time is up' : 'Submitting your answers...'}</h2><p>${timeUp ? 'Submitting your answers now...' : 'Please wait a moment.'}</p></div>`;
+
+          const payload = {};
+          questions.forEach((question, questionIndex) => {
+            payload[question.id] = answers[questionIndex];
+          });
+
+          const result = await cbtRequest({ action: 'submit', token: data.token, answers: payload }, 20000);
+          if (run !== quizRunId) return;
+
+          if (result.ok && validQuizResult(result.data)) {
+            quizSession.running = false;
+            showResults(result.data);
+            return;
+          }
+
+          showSubmitProblem(result);
+        }
+
+        function showSubmitProblem(result) {
+          let message = 'Something went wrong while submitting. Please try again.';
+          let canRetry = true;
+
+          if (result.status === 0) {
+            message = 'Could not reach the server. Your answers are safe on this page. Check your internet connection and try again.';
+          } else if (result.status === 429) {
+            message = 'Too many requests right now. Wait a moment, then try again. Your answers are still here.';
+          } else if (result.status === 400 || result.status === 409 || result.status === 404) {
+            canRetry = false;
+            message = 'This attempt can no longer be marked. The time may have run out before your answers reached the server, or it was already submitted. You can start a new quiz.';
+          }
+
+          quizSession.running = canRetry;
+
+          stage.innerHTML = `
+            <div class="quiz-card">
+              <h2 class="quiz-title">We could not submit your quiz</h2>
+              <div class="quiz-notice" role="alert">${esc(message)}</div>
+              <div class="quiz-actions">
+                ${canRetry
+                  ? '<button type="button" class="rp-btn rp-btn-primary" id="quiz-retry">Try submitting again</button>'
+                  : '<button type="button" class="rp-btn rp-btn-primary" id="quiz-new">Start a new quiz</button>'}
+                <a class="rp-btn rp-btn-secondary" href="${esc(base)}">Back to ${esc(course.code)}</a>
+              </div>
+            </div>
+          `;
+
+          stage.querySelector('#quiz-retry')?.addEventListener('click', () => {
+            submitting = false;
+            submitAnswers(false);
+          });
+          stage.querySelector('#quiz-new')?.addEventListener('click', () => showIntro());
+        }
+
+        quizSession.timer = setInterval(() => {
+          if (run !== quizRunId) return;
+          updateTimer();
+          if (secondsLeft() <= 0) submitAnswers(true);
+        }, 250);
+
+        draw();
+      }
+
+      // ---------- Results ----------
+      function validQuizResult(data) {
+        return !!(data && Number.isFinite(Number(data.score)) && Number.isFinite(Number(data.totalMarks)) &&
+          Array.isArray(data.results));
+      }
+
+      function showResults(data) {
+        const letters = ['A', 'B', 'C', 'D'];
+        const percent = Math.round(Number(data.percentage) || 0);
+
+        const review = data.results.map((item, itemIndex) => {
+          const selected = Number.isInteger(item.selected_option) ? item.selected_option : null;
+          const correct = Number.isInteger(item.correct_option) ? item.correct_option : null;
+          const status = selected === null ? 'skipped' : (item.is_correct ? 'right' : 'wrong');
+          const statusText = selected === null ? 'Not answered (0 marks)' : (item.is_correct ? 'Correct' : 'Wrong');
+          const options = Array.isArray(item.options) ? item.options : [];
+
+          return `
+            <div class="quiz-review-item">
+              <div class="review-status ${status}">Question ${itemIndex + 1} · ${statusText}</div>
+              <h4>${esc(item.question_text || '')}</h4>
+              <ul class="quiz-review-options">
+                ${options.map((option, optionIndex) => {
+                  const isCorrect = optionIndex === correct;
+                  const isWrongPick = optionIndex === selected && !isCorrect;
+                  const tags = [];
+                  if (optionIndex === selected) tags.push('Your answer');
+                  if (isCorrect) tags.push('Correct answer');
+                  return `
+                    <li class="${isCorrect ? 'is-correct' : (isWrongPick ? 'is-wrong' : '')}">
+                      <span>${letters[optionIndex] || ''}. ${esc(option)}</span>
+                      ${tags.length ? `<span class="tag">${esc(tags.join(' · '))}</span>` : ''}
+                    </li>`;
+                }).join('')}
+              </ul>
+              ${item.explanation ? `<div class="quiz-explain"><strong>Why:</strong> ${esc(item.explanation)}</div>` : ''}
+            </div>`;
+        }).join('');
+
+        stage.innerHTML = `
+          <div class="quiz-card">
+            <div class="quiz-score">
+              <div class="quiz-score-number">${esc(data.score)} / ${esc(data.totalMarks)}</div>
+              <div class="quiz-score-note">${percent}%</div>
+              <div class="quiz-stats">
+                <span>${Number(data.correctCount) || 0} correct</span>
+                <span>${Number(data.incorrectCount) || 0} wrong</span>
+                <span>${Number(data.unansweredCount) || 0} not answered</span>
+              </div>
+            </div>
+            <div class="quiz-actions" style="justify-content:center">
+              <button type="button" class="rp-btn rp-btn-primary" id="quiz-again">Try again with new questions</button>
+              <a class="rp-btn rp-btn-secondary" href="${esc(base)}">Back to ${esc(course.code)}</a>
+            </div>
+            <div class="quiz-review">${review}</div>
+          </div>
+        `;
+
+        stage.querySelector('#quiz-again').addEventListener('click', () => {
+          showIntro();
+          window.scrollTo({ top: 0 });
+        });
+        window.scrollTo({ top: 0 });
+      }
+
+      showIntro();
     }
 
     const mobileMenuButton = document.querySelector('.mobile-menu-toggle');
@@ -2584,7 +2946,24 @@
       if (event.key === 'Escape') closeMobileMenu();
     });
 
+    let restoringQuizHash = false;
+
     window.addEventListener('hashchange', () => {
+      if (restoringQuizHash) {
+        restoringQuizHash = false;
+        return;
+      }
+
+      // Do not lose a running quiz by accident
+      if (quizSession && quizSession.running && location.hash !== quizSession.hash) {
+        if (!window.confirm('Leave this quiz? Your answers will be lost and the quiz will not be marked.')) {
+          restoringQuizHash = true;
+          location.hash = quizSession.hash;
+          return;
+        }
+        stopQuiz();
+      }
+
       closeMobileMenu();
       render();
     });
