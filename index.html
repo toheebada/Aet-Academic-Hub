@@ -8,7 +8,7 @@
 
   <meta
     name="description"
-    content="AET Academic Hub — study materials, past questions and CBT practice for FUTMINNA students."
+    content="AET Academic Hub — study materials and past questions for FUTMINNA students."
   >
 
   <!-- SUPABASE INTEGRATION START -->
@@ -444,7 +444,7 @@
 
     .quick-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 16px;
     }
 
@@ -554,57 +554,6 @@
       white-space: nowrap;
     }
 
-    /* RECENTLY ADDED RESOURCES */
-
-    .resource-list {
-      display: grid;
-      gap: 12px;
-    }
-
-    .resource {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 15px;
-      padding: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-    }
-
-    .resource-info {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .resource-icon {
-      width: 43px;
-      height: 43px;
-      border-radius: 11px;
-      background: #eef0ff;
-      display: grid;
-      place-items: center;
-      color: var(--navy);
-      font-weight: 800;
-      font-size: 12px;
-    }
-
-    .resource h3 {
-      font-size: 15px;
-    }
-
-    .resource p {
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .resource-action {
-      color: var(--navy);
-      font-size: 13px;
-      font-weight: 800;
-    }
-
     /* FOOTER */
 
     footer {
@@ -637,21 +586,48 @@
        ========================================= */
 
     .app-view { display: none; min-height: 55vh; }
-    body.app-mode > :not(.navbar):not(#app-view):not(footer) { display: none; }
+    body.app-mode > :not(.navbar):not(#app-view):not(#aet-admin-upload):not(footer) { display: none; }
     body.app-mode #app-view { display: block; padding-bottom: 72px; }
-    .app-view .section { padding-top: 38px; }
+    .app-view .section { padding-top: 32px; }
+
+    /* Anything marked data-cbt stays hidden until a course has real CBT questions */
+    [data-cbt][hidden] { display: none !important; }
+
+    #app-view h1 { font-size: 28px; line-height: 1.2; letter-spacing: -0.5px; color: var(--navy); margin-bottom: 10px; }
+    #app-view h1:focus { outline: none; }
+    #app-view a:focus-visible { outline: 3px solid rgba(8, 11, 99, 0.35); outline-offset: 2px; }
 
     /* Breadcrumbs & Navigation */
-    .breadcrumbs { display: flex; flex-wrap: wrap; gap: 8px; color: var(--muted); font-size: 13px; margin-bottom: 24px; align-items: center; }
-    .breadcrumbs a { color: var(--navy); font-weight: 700; transition: color 0.2s; }
-    .breadcrumbs a:hover { color: var(--yellow); }
-    .breadcrumbs span.sep { color: #d0d3e3; }
-    .back-link { display: inline-flex; margin: 0 0 20px; color: var(--navy); font-weight: 700; font-size: 14px; align-items: center; gap: 6px; }
-    .back-link:hover { text-decoration: underline; }
+    .breadcrumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-bottom: 14px; color: var(--muted); font-size: 13px; }
+    .breadcrumbs a { color: var(--navy); font-weight: 700; }
+    .breadcrumbs a:hover { text-decoration: underline; }
+    .breadcrumbs .sep { color: #c3c7da; }
+    .breadcrumbs .current { color: var(--text); font-weight: 600; min-width: 0; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; margin: 0 0 18px; padding: 9px 14px; border: 1px solid var(--border); border-radius: 10px; background: white; color: var(--navy); font-weight: 700; font-size: 14px; transition: border-color 0.2s ease, background 0.2s ease; }
+    .back-link:hover { border-color: var(--navy); background: #f4f5ff; }
 
     /* Shared Utilities */
     .preview-badge { display: inline-block; padding: 4px 10px; background: var(--yellow-soft); color: #705e07; font-size: 11px; font-weight: 700; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 12px; }
     .content-notice { margin-top: 32px; text-align: center; font-size: 13px; color: var(--muted); }
+
+    /* Page header band (levels and course hub) */
+    .view-header { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 28px 30px; margin-bottom: 24px; position: relative; overflow: hidden; }
+    .view-header::before { content: ""; position: absolute; top: 0; left: 0; width: 6px; height: 100%; background: var(--yellow); }
+    .view-eyebrow { display: block; margin-bottom: 8px; font-size: 12px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: var(--muted); }
+    #app-view .view-title { font-size: clamp(26px, 4vw, 34px); margin-bottom: 6px; }
+    .view-sub { font-size: 15px; color: var(--muted); }
+
+    /* Level switcher */
+    .level-switch { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+    .level-chip { min-width: 58px; padding: 8px 14px; text-align: center; border: 1px solid var(--border); border-radius: 999px; background: var(--background); color: var(--navy); font-size: 13px; font-weight: 800; transition: border-color 0.2s ease, background 0.2s ease; }
+    .level-chip:hover { border-color: var(--navy); background: #f4f5ff; }
+    .level-chip.is-current { background: var(--navy); border-color: var(--navy); color: white; }
+
+    /* Status chips */
+    .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 11px; border-radius: 999px; font-size: 12px; font-weight: 700; line-height: 1.4; }
+    .chip-on { background: #eef0ff; color: var(--navy); }
+    .chip-off { background: #f3f4f8; color: var(--muted); font-weight: 600; }
 
     /* Level View - Academic Course Cards */
     .course-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
@@ -659,27 +635,24 @@
     .course-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--navy); }
     .course-card-content { padding: 22px; flex: 1; }
     .course-code { color: var(--navy); font-size: 20px; font-weight: 800; line-height: 1.2; }
-    .course-title { color: var(--muted); font-size: 14px; margin-top: 4px; margin-bottom: 16px; }
-    .course-meta { display: flex; flex-direction: column; gap: 8px; }
-    .course-meta-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text); font-weight: 500; }
-    .course-meta-icon { color: var(--navy); font-size: 14px; opacity: 0.7; }
+    .course-title { color: var(--muted); font-size: 14px; margin-top: 4px; }
+    .course-card .chip-row { margin-top: 16px; }
     .course-card-action { padding: 14px 22px; background: #f9fafe; border-top: 1px solid var(--border); color: var(--navy); font-size: 13px; font-weight: 800; text-align: center; transition: background 0.2s; }
     .course-card:hover .course-card-action { background: #f0f3ff; }
 
-    /* Course Hub - Header & Sub-Cards */
-    .course-hub-header { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; margin-bottom: 24px; position: relative; overflow: hidden; }
-    .course-hub-header::before { content: ""; position: absolute; top: 0; left: 0; width: 6px; height: 100%; background: var(--yellow); }
-    .course-hub-header h2 { font-size: 28px; color: var(--navy); line-height: 1.1; margin-bottom: 6px; }
-    .course-hub-header p { font-size: 15px; color: var(--muted); }
-    .course-hub-meta { font-size: 13px; color: var(--muted); font-weight: 600; margin-top: 12px; }
-
-    .hub-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    /* Course Hub - Sub-Cards */
+    .hub-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
     .hub-card { display: flex; flex-direction: column; background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; transition: all 0.2s ease; }
-    .hub-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--navy); }
-    .hub-icon-wrap { width: 48px; height: 48px; border-radius: 12px; background: var(--yellow-soft); display: grid; place-items: center; font-size: 20px; margin-bottom: 16px; }
+    a.hub-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--navy); }
+    .hub-card.is-empty { background: #fbfbfd; border-style: dashed; }
+    .hub-card.is-empty .hub-icon-wrap { opacity: 0.55; }
+    .hub-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+    .hub-icon-wrap { width: 48px; height: 48px; border-radius: 12px; background: var(--yellow-soft); display: grid; place-items: center; font-size: 20px; }
+    .count-badge { min-width: 34px; padding: 4px 11px; border-radius: 999px; background: var(--navy); color: white; font-size: 13px; font-weight: 800; text-align: center; }
+    .count-badge.is-soon { background: #eceef6; color: var(--muted); font-size: 11px; letter-spacing: 0.3px; text-transform: uppercase; }
     .hub-card h3 { font-size: 17px; color: var(--navy); margin-bottom: 6px; }
-    .hub-card p { font-size: 13px; color: var(--muted); flex: 1; margin-bottom: 18px; }
-    .hub-card-action { font-size: 13px; font-weight: 800; color: var(--navy); display: flex; align-items: center; gap: 4px; }
+    .hub-card p { font-size: 13px; color: var(--muted); flex: 1; }
+    .hub-card-action { margin-top: 18px; font-size: 13px; font-weight: 800; color: var(--navy); }
 
     /* Resource Views & Empty States */
     .academic-resource-list { display: grid; gap: 12px; }
@@ -695,7 +668,16 @@
     .clean-empty-state { background: white; border: 1px dashed #d0d3e3; border-radius: 16px; padding: 48px 24px; text-align: center; }
     .clean-empty-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.6; }
     .clean-empty-state h3 { font-size: 16px; color: var(--navy); margin-bottom: 6px; }
-    .clean-empty-state p { font-size: 14px; color: var(--muted); max-width: 400px; margin: 0 auto; }
+    .clean-empty-state p { font-size: 14px; color: var(--muted); max-width: 420px; margin: 0 auto; }
+    .empty-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 20px; }
+    .empty-link { padding: 9px 14px; border: 1px solid var(--border); border-radius: 10px; background: white; color: var(--navy); font-size: 13px; font-weight: 700; transition: border-color 0.2s ease, background 0.2s ease; }
+    .empty-link:hover { border-color: var(--navy); background: #f4f5ff; }
+
+    /* Loading state */
+    .loading-state { display: flex; flex-direction: column; align-items: center; padding: 90px 20px; text-align: center; color: var(--muted); }
+    .loading-state p { font-size: 14px; }
+    .spinner { width: 34px; height: 34px; margin-bottom: 18px; border: 3px solid var(--border); border-top-color: var(--navy); border-radius: 50%; animation: aet-spin 0.8s linear infinite; }
+    @keyframes aet-spin { to { transform: rotate(360deg); } }
 
     /* INDIVIDUAL RESOURCE PREVIEW */
     .resource-preview-header { 
@@ -706,7 +688,7 @@
     .rp-info-wrap { display: flex; gap: 16px; align-items: center; min-width: 0; flex: 1; }
     .rp-icon { width: 48px; height: 48px; border-radius: 12px; background: #eef0ff; color: var(--navy); font-weight: 800; font-size: 14px; display: grid; place-items: center; flex-shrink: 0; }
     .rp-text { min-width: 0; }
-    .rp-text h2 { font-size: 20px; color: var(--navy); margin-bottom: 4px; line-height: 1.3; overflow-wrap: anywhere; }
+    #app-view .rp-text h1 { font-size: 20px; letter-spacing: 0; margin-bottom: 4px; line-height: 1.3; overflow-wrap: anywhere; }
     .rp-text p { font-size: 13px; color: var(--muted); overflow-wrap: break-word; }
     .rp-actions { display: flex; gap: 10px; flex-shrink: 0; }
     .rp-btn { padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease; cursor: pointer; text-decoration: none; }
@@ -714,6 +696,7 @@
     .rp-btn-primary:hover { background: var(--navy-dark); border-color: var(--navy-dark); color: white; box-shadow: 0 4px 12px rgba(8, 11, 99, 0.15); }
     .rp-btn-secondary { background: white; border: 1px solid var(--border); color: var(--text); }
     .rp-btn-secondary:hover { border-color: var(--navy); color: var(--navy); }
+    .preview-hint { display: none; margin: -8px 0 16px; font-size: 13px; color: var(--muted); }
     .pdf-preview-container { background: white; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; height: 70vh; min-height: 500px; display: flex; flex-direction: column; }
     .pdf-iframe { width: 100%; height: 100%; border: none; flex-grow: 1; background: #f7f8fc; }
 
@@ -816,6 +799,10 @@
         grid-template-columns: repeat(2, 1fr);
       }
 
+      .quick-card:last-child:nth-child(odd) {
+        grid-column: 1 / -1;
+      }
+
       .level-grid {
         grid-template-columns: repeat(2, 1fr);
       }
@@ -834,13 +821,15 @@
         gap: 4px;
       }
 
-      .course-grid, .hub-grid, .search-results-grid { grid-template-columns: repeat(2, 1fr); }
+      .course-grid, .search-results-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
     @media (max-width: 650px) {
       .resource-preview-header { flex-direction: column; align-items: stretch; }
       .rp-actions { width: 100%; }
       .rp-btn { flex: 1; justify-content: center; }
+      .preview-hint { display: block; }
+      .pdf-preview-container { height: 60vh; min-height: 380px; }
     }
 
     @media (max-width: 520px) {
@@ -852,6 +841,8 @@
       .section {
         padding: 55px 18px;
       }
+
+      .app-view .section { padding-top: 24px; }
 
       /* Compact mobile search adjustments */
       .search-section {
@@ -901,26 +892,23 @@
         grid-template-columns: 1fr 1fr;
       }
 
-      .resource {
-        align-items: flex-start;
-      }
-
-      .resource-action {
-        display: inline;
-        white-space: nowrap;
-      }
-      .resource { padding: 15px; gap: 10px; }
-      .resource-info { gap: 10px; min-width: 0; }
-      .resource-info > div:last-child { min-width: 0; }
-      .resource h3 { overflow-wrap: anywhere; }
-      
-      .course-grid, .hub-grid { grid-template-columns: 1fr; }
+      .course-grid { grid-template-columns: 1fr; }
       
       .hub-card { min-height: 0; }
       .section-heading h2 { font-size: 27px; }
 
-      .course-hub-header { padding: 24px; }
+      .view-header { padding: 22px 20px; }
       .quiz-card { padding: 24px; }
+
+      .academic-resource-card { align-items: flex-start; padding: 14px 16px; gap: 12px; }
+      .academic-resource-info { align-items: flex-start; gap: 12px; }
+      .academic-resource-title, .academic-resource-detail { white-space: normal; overflow-wrap: anywhere; }
+      .level-chip { flex: 1; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .spinner { animation: none; }
+      .course-card, .hub-card, .academic-resource-card { transition: none; }
     }
   </style>
 </head>
@@ -944,9 +932,8 @@
       <nav class="nav-links" aria-label="Primary navigation">
         <a href="#courses">Courses</a>
         <a href="#courses">Past Questions</a>
-        <a href="#courses">CBT</a>
-        <a href="#resources">Resources</a>
-        <a href="#level/200" class="nav-button">Practice Now</a>
+        <a href="#courses" data-cbt hidden>CBT</a>
+        <a href="#courses" class="nav-button" data-cbt hidden>Practice Now</a>
       </nav>
 
       <button
@@ -964,9 +951,8 @@
     <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation">
       <a href="#courses">Courses</a>
       <a href="#courses">Past Questions</a>
-      <a href="#courses">CBT</a>
-      <a href="#resources">Resources</a>
-      <a href="#level/200" class="mobile-nav-button">Practice Now</a>
+      <a href="#courses" data-cbt hidden>CBT</a>
+      <a href="#courses" class="mobile-nav-button" data-cbt hidden>Practice Now</a>
     </nav>
   </header>
 
@@ -989,8 +975,8 @@
       </h1>
 
       <p>
-        Academic Excellence Team (AET) brings course materials,
-        past questions and CBT practice together in one place —
+        Academic Excellence Team (AET) brings course materials
+        and past questions together in one place —
         built specifically for FUTMINNA students.
       </p>
 
@@ -999,7 +985,7 @@
           Explore Courses
         </a>
 
-        <a href="#level/200" class="secondary-button">
+        <a href="#courses" class="secondary-button" data-cbt hidden>
           Practice CBT
         </a>
       </div>
@@ -1025,7 +1011,7 @@
         <strong>Practice</strong>
       </div>
 
-      <div class="mini-stat">
+      <div class="mini-stat" data-cbt hidden>
         <span>CBT Practice</span>
         <strong>Test yourself</strong>
       </div>
@@ -1043,7 +1029,7 @@
     <div class="search-container">
       <div class="section-heading">
         <h2>Find what you need</h2>
-        <p>Search across courses, study materials, past questions and CBT practice.</p>
+        <p>Search across courses, study materials and past questions.</p>
       </div>
 
       <div class="search-box-wrap">
@@ -1070,7 +1056,6 @@
           <option value="">Type ▾</option>
           <option value="materials">Study Materials</option>
           <option value="past">Past Questions</option>
-          <option value="cbt">CBT Practice</option>
         </select>
 
         <select id="filter-course" class="filter-select" aria-label="Filter by Course">
@@ -1112,16 +1097,10 @@
         <p>Practise with previous examination questions.</p>
       </a>
 
-      <a href="#courses" class="quick-card">
+      <a href="#courses" class="quick-card" data-cbt hidden>
         <div class="icon">03</div>
         <h3>CBT Practice</h3>
         <p>Test yourself and see how well you understand a topic.</p>
-      </a>
-
-      <a href="#resources" class="quick-card">
-        <div class="icon">04</div>
-        <h3>Recently Added</h3>
-        <p>See the featured academic resources across courses.</p>
       </a>
 
     </div>
@@ -1171,9 +1150,9 @@
 
   <main id="app-view" class="app-view" aria-live="polite"></main>
 
-  <!-- CBT -->
+  <!-- CBT (hidden until at least one course has real CBT questions) -->
 
-  <section class="cbt-section" id="cbt">
+  <section class="cbt-section" id="cbt" data-cbt hidden>
 
     <div class="section">
 
@@ -1190,60 +1169,11 @@
           </p>
         </div>
 
-        <a href="#level/200" class="cbt-button">
+        <a href="#courses" class="cbt-button">
           Start Practice →
         </a>
 
       </div>
-
-    </div>
-
-  </section>
-
-
-  <!-- RESOURCES -->
-
-  <section class="section" id="resources">
-
-    <div class="section-heading">
-      <h2>Featured academic resources</h2>
-      <p>Featured academic resources across different courses.</p>
-    </div>
-
-    <div class="resource-list">
-      <!-- Search results from the homepage link to the actual resource pages via hash -->
-      <a href="#resource/100/PHY102/materials/0" class="resource">
-        <div class="resource-info">
-          <div class="resource-icon">PDF</div>
-          <div>
-            <h3>PHY102 Study Materials</h3>
-            <p>Study Material • PHY102</p>
-          </div>
-        </div>
-        <span class="resource-action">Preview →</span>
-      </a>
-
-      <a href="#resource/100/MTH102/past-questions/0" class="resource">
-        <div class="resource-info">
-          <div class="resource-icon">PQ</div>
-          <div>
-            <h3>MTH102 Past Questions</h3>
-            <p>Past Questions • MTH102</p>
-          </div>
-        </div>
-        <span class="resource-action">Preview →</span>
-      </a>
-
-      <a href="#course/100/CHM102/cbt" class="resource">
-        <div class="resource-info">
-          <div class="resource-icon">CBT</div>
-          <div>
-            <h3>CHM102 Practice Quiz</h3>
-            <p>CBT Practice • CHM102</p>
-          </div>
-        </div>
-        <span class="resource-action">Start →</span>
-      </a>
 
     </div>
 
@@ -1403,6 +1333,19 @@
       ]
     };
 
+    // PLACEHOLDER GUARD
+    // Everything in the local catalog above is sample data. We remember those
+    // exact objects so sanitizeCatalog() can keep them out of the student UI.
+    // A Supabase course with the same code replaces the sample object, so it is kept.
+    const samplePlaceholders = new Set(Object.values(catalog).flat());
+    const sampleCatalogByLevel = Object.fromEntries(
+      Object.entries(catalog).map(([level, courses]) => [level, [...courses]])
+    );
+    const DEFAULT_TITLE = document.title;
+    let catalogReady = false;
+    let catalogLoadFailed = false;
+    let lastHash = null;
+
     // SUPABASE INTEGRATION START
     const SUPABASE_URL = 'https://dyagromcobshqyyecjio.supabase.co';
     const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_rcoCuTPzB6KBh3ajLB4OnQ_Grtt6RSW';
@@ -1428,7 +1371,7 @@
       console.warn(
         'Supabase: No levels found; keeping the local catalog.'
       );
-      return;
+      return true;
     }
 
     // -----------------------------------------
@@ -1497,7 +1440,7 @@
       console.warn(
         'Supabase: No courses found; keeping the local catalog.'
       );
-      return;
+      return true;
     }
 
     // -----------------------------------------
@@ -1509,7 +1452,8 @@
       error: resourceError
     } = await supabaseClient
       .from('resources')
-      .select('*');
+      .select('*')
+      .eq('published', true);
 
     if (resourceError) throw resourceError;
 
@@ -1592,6 +1536,7 @@
         }
 
         const mappedResource = {
+          id: resource.id,
           title:
             resource.title ||
             'Untitled Resource',
@@ -1693,6 +1638,8 @@
       }
     );
 
+    return true;
+
   } catch (error) {
 
     console.error(
@@ -1703,6 +1650,7 @@
     console.warn(
       'The website will continue using the local catalog.'
     );
+    return false;
   }
 }
     // SUPABASE INTEGRATION END
@@ -1720,6 +1668,94 @@
         '"': '&quot;',
         "'": '&#39;'
       }[character]));
+
+    const plural = (count, word) => `${count} ${word}${count === 1 ? '' : 's'}`;
+
+    // A quiz counts as real CBT only when it carries a non-empty `questions` array.
+    // The old single-question demo shape ({ question, options, answer }) never qualifies.
+    const isUsableQuestion = question =>
+      !!(question && typeof question.question === 'string' &&
+        Array.isArray(question.options) && question.options.length > 0 &&
+        question.answer !== null && question.answer !== undefined &&
+        Number.isInteger(Number(question.answer)) &&
+        Number(question.answer) >= 0 && Number(question.answer) < question.options.length);
+
+    const hasRealCbt = course =>
+      !!(course.quiz && Array.isArray(course.quiz.questions) &&
+        course.quiz.questions.some(isUsableQuestion));
+
+    const cbtCount = course =>
+      course.quiz && Array.isArray(course.quiz.questions)
+        ? course.quiz.questions.filter(isUsableQuestion).length
+        : 0;
+
+    // Keep placeholder-only content away from students (runs after the Supabase load).
+    function sanitizeCatalog() {
+      Object.keys(catalog).forEach(level => {
+        catalog[level] = catalog[level].filter(course => !samplePlaceholders.has(course));
+
+        catalog[level].forEach(course => {
+          course.materials = course.materials.filter(resource => resource.fileUrl);
+          course.past = course.past.filter(resource => resource.fileUrl);
+
+          if (!hasRealCbt(course)) {
+            course.quiz = null;
+          }
+        });
+      });
+    }
+
+    function resourceRouteKey(resource, index) {
+      return resource.id
+        ? `id:${encodeURIComponent(resource.id)}`
+        : String(index);
+    }
+
+    async function refreshPublicCatalog({ renderPage = true } = {}) {
+      Object.keys(catalog).forEach(level => {
+        catalog[level] = [...(sampleCatalogByLevel[level] || [])];
+      });
+
+      const loaded = await loadSupabaseCatalog();
+      sanitizeCatalog();
+      catalogReady = true;
+      catalogLoadFailed = !loaded;
+      initCourseFilter();
+      searchableItems = getAllSearchableItems();
+      syncCbtVisibility();
+      renderSearchResults();
+
+      if (renderPage) render();
+      return loaded;
+    }
+
+    async function retryCatalogLoad() {
+      catalogReady = false;
+      catalogLoadFailed = false;
+      render();
+      await refreshPublicCatalog();
+    }
+
+    // Show every [data-cbt] element (and the CBT search filter) only when real CBT exists.
+    function syncCbtVisibility() {
+      const anyCbt = Object.values(catalog).some(courses => courses.some(course => course.quiz));
+
+      document.querySelectorAll('[data-cbt]').forEach(element => {
+        element.hidden = !anyCbt;
+      });
+
+      const typeSelect = document.getElementById('filter-type');
+      const cbtOption = typeSelect.querySelector('option[value="cbt"]');
+
+      if (anyCbt && !cbtOption) {
+        const option = document.createElement('option');
+        option.value = 'cbt';
+        option.textContent = 'CBT Practice';
+        typeSelect.appendChild(option);
+      } else if (!anyCbt && cbtOption) {
+        cbtOption.remove();
+      }
+    }
 
     // Populate Dynamic Course Filter
     function initCourseFilter() {
@@ -1761,7 +1797,7 @@
               typeName: 'Study Materials',
               title: mat.title,
               detail: mat.detail,
-              link: `#resource/${level}/${course.code}/materials/${index}`,
+              link: `#resource/${level}/${course.code}/materials/${resourceRouteKey(mat, index)}`,
               actionText: 'Preview →'
             });
           });
@@ -1775,7 +1811,7 @@
               typeName: 'Past Questions',
               title: pq.title,
               detail: pq.detail,
-              link: `#resource/${level}/${course.code}/past-questions/${index}`,
+              link: `#resource/${level}/${course.code}/past-questions/${resourceRouteKey(pq, index)}`,
               actionText: 'Preview →'
             });
           });
@@ -1789,7 +1825,7 @@
               type: 'cbt',
               typeName: 'CBT Practice',
               title: `${course.code} Practice Quiz`,
-              detail: course.quiz.question,
+              detail: plural(cbtCount(course), 'practice question'),
               link: `#course/${level}/${course.code}/cbt`,
               actionText: 'Start →'
             });
@@ -1886,44 +1922,168 @@
        COURSE ARCHITECTURE ROUTING & RENDERING 
        ========================================= */
 
+    // Hashes that point at homepage sections (old anchors keep working, none show "not found")
+    const HOME_ANCHORS = ['courses', 'resources', 'cbt', 'search-section'];
+
     function render() {
       const parts = location.hash.slice(1).split('/');
+      const route = parts[0];
+      const isFirstRender = lastHash === null;
+      const hashChanged = location.hash !== lastHash;
+      lastHash = location.hash;
 
-      if (!parts[0] || parts[0] === 'courses') {
-        document.body.classList.remove('app-mode');
-        app.innerHTML = '';
-        return;
+      if (!route || HOME_ANCHORS.includes(route)) {
+        return showHome(route, hashChanged && !isFirstRender);
       }
 
       document.body.classList.add('app-mode');
 
-      if (parts[0] === 'level') {
-        return renderLevel(parts[1]);
+      if (!catalogReady) {
+        renderLoading();
+      } else if (catalogLoadFailed) {
+        renderCatalogLoadError();
+      } else if (route === 'level') {
+        renderLevel(parts[1]);
+      } else if (route === 'course') {
+        renderCourse(parts[1], parts[2], parts[3]);
+      } else if (route === 'resource') {
+        renderResource(parts[1], parts[2], parts[3], parts[4]);
+      } else {
+        app.innerHTML = `
+          <section class="section">
+            <h1>Page not found</h1>
+            <a class="back-link" href="#courses">← Back to courses</a>
+          </section>
+        `;
       }
 
-      if (parts[0] === 'course') {
-        return renderCourse(parts[1], parts[2], parts[3]);
-      }
-      
-      if (parts[0] === 'resource') {
-        return renderResource(parts[1], parts[2], parts[3], parts[4]);
+      afterAppRender();
+    }
+
+    function showHome(route, shouldScroll) {
+      document.body.classList.remove('app-mode');
+      app.innerHTML = '';
+      document.title = DEFAULT_TITLE;
+
+      document.getElementById('catalog-home-error')?.remove();
+      if (catalogLoadFailed) {
+        const homeSection = document.getElementById('courses') || document.querySelector('main');
+        if (homeSection) {
+          const notice = document.createElement('div');
+          notice.id = 'catalog-home-error';
+          notice.className = 'clean-empty-state';
+          notice.innerHTML = `
+            <h2>Could not load the live course catalog</h2>
+            <p>Check your connection and try again. The page is hiding sample data so it won’t look like real course content.</p>
+            <button class="empty-link" id="retry-catalog-button" type="button">Try again</button>
+          `;
+          homeSection.prepend(notice);
+          notice.querySelector('#retry-catalog-button').addEventListener('click', retryCatalogLoad);
+        }
       }
 
+      if (!shouldScroll) return;
+
+      requestAnimationFrame(() => {
+        const target = route ? document.getElementById(route) : null;
+
+        if (target && target.offsetParent !== null) {
+          target.scrollIntoView();
+        } else {
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+      });
+    }
+
+    // New view: update the tab title, jump to the top, and move focus to the page heading
+    function afterAppRender() {
+      const heading = app.querySelector('h1');
+      const name = heading ? (heading.dataset.docTitle || heading.textContent.trim()) : 'Academic Hub';
+
+      document.title = `${name} | AET Academic Hub`;
+      window.scrollTo({ top: 0, behavior: 'instant' });
+
+      if (heading) {
+        heading.setAttribute('tabindex', '-1');
+        heading.focus({ preventScroll: true });
+      }
+    }
+
+    function renderLoading() {
       app.innerHTML = `
         <section class="section">
-          <h1>Page not found</h1>
-          <a class="back-link" href="#courses">← Back to courses</a>
+          <div class="loading-state" role="status">
+            <div class="spinner" aria-hidden="true"></div>
+            <h1 data-doc-title="Loading">Loading courses...</h1>
+            <p>Getting the latest materials.</p>
+          </div>
         </section>
       `;
     }
 
-    function crumb(items) {
-      return `
-        <div class="breadcrumbs">
-          <a href="#courses">Courses</a>
-          ${items.map(item => `<span class="sep">›</span><span>${esc(item)}</span>`).join('')}
-        </div>
+    function renderCatalogLoadError() {
+      app.innerHTML = `
+        <section class="section">
+          <div class="clean-empty-state">
+            <div class="clean-empty-icon">⚠️</div>
+            <h1 data-doc-title="Connection problem">Could not load courses</h1>
+            <p>Check your connection and try again. Your saved course links will work once the catalog is available.</p>
+            <div class="empty-actions">
+              <button class="empty-link" id="retry-catalog-button" type="button">Try again</button>
+              <a class="empty-link" href="#courses">Back to home</a>
+            </div>
+          </div>
+        </section>
       `;
+      app.querySelector('#retry-catalog-button').addEventListener('click', retryCatalogLoad);
+    }
+
+    // Breadcrumb trail. Every ancestor is a link; the last item is the current page.
+    // trail items: { label, href } (href is ignored on the last item)
+    function crumb(trail) {
+      const items = [{ label: 'Home', href: '#' }, ...trail];
+
+      return `
+        <nav class="breadcrumbs" aria-label="Breadcrumb">
+          ${items.map((item, index) => {
+            const isLast = index === items.length - 1;
+            const separator = index ? '<span class="sep" aria-hidden="true">›</span>' : '';
+
+            return separator + (isLast
+              ? `<span class="current" aria-current="page">${esc(item.label)}</span>`
+              : `<a href="${esc(item.href)}">${esc(item.label)}</a>`);
+          }).join('')}
+        </nav>
+      `;
+    }
+
+    // Small status chips: what a course actually has
+    function statusChips(course, showEmpty) {
+      const materials = course.materials.length;
+      const past = course.past.length;
+      const chips = [];
+
+      if (materials) {
+        chips.push(`<span class="chip chip-on">📚 ${plural(materials, 'study material')}</span>`);
+      } else if (showEmpty) {
+        chips.push('<span class="chip chip-off">📚 No study materials yet</span>');
+      }
+
+      if (past) {
+        chips.push(`<span class="chip chip-on">📝 ${plural(past, 'past question')}</span>`);
+      } else if (showEmpty) {
+        chips.push('<span class="chip chip-off">📝 No past questions yet</span>');
+      }
+
+      if (course.quiz) {
+        chips.push(`<span class="chip chip-on">💻 CBT · ${plural(cbtCount(course), 'question')}</span>`);
+      }
+
+      if (!chips.length) {
+        chips.push('<span class="chip chip-off">Content coming soon</span>');
+      }
+
+      return chips.join('');
     }
 
     // Level View (Academic Course Cards)
@@ -1940,44 +2100,96 @@
         return;
       }
 
+      const levels = Object.keys(catalog).sort();
+      const otherLevels = levels.filter(key => key !== level && catalog[key].length);
+      const catalogEmpty = levels.every(key => !catalog[key].length);
+      const totalMaterials = courses.reduce((sum, course) => sum + course.materials.length, 0);
+      const totalPast = courses.reduce((sum, course) => sum + course.past.length, 0);
+
+      const summary = courses.length
+        ? [
+            plural(courses.length, 'course'),
+            plural(totalMaterials, 'study material'),
+            plural(totalPast, 'past question')
+          ].join(' · ')
+        : 'No courses added yet';
+
+      const emptyState = `
+        <div class="clean-empty-state">
+          <div class="clean-empty-icon">📚</div>
+          <h3>No ${esc(level)}L courses yet</h3>
+          <p>${
+            catalogEmpty
+              ? 'No courses are available right now. If you expected to see courses, check your connection and refresh the page.'
+              : 'We are still adding courses for this level. Check back soon' + (otherLevels.length ? ' or try another level.' : '.')
+          }</p>
+          ${otherLevels.length ? `
+            <div class="empty-actions">
+              ${otherLevels.map(key => `<a class="empty-link" href="#level/${key}">Browse ${key}L →</a>`).join('')}
+            </div>
+          ` : ''}
+        </div>
+      `;
+
       app.innerHTML = `
         <section class="section">
-          ${crumb([`${level} Level`])}
-          <a class="back-link" href="#courses">← Back to Courses</a>
+          ${crumb([{ label: `${level}L` }])}
+          <a class="back-link" href="#courses">← All levels</a>
 
-          <div class="section-heading">
-            <h2>${level} Level Courses</h2>
-            <p>Select a course to access its study materials, past questions, and CBT practice.</p>
-          </div>
+          <header class="view-header">
+            <span class="view-eyebrow">Academic Hub</span>
+            <h1 class="view-title" data-doc-title="${esc(level)} Level Courses">${esc(level)} Level Courses</h1>
+            <p class="view-sub">${summary}</p>
 
-          <div class="course-grid">
-            ${courses.map(course => `
-              <a class="course-card" href="#course/${level}/${course.code}">
-                <div class="course-card-content">
-                  <div class="course-code">${esc(course.code)}</div>
-                  <div class="course-title">${esc(course.title)}</div>
-                  <div class="course-meta">
-                    <div class="course-meta-item">
-                      <span class="course-meta-icon">📚</span>
-                      ${course.materials.length} Study Materials
-                    </div>
-                    <div class="course-meta-item">
-                      <span class="course-meta-icon">📝</span>
-                      ${course.past.length} Past Questions
-                    </div>
-                    <div class="course-meta-item">
-                      <span class="course-meta-icon">💻</span>
-                      ${course.quiz ? 'CBT Available' : 'No CBT Yet'}
-                    </div>
+            <nav class="level-switch" aria-label="Switch level">
+              ${levels.map(key => `
+                <a class="level-chip${key === level ? ' is-current' : ''}" href="#level/${key}"${key === level ? ' aria-current="page"' : ''}>${key}L</a>
+              `).join('')}
+            </nav>
+          </header>
+
+          ${courses.length ? `
+            <div class="course-grid">
+              ${courses.map(course => `
+                <a class="course-card" href="#course/${level}/${esc(course.code)}">
+                  <div class="course-card-content">
+                    <div class="course-code">${esc(course.code)}</div>
+                    <div class="course-title">${esc(course.title)}</div>
+                    <div class="chip-row">${statusChips(course, false)}</div>
                   </div>
-                </div>
-                <div class="course-card-action">Open Course →</div>
-              </a>
-            `).join('')}
-          </div>
-          
-          <p class="content-notice">Content is currently in preview mode. More courses will be added.</p>
+                  <div class="course-card-action">Open course →</div>
+                </a>
+              `).join('')}
+            </div>
+          ` : emptyState}
         </section>
+      `;
+    }
+
+    function hubCard(icon, title, text, count, href, action) {
+      if (!count) {
+        return `
+          <div class="hub-card is-empty">
+            <div class="hub-card-top">
+              <div class="hub-icon-wrap">${icon}</div>
+              <span class="count-badge is-soon">Coming soon</span>
+            </div>
+            <h3>${title}</h3>
+            <p>Nothing uploaded yet. Check back soon.</p>
+          </div>
+        `;
+      }
+
+      return `
+        <a class="hub-card" href="${esc(href)}">
+          <div class="hub-card-top">
+            <div class="hub-icon-wrap">${icon}</div>
+            <span class="count-badge">${count}</span>
+          </div>
+          <h3>${title}</h3>
+          <p>${text}</p>
+          <div class="hub-card-action">${action} →</div>
+        </a>
       `;
     }
 
@@ -2003,46 +2215,37 @@
         return renderQuiz(level, course);
       }
 
-      const matCount = course.materials.length;
-      const pqCount = course.past.length;
-      const matText = matCount === 1 ? '1 study material' : `${matCount} study materials`;
-      const pqText = pqCount === 1 ? '1 past question' : `${pqCount} past questions`;
-      const cbtText = course.quiz ? 'CBT available' : 'No CBT yet';
+      const base = `#course/${level}/${course.code}`;
+      const hasAnything = course.materials.length || course.past.length || course.quiz;
 
       app.innerHTML = `
         <section class="section">
-          ${crumb([`${level} Level`, course.code])}
-          <a class="back-link" href="#level/${level}">← Back to ${level}L</a>
+          ${crumb([{ label: `${level}L`, href: `#level/${level}` }, { label: course.code }])}
+          <a class="back-link" href="#level/${level}">← Back to ${level}L courses</a>
 
-          <div class="course-hub-header">
-            <span class="preview-badge">Preview Content</span>
-            <h2>${esc(course.code)}</h2>
-            <p>${esc(course.title)}</p>
-            <div class="course-hub-meta">${level}L · ${matText} · ${pqText} · ${cbtText}</div>
-          </div>
+          <header class="view-header">
+            <span class="view-eyebrow">${esc(level)} Level</span>
+            <h1 class="view-title" data-doc-title="${esc(course.code)} ${esc(course.title)}">${esc(course.code)}</h1>
+            <p class="view-sub">${esc(course.title)}</p>
+            <div class="chip-row">${statusChips(course, true)}</div>
+          </header>
 
-          <div class="hub-grid">
-            <a class="hub-card" href="#course/${level}/${course.code}/materials">
-              <div class="hub-icon-wrap">📚</div>
-              <h3>Study Materials</h3>
-              <p>Access lecture notes, handouts, and revision resources for this course.</p>
-              <div class="hub-card-action">View ${course.materials.length} Materials →</div>
-            </a>
-
-            <a class="hub-card" href="#course/${level}/${course.code}/past-questions">
-              <div class="hub-icon-wrap">📝</div>
-              <h3>Past Questions</h3>
-              <p>Review previous examination questions to prepare effectively.</p>
-              <div class="hub-card-action">View ${course.past.length} Papers →</div>
-            </a>
-
-            <a class="hub-card" href="#course/${level}/${course.code}/cbt">
-              <div class="hub-icon-wrap">💻</div>
-              <h3>CBT Practice</h3>
-              <p>Test your understanding with computer-based practice questions.</p>
-              <div class="hub-card-action">${course.quiz ? 'Start Practice →' : 'Coming Soon'}</div>
-            </a>
-          </div>
+          ${hasAnything ? `
+            <div class="hub-grid">
+              ${hubCard('📚', 'Study Materials', 'Lecture notes, handouts, and revision resources for this course.', course.materials.length, `${base}/materials`, 'Open study materials')}
+              ${hubCard('📝', 'Past Questions', 'Previous examination questions to help you prepare.', course.past.length, `${base}/past-questions`, 'Open past questions')}
+              ${course.quiz ? hubCard('💻', 'CBT Practice', 'Test your understanding with practice questions.', cbtCount(course), `${base}/cbt`, 'Start practice') : ''}
+            </div>
+          ` : `
+            <div class="clean-empty-state">
+              <div class="clean-empty-icon">📁</div>
+              <h3>No resources for ${esc(course.code)} yet</h3>
+              <p>Study materials and past questions are still being gathered for this course. Check back soon.</p>
+              <div class="empty-actions">
+                <a class="empty-link" href="#level/${level}">Browse other ${level}L courses →</a>
+              </div>
+            </div>
+          `}
         </section>
       `;
     }
@@ -2052,23 +2255,42 @@
       const isPastQuestions = section === 'past-questions';
       const resources = isPastQuestions ? course.past : course.materials;
       const title = isPastQuestions ? 'Past Questions' : 'Study Materials';
+      const base = `#course/${level}/${course.code}`;
+
+      // Where the student can go instead when this list is empty
+      const alternatives = [];
+      if (isPastQuestions && course.materials.length) {
+        alternatives.push(`<a class="empty-link" href="${esc(base)}/materials">View ${plural(course.materials.length, 'study material')} →</a>`);
+      }
+      if (!isPastQuestions && course.past.length) {
+        alternatives.push(`<a class="empty-link" href="${esc(base)}/past-questions">View ${plural(course.past.length, 'past question')} →</a>`);
+      }
+      if (course.quiz) {
+        alternatives.push(`<a class="empty-link" href="${esc(base)}/cbt">Start CBT practice →</a>`);
+      }
+      alternatives.push(`<a class="empty-link" href="${esc(base)}">Back to ${esc(course.code)} →</a>`);
 
       app.innerHTML = `
         <section class="section">
-          ${crumb([`${level} Level`, course.code, title])}
-          <a class="back-link" href="#course/${level}/${course.code}">← Back to ${esc(course.code)} Hub</a>
+          ${crumb([
+            { label: `${level}L`, href: `#level/${level}` },
+            { label: course.code, href: base },
+            { label: title }
+          ])}
+          <a class="back-link" href="${esc(base)}">← Back to ${esc(course.code)}</a>
 
-          <div class="section-heading">
-            <h2>${esc(title)}</h2>
-            <p>${esc(course.code)} · ${esc(course.title)}</p>
-          </div>
+          <header class="view-header">
+            <span class="view-eyebrow">${esc(course.code)} · ${esc(course.title)}</span>
+            <h1 class="view-title" data-doc-title="${esc(course.code)} ${esc(title)}">${esc(title)}</h1>
+            <p class="view-sub">${resources.length ? plural(resources.length, isPastQuestions ? 'past question' : 'study material') + ' available' : 'Nothing uploaded yet'}</p>
+          </header>
 
           ${
             resources.length
               ? `
                 <div class="academic-resource-list">
                   ${resources.map((resource, index) => `
-                    <a class="academic-resource-card" href="#resource/${level}/${course.code}/${section}/${index}">
+                    <a class="academic-resource-card" href="#resource/${level}/${course.code}/${section}/${resourceRouteKey(resource, index)}">
                       <div class="academic-resource-info">
                         <div class="academic-resource-icon">${isPastQuestions ? 'PQ' : 'PDF'}</div>
                         <div class="academic-resource-text">
@@ -2080,13 +2302,13 @@
                     </a>
                   `).join('')}
                 </div>
-                <p class="content-notice">Select a resource above to view its contents.</p>
               `
               : `
                 <div class="clean-empty-state">
                   <div class="clean-empty-icon">📁</div>
-                  <h3>No resources available yet</h3>
-                  <p>We are currently gathering ${isPastQuestions ? 'past questions' : 'study materials'} for ${esc(course.code)}. Check back soon.</p>
+                  <h3>No ${isPastQuestions ? 'past questions' : 'study materials'} yet</h3>
+                  <p>We are still gathering ${isPastQuestions ? 'past questions' : 'study materials'} for ${esc(course.code)}. Check back soon.</p>
+                  <div class="empty-actions">${alternatives.join('')}</div>
                 </div>
               `
           }
@@ -2097,7 +2319,6 @@
     // INDIVIDUAL RESOURCE PREVIEW
     function renderResource(level, code, section, resourceIndexStr) {
       const course = findCourse(level, code);
-      const resourceIndex = parseInt(resourceIndexStr, 10);
       
       // ERROR HANDLING (Invalid Course)
       if (!course) {
@@ -2115,7 +2336,7 @@
         app.innerHTML = `
           <section class="section">
             <h1>Resource not found</h1>
-            <a class="back-link" href="#course/${level}/${course.code}">← Back to ${esc(course.code)} Hub</a>
+            <a class="back-link" href="#course/${level}/${course.code}">← Back to ${esc(course.code)}</a>
           </section>
         `;
         return;
@@ -2124,7 +2345,15 @@
       const isPastQuestions = section === 'past-questions';
       const resources = isPastQuestions ? course.past : course.materials;
       const sectionTitle = isPastQuestions ? 'Past Questions' : 'Study Materials';
-      const resource = resources[resourceIndex];
+      const resourceToken = String(resourceIndexStr || '');
+      let resource = null;
+      if (resourceToken.startsWith('id:')) {
+        let resourceId = resourceToken.slice(3);
+        try { resourceId = decodeURIComponent(resourceId); } catch (_) {}
+        resource = resources.find(item => String(item.id) === resourceId);
+      } else {
+        resource = resources[parseInt(resourceToken, 10)];
+      }
 
       // ERROR HANDLING (Invalid Resource Index)
       if (!resource) {
@@ -2139,30 +2368,38 @@
 
       const fileUrl = resource.fileUrl || '';
       const hasFile = !!fileUrl;
+      const base = `#course/${level}/${course.code}`;
 
       app.innerHTML = `
         <section class="section">
-          ${crumb([`${level} Level`, course.code, sectionTitle, resource.title])}
-          <a class="back-link" href="#course/${level}/${course.code}/${section}">← Back to ${esc(sectionTitle)}</a>
+          ${crumb([
+            { label: `${level}L`, href: `#level/${level}` },
+            { label: course.code, href: base },
+            { label: sectionTitle, href: `${base}/${section}` },
+            { label: resource.title }
+          ])}
+          <a class="back-link" href="${esc(base)}/${section}">← Back to ${esc(sectionTitle)}</a>
 
           <div class="resource-preview-header">
             <div class="rp-info-wrap">
               <div class="rp-icon">${resource.type === 'pdf' ? 'PDF' : 'DOC'}</div>
               <div class="rp-text">
-                <h2>${esc(resource.title)}</h2>
+                <h1 data-doc-title="${esc(resource.title)}">${esc(resource.title)}</h1>
                 <p>${esc(course.code)} · ${esc(course.title)}</p>
                 <p style="margin-top:2px;">${esc(resource.detail)}</p>
               </div>
             </div>
             <div class="rp-actions">
               ${hasFile ? `
-                <a href="${esc(fileUrl)}" target="_blank" class="rp-btn rp-btn-primary">Open PDF ↗</a>
+                <a href="${esc(fileUrl)}" target="_blank" rel="noopener" class="rp-btn rp-btn-primary">Open PDF ↗</a>
                 <a href="${esc(fileUrl)}" download class="rp-btn rp-btn-secondary">Download ↓</a>
               ` : `
                 <button disabled class="rp-btn rp-btn-secondary" style="opacity: 0.5; cursor: not-allowed;">File Not Available</button>
               `}
             </div>
           </div>
+
+          ${hasFile ? '<p class="preview-hint">If the preview does not load on your phone, tap "Open PDF" above.</p>' : ''}
 
           <div class="pdf-preview-container">
             ${hasFile ? `
@@ -2186,17 +2423,43 @@
 
     // CBT Practice Interface
     function renderQuiz(level, course) {
-      const quiz = course.quiz;
-      
-      if (!quiz) {
+      const base = `#course/${level}/${course.code}`;
+      const crumbs = crumb([
+        { label: `${level}L`, href: `#level/${level}` },
+        { label: course.code, href: base },
+        { label: 'CBT Practice' }
+      ]);
+
+      if (!course.quiz) {
         app.innerHTML = `
           <section class="section">
-            ${crumb([`${level} Level`, course.code, 'CBT Practice'])}
-            <a class="back-link" href="#course/${level}/${course.code}">← Back to ${esc(course.code)} Hub</a>
+            ${crumbs}
+            <a class="back-link" href="${esc(base)}">← Back to ${esc(course.code)}</a>
+            <h1 data-doc-title="${esc(course.code)} CBT Practice">CBT practice is not available yet</h1>
             <div class="clean-empty-state">
               <div class="clean-empty-icon">💻</div>
-              <h3>CBT Not Available</h3>
-              <p>Practice tests have not been uploaded for ${esc(course.code)} yet.</p>
+              <h3>No CBT for ${esc(course.code)} yet</h3>
+              <p>Practice questions have not been added for this course.</p>
+              <div class="empty-actions">
+                <a class="empty-link" href="${esc(base)}">Back to ${esc(course.code)} →</a>
+              </div>
+            </div>
+          </section>
+        `;
+        return;
+      }
+
+      const questions = Array.isArray(course.quiz.questions) ? course.quiz.questions : [course.quiz];
+      const validQuestions = questions.filter(isUsableQuestion);
+
+      if (!validQuestions.length) {
+        app.innerHTML = `
+          <section class="section">
+            ${crumbs}
+            <a class="back-link" href="${esc(base)}">← Back to ${esc(course.code)}</a>
+            <div class="clean-empty-state">
+              <h1 data-doc-title="CBT unavailable">CBT questions are unavailable</h1>
+              <p>The questions for this course could not be loaded in a usable format.</p>
             </div>
           </section>
         `;
@@ -2205,63 +2468,90 @@
 
       app.innerHTML = `
         <section class="section">
-          ${crumb([`${level} Level`, course.code, 'CBT Practice'])}
-          <a class="back-link" href="#course/${level}/${course.code}">← Back to ${esc(course.code)} Hub</a>
+          ${crumbs}
+          <a class="back-link" href="${esc(base)}">← Back to ${esc(course.code)}</a>
 
           <div class="quiz-container">
             <div class="cbt-header-box">
-              <span class="preview-badge">Preview Mode</span>
-              <h2>${esc(course.code)} CBT</h2>
-              <p>Test your knowledge with this practice module.</p>
+              <span class="preview-badge">Practice</span>
+              <h1 data-doc-title="${esc(course.code)} CBT Practice">${esc(course.code)} CBT</h1>
+              <p>Answer each question to see your result.</p>
             </div>
 
             <div class="quiz-card">
-              <div class="quiz-question-meta">
-                <span>Question 1 of 1</span>
-                <span>Multiple Choice</span>
-              </div>
-              
-              <h3>${esc(quiz.question)}</h3>
-
-              <div class="quiz-options">
-                ${quiz.options.map((option, index) => `
-                  <button type="button" data-choice="${index}">
-                    ${esc(option)}
-                  </button>
-                `).join('')}
-              </div>
-
+              <div id="quiz-question-area"></div>
               <div class="quiz-feedback" aria-live="polite"></div>
+              <div class="quiz-runner-actions">
+                <button type="button" class="rp-btn rp-btn-primary" id="quiz-next" disabled>Next question</button>
+              </div>
             </div>
-            
-            <p class="content-notice">This is a demonstration question. Real CBT metrics will be added later.</p>
           </div>
         </section>
       `;
 
-      const optionButtons = app.querySelectorAll('[data-choice]');
       const feedback = app.querySelector('.quiz-feedback');
+      const questionArea = app.querySelector('#quiz-question-area');
+      const nextButton = app.querySelector('#quiz-next');
+      let questionIndex = 0;
+      let score = 0;
+      let answered = false;
+      let completed = false;
 
-      optionButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          // Reset styles
-          optionButtons.forEach(btn => btn.classList.remove('selected'));
-          feedback.className = 'quiz-feedback'; // Reset feedback classes
-          
-          // Apply selection
-          button.classList.add('selected');
-          
-          const isCorrect = Number(button.dataset.choice) === quiz.answer;
-          
-          if (isCorrect) {
-            feedback.textContent = 'Correct — well done.';
-            feedback.classList.add('show', 'correct');
-          } else {
-            feedback.textContent = `Not quite. The correct answer is: ${quiz.options[quiz.answer]}.`;
-            feedback.classList.add('show', 'incorrect');
-          }
+      function showQuestion() {
+        const question = validQuestions[questionIndex];
+        answered = false;
+        feedback.className = 'quiz-feedback';
+        feedback.textContent = '';
+        nextButton.disabled = true;
+        nextButton.textContent = questionIndex === validQuestions.length - 1 ? 'Finish quiz' : 'Next question';
+        questionArea.innerHTML = `
+          <div class="quiz-question-meta"><span>Question ${questionIndex + 1} of ${validQuestions.length}</span><span>Multiple Choice</span></div>
+          <h3>${esc(question.question)}</h3>
+          <div class="quiz-options">${question.options.map((option, index) => `
+            <button type="button" data-choice="${index}">${esc(option)}</button>
+          `).join('')}</div>
+        `;
+        questionArea.querySelectorAll('[data-choice]').forEach(button => {
+          button.addEventListener('click', () => {
+            if (answered) return;
+            answered = true;
+            const correct = Number(button.dataset.choice) === Number(question.answer);
+            if (correct) score++;
+            questionArea.querySelectorAll('[data-choice]').forEach(option => {
+              option.disabled = true;
+              if (Number(option.dataset.choice) === Number(question.answer)) option.classList.add('selected');
+            });
+            feedback.textContent = correct
+              ? 'Correct — well done.'
+              : `Not quite. The correct answer is: ${question.options[question.answer]}.`;
+            feedback.classList.add('show', correct ? 'correct' : 'incorrect');
+            nextButton.disabled = false;
+          });
         });
+      }
+
+      nextButton.addEventListener('click', () => {
+        if (completed) {
+          questionIndex = 0;
+          score = 0;
+          completed = false;
+          showQuestion();
+          return;
+        }
+        if (!answered) return;
+        if (questionIndex < validQuestions.length - 1) {
+          questionIndex++;
+          showQuestion();
+          return;
+        }
+        questionArea.innerHTML = `<h2>Quiz complete</h2><p>You scored ${score} out of ${validQuestions.length}.</p>`;
+        feedback.textContent = '';
+        nextButton.textContent = 'Try again';
+        nextButton.disabled = false;
+        completed = true;
       });
+
+      showQuestion();
     }
 
     const mobileMenuButton = document.querySelector('.mobile-menu-toggle');
@@ -2302,15 +2592,11 @@
     // SUPABASE INTEGRATION START
     // Initialize the app cleanly
     async function initApp() {
-      await loadSupabaseCatalog();
-      
-      initCourseFilter();
+      // Deep links show a loading state straight away instead of a flash of the homepage
+      render();
+
       initSearchListeners();
-      
-      // Build the searchable items AFTER Supabase finishes processing
-      searchableItems = getAllSearchableItems();
-      
-      renderSearchResults();
+      await refreshPublicCatalog({ renderPage: false });
       render();
     }
 
@@ -2937,6 +3223,7 @@ async function initAdminPanel() {
 
 
           await loadCourses();
+          await refreshPublicCatalog();
         }
       );
 
@@ -3202,14 +3489,7 @@ async function initAdminPanel() {
 
       await loadCourses();
 
-      // Refresh the public catalog too
-      await loadSupabaseCatalog();
-
-      if (
-        typeof renderRoute === 'function'
-      ) {
-        renderRoute();
-      }
+      await refreshPublicCatalog();
     }
   );
 
@@ -4027,6 +4307,7 @@ await showAdminCourseManagement();
           );
 
           await loadAdminResources(courseId);
+          await refreshPublicCatalog();
         }
       );
 
@@ -4255,6 +4536,7 @@ await showAdminCourseManagement();
       await loadAdminResources(
         courseSelect.value
       );
+      await refreshPublicCatalog();
     }
   );
 
