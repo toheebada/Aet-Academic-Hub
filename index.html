@@ -586,7 +586,7 @@
        ========================================= */
 
     .app-view { display: none; min-height: 55vh; }
-    body.app-mode > :not(.navbar):not(#app-view):not(#aet-admin-upload):not(footer) { display: none; }
+    body.app-mode > :not(.navbar):not(#app-view):not(#aet-admin-upload):not(#aet-admin-cbt):not(footer) { display: none; }
     body.app-mode #app-view { display: block; padding-bottom: 72px; }
     .app-view .section { padding-top: 32px; }
 
@@ -945,6 +945,86 @@
     @media (prefers-reduced-motion: reduce) {
       .spinner { animation: none; }
       .course-card, .hub-card, .academic-resource-card { transition: none; }
+    }
+  
+    /* ===== Admin: CBT Question Bank ===== */
+    .qb-panel { max-width: 960px; margin: 40px auto; padding: 24px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); font-family: inherit; color: #1f2430; }
+    .qb-panel[hidden] { display: none !important; }
+    .qb-panel.is-busy { cursor: progress; }
+    .qb-panel.is-busy button { pointer-events: none; opacity: 0.7; }
+    .qb-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; margin-bottom: 12px; }
+    .qb-head h2 { margin: 0; font-size: 22px; }
+    .qb-head p { margin: 6px 0 0; color: #666; font-size: 14px; }
+    .qb-message { display: none; margin: 12px 0; padding: 12px 14px; border-radius: 10px; font-size: 14px; font-weight: 600; }
+    .qb-message.show { display: block; }
+    .qb-message.ok { background: #eef9f2; color: #16723b; border: 1px solid #cceadd; }
+    .qb-message.warn { background: #fff8e6; color: #8a5a00; border: 1px solid #f3dca4; }
+    .qb-message.bad { background: #fdf3f3; color: #a33333; border: 1px solid #fadcdc; }
+    .qb-label { display: block; margin: 16px 0 6px; font-weight: 600; font-size: 14px; }
+    .qb-input { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; font-family: inherit; background: #fff; color: inherit; }
+    .qb-input:focus { outline: none; border-color: #080b63; box-shadow: 0 0 0 3px rgba(8, 11, 99, 0.1); }
+    .qb-textarea { min-height: 84px; resize: vertical; }
+    .qb-textarea.tall { min-height: 200px; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; }
+    .qb-card { margin-top: 20px; padding: 18px; border: 1px solid #e5e7eb; border-radius: 14px; background: #fbfbfe; }
+    .qb-card h3, .qb-h3 { margin: 0 0 8px; font-size: 17px; }
+    .qb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+    .qb-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+    .qb-between { justify-content: space-between; margin-top: 24px; }
+    .qb-between .qb-h3 { margin: 0; }
+    .qb-muted { color: #6d7185; font-size: 13px; }
+    .qb-empty { margin-top: 20px; padding: 24px; text-align: center; color: #6d7185; border: 1px dashed #d9dbe6; border-radius: 12px; }
+    .qb-btn { padding: 8px 12px; border: 1px solid #ccd0de; background: #fff; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit; color: #1f2430; }
+    .qb-btn:hover { border-color: #080b63; color: #080b63; }
+    .qb-btn.primary { background: #080b63; border-color: #080b63; color: #fff; }
+    .qb-btn.primary:hover { background: #050747; color: #fff; }
+    .qb-btn.good { background: #16723b; border-color: #16723b; color: #fff; }
+    .qb-btn.good:hover { background: #115a2f; color: #fff; }
+    .qb-btn.danger { color: #a33333; border-color: #e8c5c5; }
+    .qb-btn.danger:hover { background: #fdf3f3; border-color: #a33333; color: #a33333; }
+    .qb-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .qb-check { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; margin-top: 12px; }
+    .qb-row .qb-check, .qb-qtop .qb-check { margin-top: 0; }
+    .qb-status { margin: 12px 0 0; font-size: 14px; font-weight: 600; }
+    .qb-status.good { color: #16723b; } .qb-status.warn { color: #8a5a00; } .qb-status.muted { color: #6d7185; }
+    .qb-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0; }
+    .qb-tab { padding: 7px 12px; border: 1px solid #e5e7eb; border-radius: 999px; background: #fff; cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit; color: #1f2430; }
+    .qb-tab span { color: #6d7185; margin-left: 4px; }
+    .qb-tab.on { background: #080b63; border-color: #080b63; color: #fff; }
+    .qb-tab.on span { color: #cfd2ff; }
+    .qb-bulk { padding: 10px 0; border-bottom: 1px solid #e5e7eb; margin-bottom: 4px; }
+    .qb-example { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; font-size: 13px; overflow-x: auto; margin: 10px 0; }
+    .qb-importresult { margin-top: 14px; padding-top: 12px; border-top: 1px solid #e5e7eb; }
+    .qb-q { margin-top: 14px; padding: 16px; border: 1px solid #e5e7eb; border-radius: 14px; background: #fff; }
+    .qb-q.picked { border-color: #080b63; background: #f4f5ff; }
+    .qb-qtop { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .qb-qtext { margin: 10px 0; font-weight: 600; line-height: 1.5; }
+    .qb-opts { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+    .qb-opts li { padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; }
+    .qb-opts li span { color: #6d7185; margin-right: 4px; font-weight: 700; }
+    .qb-opts li.correct { background: #eef9f2; border-color: #cceadd; color: #16723b; }
+    .qb-explain { margin: 10px 0 0; font-size: 13px; color: #444; line-height: 1.5; }
+    .qb-issues, .qb-warns { margin: 10px 0 0 18px; padding: 0; font-size: 13px; font-weight: 600; }
+    .qb-issues { color: #a33333; } .qb-warns { color: #8a5a00; }
+    .qb-actions { margin-top: 14px; }
+    .qb-badge { padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 700; background: #eef0f6; color: #444; }
+    .qb-badge.published { background: #eef9f2; color: #16723b; }
+    .qb-badge.approved { background: #eaf1ff; color: #1d4ed8; }
+    .qb-badge.rejected { background: #fdf3f3; color: #a33333; }
+    .qb-tag { padding: 3px 10px; border-radius: 999px; font-size: 12px; background: #f4f5ff; color: #080b63; }
+    .qb-editor { border-color: #080b63; background: #fff; }
+    .qb-option { display: grid; grid-template-columns: auto auto 1fr auto auto; gap: 8px; align-items: center; margin-top: 8px; padding: 6px 8px; border: 1px solid #e5e7eb; border-radius: 10px; }
+    .qb-option.correct { border-color: #16723b; background: #eef9f2; }
+    .qb-option input[type="radio"] { width: 20px; height: 20px; accent-color: #16723b; }
+    .qb-letter { font-weight: 800; color: #080b63; width: 16px; }
+    .qb-mini { width: 34px; height: 34px; border: 1px solid #ccd0de; background: #fff; border-radius: 8px; cursor: pointer; font-size: 12px; }
+    .qb-mini:disabled { opacity: 0.35; cursor: not-allowed; }
+    @media (max-width: 640px) {
+      .qb-panel { margin: 20px 12px; padding: 16px; }
+      .qb-head { flex-direction: column; }
+      .qb-option { grid-template-columns: auto auto 1fr; }
+      .qb-option .qb-mini { grid-row: 2; width: 100%; }
+      .qb-option .qb-mini:nth-of-type(1) { grid-column: 1 / 3; }
+      .qb-option .qb-mini:nth-of-type(2) { grid-column: 3; }
     }
   </style>
 </head>
@@ -4936,6 +5016,773 @@ await showAdminCourseManagement();
 }   // closes initAdminPanel
 
 initAdminPanel();
+
+// ===============================
+// AET ADMIN - CBT QUESTION BANK
+// Talks only to the protected cbt-admin function.
+// Shows up only on ?admin=1 and only while you are signed in.
+// ===============================
+
+const CBT_ADMIN_URL = `${SUPABASE_URL}/functions/v1/cbt-admin`;
+
+function initCbtQuestionBank() {
+  if (new URLSearchParams(window.location.search).get('admin') !== '1') return;
+
+  const LETTERS = ['A', 'B', 'C', 'D'];
+  const STATUS_LABEL = { draft: 'Draft', approved: 'Approved', published: 'Published', rejected: 'Rejected' };
+  const PAGE_SIZE = 40;
+
+  const state = {
+    overview: null,       // all courses with counts
+    courseId: '',
+    questions: [],
+    settings: [],
+    readyPublished: 0,
+    filter: 'all',
+    search: '',
+    selected: new Set(),
+    limit: PAGE_SIZE,
+    draft: null,          // the question being edited
+    importOpen: false,
+    importParsed: null,
+    busy: false
+  };
+
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[character]));
+
+  // ---------- the panel ----------
+  const panel = document.createElement('section');
+  panel.id = 'aet-admin-cbt';
+  panel.className = 'qb-panel';
+  panel.hidden = true;
+  panel.innerHTML = `
+    <div class="qb-head">
+      <div>
+        <h2>CBT Question Bank</h2>
+        <p>Add, check and publish quiz questions. Students only ever see published questions.</p>
+      </div>
+      <button type="button" class="qb-btn" data-action="refresh">Refresh</button>
+    </div>
+    <div id="qb-message" class="qb-message" role="status" aria-live="polite"></div>
+    <div id="qb-course"></div>
+    <div id="qb-settings"></div>
+    <div id="qb-toolbar"></div>
+    <div id="qb-import"></div>
+    <div id="qb-editor"></div>
+    <div id="qb-list"></div>
+  `;
+  document.body.appendChild(panel);
+
+  const $ = selector => panel.querySelector(selector);
+
+  // ---------- talking to the server ----------
+  async function api(body) {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) throw new Error('Please sign in as admin.');
+
+    let response;
+    try {
+      response = await fetch(CBT_ADMIN_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`
+        },
+        body: JSON.stringify(body)
+      });
+    } catch (error) {
+      throw new Error('Could not reach the server. Check your internet connection.');
+    }
+
+    let data = null;
+    try { data = await response.json(); } catch (error) { data = null; }
+
+    if (!response.ok) {
+      const failure = new Error((data && data.error) || 'Something went wrong.');
+      failure.data = data;
+      throw failure;
+    }
+    return data;
+  }
+
+  let messageTimer = null;
+  function say(text, kind = 'ok') {
+    const box = $('#qb-message');
+    box.textContent = text || '';
+    box.className = `qb-message ${text ? 'show ' + kind : ''}`;
+    clearTimeout(messageTimer);
+    if (text && kind === 'ok') {
+      messageTimer = setTimeout(() => { box.className = 'qb-message'; box.textContent = ''; }, 6000);
+    }
+  }
+
+  async function guarded(job) {
+    if (state.busy) return;
+    state.busy = true;
+    panel.classList.add('is-busy');
+    try {
+      await job();
+    } catch (error) {
+      say(error.message || 'Something went wrong.', 'bad');
+    } finally {
+      state.busy = false;
+      panel.classList.remove('is-busy');
+    }
+  }
+
+  // ---------- checking a question (same rules as the server) ----------
+  const normalise = text => String(text).normalize('NFKC').toLowerCase().replace(/\s+/g, ' ').trim()
+    .replace(/[.,;:!?\s]+$/, '');
+
+  function check(q) {
+    const errors = [];
+    const warnings = [];
+    if (!String(q.question_text || '').trim()) errors.push('The question is empty.');
+    const options = Array.isArray(q.options) ? q.options : [];
+    const cleaned = [];
+    for (let i = 0; i < 4; i++) {
+      const value = String(options[i] ?? '').trim();
+      if (!value) errors.push(`Option ${LETTERS[i]} is empty.`);
+      cleaned.push(value ? normalise(value) : '');
+    }
+    for (let i = 0; i < 4; i++) {
+      for (let j = i + 1; j < 4; j++) {
+        if (cleaned[i] && cleaned[i] === cleaned[j]) errors.push(`Options ${LETTERS[i]} and ${LETTERS[j]} are the same.`);
+      }
+    }
+    if (!Number.isInteger(q.correct_option) || q.correct_option < 0 || q.correct_option > 3) {
+      errors.push('No correct answer is chosen.');
+    }
+    if (!String(q.explanation || '').trim()) warnings.push('No explanation. Students will see none after the quiz.');
+    return { errors, warnings };
+  }
+
+  // ---------- loading ----------
+  async function loadOverview() {
+    state.overview = (await api({ action: 'overview' })).courses;
+    if (state.courseId && !state.overview.some(course => course.id === state.courseId)) state.courseId = '';
+    renderCourse();
+  }
+
+  async function loadCourse() {
+    state.selected.clear();
+    state.draft = null;
+    state.importParsed = null;
+    if (!state.courseId) {
+      state.questions = [];
+      state.settings = [];
+      renderAll();
+      return;
+    }
+    const result = await api({ action: 'list', courseId: state.courseId });
+    state.questions = result.questions;
+    state.settings = result.settings;
+    state.readyPublished = result.readyPublished;
+    renderAll();
+  }
+
+  async function reloadAll() {
+    const keep = state.courseId;
+    await loadOverview();
+    state.courseId = keep;
+    renderCourse();
+    await loadCourse();
+  }
+
+  // ---------- drawing ----------
+  function renderAll() {
+    renderCourse();
+    renderSettings();
+    renderToolbar();
+    renderImport();
+    renderEditor();
+    renderList();
+  }
+
+  function renderCourse() {
+    const box = $('#qb-course');
+    if (!state.overview) { box.innerHTML = '<p class="qb-muted">Loading courses...</p>'; return; }
+    box.innerHTML = `
+      <label class="qb-label" for="qb-course-select">Course</label>
+      <select id="qb-course-select" class="qb-input">
+        <option value="">Choose a course</option>
+        ${state.overview.map(course => {
+          const c = course.counts;
+          return `<option value="${esc(course.id)}" ${course.id === state.courseId ? 'selected' : ''}>${esc(course.code)} · ${esc(course.title)} (${c.published} published, ${c.draft} draft)</option>`;
+        }).join('')}
+      </select>
+    `;
+  }
+
+  function settingsRow(mode) {
+    return state.settings.find(row => row.mode === mode) || null;
+  }
+
+  function renderSettings() {
+    const box = $('#qb-settings');
+    if (!state.courseId) { box.innerHTML = ''; return; }
+
+    const mode = box.dataset.mode || 'practice';
+    const row = settingsRow(mode);
+    const count = row ? row.question_count : 20;
+    const minutes = row ? Math.round((row.duration_seconds / 60) * 100) / 100 : 20;
+    const marks = row ? Number(row.marks_per_question) : 1;
+    const live = row ? row.published : false;
+    const enough = row ? state.readyPublished >= count : false;
+
+    let status = 'No quiz is set up for this mode yet.';
+    let tone = 'muted';
+    if (row) {
+      if (!live) { status = 'Hidden from students.'; tone = 'muted'; }
+      else if (enough) { status = 'Live. Students can take this quiz.'; tone = 'good'; }
+      else { status = `Switched on, but students will not see it yet. It needs ${count} published questions and only ${state.readyPublished} are ready.`; tone = 'warn'; }
+    }
+
+    box.innerHTML = `
+      <div class="qb-card">
+        <h3>Quiz settings</h3>
+        <div class="qb-grid">
+          <div>
+            <label class="qb-label" for="qb-set-mode">Mode</label>
+            <select id="qb-set-mode" class="qb-input">
+              <option value="practice" ${mode === 'practice' ? 'selected' : ''}>Practice</option>
+              <option value="exam" ${mode === 'exam' ? 'selected' : ''}>Exam</option>
+            </select>
+          </div>
+          <div>
+            <label class="qb-label" for="qb-set-count">Questions per attempt</label>
+            <input id="qb-set-count" class="qb-input" type="number" min="1" max="100" value="${esc(count)}">
+          </div>
+          <div>
+            <label class="qb-label" for="qb-set-minutes">Time (minutes)</label>
+            <input id="qb-set-minutes" class="qb-input" type="number" min="0.5" max="240" step="0.5" value="${esc(minutes)}">
+          </div>
+          <div>
+            <label class="qb-label" for="qb-set-marks">Marks per question</label>
+            <input id="qb-set-marks" class="qb-input" type="number" min="0.5" max="10" step="0.5" value="${esc(marks)}">
+          </div>
+        </div>
+        <label class="qb-check"><input id="qb-set-published" type="checkbox" ${live ? 'checked' : ''}> Show this quiz to students</label>
+        <p class="qb-status ${tone}">${esc(status)}</p>
+        <div class="qb-row">
+          <button type="button" class="qb-btn primary" data-action="save-settings">Save settings</button>
+          <span class="qb-muted">Changes can take up to a minute to reach students.</span>
+        </div>
+      </div>
+    `;
+  }
+
+  function filteredQuestions() {
+    const term = state.search.trim().toLowerCase();
+    return state.questions.filter(q => {
+      if (state.filter === 'fix') { if (!q.issues.length) return false; }
+      else if (state.filter !== 'all' && q.status !== state.filter) return false;
+      if (term && !String(q.question_text).toLowerCase().includes(term)) return false;
+      return true;
+    });
+  }
+
+  function counts() {
+    const result = { all: state.questions.length, draft: 0, approved: 0, published: 0, rejected: 0, fix: 0 };
+    state.questions.forEach(q => {
+      result[q.status] = (result[q.status] || 0) + 1;
+      if (q.issues.length) result.fix++;
+    });
+    return result;
+  }
+
+  function renderToolbar() {
+    const box = $('#qb-toolbar');
+    if (!state.courseId) { box.innerHTML = ''; return; }
+    const c = counts();
+    const tabs = [['all', 'All'], ['draft', 'Draft'], ['approved', 'Approved'], ['published', 'Published'], ['rejected', 'Rejected'], ['fix', 'Needs fixing']];
+    const shown = filteredQuestions();
+    const selectedCount = state.selected.size;
+
+    box.innerHTML = `
+      <div class="qb-row qb-between">
+        <h3 class="qb-h3">Questions</h3>
+        <div class="qb-row">
+          <button type="button" class="qb-btn primary" data-action="new">+ New question</button>
+          <button type="button" class="qb-btn" data-action="toggle-import">Import many</button>
+        </div>
+      </div>
+      <div class="qb-tabs" role="tablist">
+        ${tabs.map(([key, label]) => `<button type="button" role="tab" class="qb-tab ${state.filter === key ? 'on' : ''}" data-action="filter" data-filter="${key}">${label} <span>${c[key] || 0}</span></button>`).join('')}
+      </div>
+      <input id="qb-search" class="qb-input" type="search" placeholder="Search questions" value="${esc(state.search)}">
+      <div class="qb-row qb-bulk">
+        <label class="qb-check"><input type="checkbox" data-action="select-all" ${shown.length && shown.every(q => state.selected.has(q.id)) ? 'checked' : ''}> Select all shown (${shown.length})</label>
+        ${selectedCount ? `
+          <span class="qb-muted">${selectedCount} selected:</span>
+          <button type="button" class="qb-btn" data-action="bulk" data-status="approved">Approve</button>
+          <button type="button" class="qb-btn good" data-action="bulk" data-status="published">Publish</button>
+          <button type="button" class="qb-btn" data-action="bulk" data-status="draft">Back to draft</button>
+          <button type="button" class="qb-btn" data-action="bulk" data-status="rejected">Reject</button>
+          <button type="button" class="qb-btn danger" data-action="bulk-delete">Delete</button>` : ''}
+      </div>
+    `;
+  }
+
+  function renderImport() {
+    const box = $('#qb-import');
+    if (!state.courseId || !state.importOpen) { box.innerHTML = ''; return; }
+    const parsed = state.importParsed;
+
+    box.innerHTML = `
+      <div class="qb-card">
+        <h3>Import many questions</h3>
+        <p class="qb-muted">Paste questions in this simple format (one blank line between questions). They are added as <strong>drafts</strong>, so nothing goes live until you publish it.</p>
+        <pre class="qb-example">1. What is the derivative of x squared?
+A. x
+B. 2x
+C. x squared
+D. 2
+Answer: B
+Explanation: The power rule gives 2x.</pre>
+        <p class="qb-muted">JSON also works. Use a list of objects with <code>question</code>, <code>options</code> (4 items), <code>answer</code> (A, B, C or D) and optional <code>explanation</code>.</p>
+        <textarea id="qb-import-text" class="qb-input qb-textarea tall" placeholder="Paste here"></textarea>
+        <div class="qb-row">
+          <button type="button" class="qb-btn" data-action="import-check">Check</button>
+          <button type="button" class="qb-btn" data-action="import-cancel">Close</button>
+        </div>
+        ${parsed ? `
+          <div class="qb-importresult">
+            <p><strong>${parsed.questions.length}</strong> question${parsed.questions.length === 1 ? '' : 's'} ready to import${parsed.problems.length ? `, <strong>${parsed.problems.length}</strong> could not be read:` : '.'}</p>
+            ${parsed.problems.length ? `<ul class="qb-issues">${parsed.problems.map(p => `<li>${esc(p)}</li>`).join('')}</ul>` : ''}
+            ${parsed.questions.length ? `<button type="button" class="qb-btn primary" data-action="import-run">Import ${parsed.questions.length} as drafts</button>` : ''}
+          </div>` : ''}
+      </div>
+    `;
+  }
+
+  function renderEditor(focusIt = false) {
+    const box = $('#qb-editor');
+    const d = state.draft;
+    if (!state.courseId || !d) { box.innerHTML = ''; return; }
+    const live = d.status === 'published';
+
+    box.innerHTML = `
+      <div class="qb-card qb-editor" id="qb-editor-card">
+        <h3>${d.id ? 'Edit question' : 'New question'}${d.id ? ` <span class="qb-badge ${esc(d.status)}">${esc(STATUS_LABEL[d.status])}</span>` : ''}</h3>
+
+        <label class="qb-label" for="qb-q-text">Question</label>
+        <textarea id="qb-q-text" class="qb-input qb-textarea" data-field="question_text">${esc(d.question_text)}</textarea>
+
+        <p class="qb-label">Options (tap the circle to mark the correct one)</p>
+        ${[0, 1, 2, 3].map(i => `
+          <div class="qb-option ${d.correct_option === i ? 'correct' : ''}">
+            <input type="radio" name="qb-correct" value="${i}" aria-label="Option ${LETTERS[i]} is correct" ${d.correct_option === i ? 'checked' : ''}>
+            <span class="qb-letter">${LETTERS[i]}</span>
+            <input type="text" class="qb-input" data-option="${i}" value="${esc(d.options[i])}" aria-label="Option ${LETTERS[i]}">
+            <button type="button" class="qb-mini" data-action="move" data-index="${i}" data-dir="-1" ${i === 0 ? 'disabled' : ''} aria-label="Move option ${LETTERS[i]} up">▲</button>
+            <button type="button" class="qb-mini" data-action="move" data-index="${i}" data-dir="1" ${i === 3 ? 'disabled' : ''} aria-label="Move option ${LETTERS[i]} down">▼</button>
+          </div>`).join('')}
+
+        <label class="qb-label" for="qb-q-explain">Explanation (shown after the quiz)</label>
+        <textarea id="qb-q-explain" class="qb-input qb-textarea" data-field="explanation">${esc(d.explanation)}</textarea>
+
+        <div class="qb-grid">
+          <div>
+            <label class="qb-label" for="qb-q-topic">Topic (optional)</label>
+            <input id="qb-q-topic" class="qb-input" type="text" data-field="topic" value="${esc(d.topic)}">
+          </div>
+          <div>
+            <label class="qb-label" for="qb-q-diff">Difficulty</label>
+            <select id="qb-q-diff" class="qb-input" data-field="difficulty">
+              ${['easy', 'medium', 'hard'].map(level => `<option value="${level}" ${d.difficulty === level ? 'selected' : ''}>${level[0].toUpperCase() + level.slice(1)}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+
+        <div id="qb-problems"></div>
+
+        <div class="qb-row">
+          <button type="button" class="qb-btn primary" data-action="save">${live ? 'Save changes' : 'Save'}</button>
+          ${live ? '' : '<button type="button" class="qb-btn good" data-action="save-publish" id="qb-save-publish">Save and publish</button>'}
+          <button type="button" class="qb-btn" data-action="cancel-edit">Cancel</button>
+        </div>
+      </div>
+    `;
+    refreshProblems();
+    if (focusIt) box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Updates only the warning list and the publish button while typing.
+  function refreshProblems() {
+    const d = state.draft;
+    const holder = $('#qb-problems');
+    if (!d || !holder) return;
+    const { errors, warnings } = check(d);
+    holder.innerHTML = `
+      ${errors.length ? `<ul class="qb-issues">${errors.map(e => `<li>${esc(e)}</li>`).join('')}</ul>` : '<p class="qb-status good">Looks good.</p>'}
+      ${warnings.length ? `<ul class="qb-warns">${warnings.map(w => `<li>${esc(w)}</li>`).join('')}</ul>` : ''}
+    `;
+    const publishButton = $('#qb-save-publish');
+    if (publishButton) publishButton.disabled = errors.length > 0;
+    panel.querySelectorAll('.qb-option').forEach((row, i) => row.classList.toggle('correct', d.correct_option === i));
+  }
+
+  function actionsFor(q) {
+    const buttons = [`<button type="button" class="qb-btn" data-action="edit" data-id="${esc(q.id)}">Edit</button>`];
+    const set = (status, label, cls = '') => `<button type="button" class="qb-btn ${cls}" data-action="status" data-id="${esc(q.id)}" data-status="${status}">${label}</button>`;
+    if (q.status === 'draft') buttons.push(set('approved', 'Approve'), set('published', 'Publish', 'good'), set('rejected', 'Reject'));
+    if (q.status === 'approved') buttons.push(set('published', 'Publish', 'good'), set('draft', 'Back to draft'), set('rejected', 'Reject'));
+    if (q.status === 'published') buttons.push(set('draft', 'Unpublish'));
+    if (q.status === 'rejected') buttons.push(set('draft', 'Back to draft'));
+    buttons.push(`<button type="button" class="qb-btn danger" data-action="delete" data-id="${esc(q.id)}">Delete</button>`);
+    return buttons.join('');
+  }
+
+  function renderList() {
+    const box = $('#qb-list');
+    if (!state.courseId) { box.innerHTML = '<p class="qb-muted">Choose a course to see its questions.</p>'; return; }
+    const shown = filteredQuestions();
+    if (!state.questions.length) { box.innerHTML = '<p class="qb-empty">No questions yet for this course. Add one, or import many.</p>'; return; }
+    if (!shown.length) { box.innerHTML = '<p class="qb-empty">No questions match this filter.</p>'; return; }
+
+    const visible = shown.slice(0, state.limit);
+    box.innerHTML = `
+      ${visible.map(q => `
+        <article class="qb-q ${state.selected.has(q.id) ? 'picked' : ''}">
+          <div class="qb-qtop">
+            <label class="qb-check"><input type="checkbox" data-action="pick" data-id="${esc(q.id)}" ${state.selected.has(q.id) ? 'checked' : ''} aria-label="Select this question"></label>
+            <span class="qb-badge ${esc(q.status)}">${esc(STATUS_LABEL[q.status] || q.status)}</span>
+            <span class="qb-tag">${esc(q.difficulty)}</span>
+            ${q.topic ? `<span class="qb-tag">${esc(q.topic)}</span>` : ''}
+          </div>
+          <p class="qb-qtext">${esc(q.question_text)}</p>
+          <ol class="qb-opts">
+            ${(q.options || []).map((option, i) => `<li class="${q.correct_option === i ? 'correct' : ''}"><span>${LETTERS[i]}.</span> ${esc(option)}${q.correct_option === i ? ' <b>✓</b>' : ''}</li>`).join('')}
+          </ol>
+          ${q.explanation ? `<p class="qb-explain"><strong>Why:</strong> ${esc(q.explanation)}</p>` : ''}
+          ${q.issues.length ? `<ul class="qb-issues">${q.issues.map(i => `<li>${esc(i)}</li>`).join('')}</ul>` : ''}
+          ${q.warnings.length ? `<ul class="qb-warns">${q.warnings.map(w => `<li>${esc(w)}</li>`).join('')}</ul>` : ''}
+          <div class="qb-row qb-actions">${actionsFor(q)}</div>
+        </article>`).join('')}
+      ${shown.length > visible.length ? `<button type="button" class="qb-btn" data-action="more">Show more (${shown.length - visible.length} left)</button>` : ''}
+    `;
+  }
+
+  // ---------- reading pasted questions ----------
+  function parseJsonQuestions(text) {
+    const problems = [];
+    const questions = [];
+    let data;
+    try { data = JSON.parse(text); } catch (error) { return { questions, problems: ['This is not valid JSON.'] }; }
+    if (!Array.isArray(data)) data = data && Array.isArray(data.questions) ? data.questions : [data];
+
+    data.forEach((item, index) => {
+      const label = `Question ${index + 1}`;
+      if (!item || typeof item !== 'object') { problems.push(`${label}: not a question.`); return; }
+      const questionText = item.question_text ?? item.question ?? item.q;
+      let options = item.options ?? item.choices;
+      if (!Array.isArray(options) && ['A', 'B', 'C', 'D'].every(letter => letter in item)) options = ['A', 'B', 'C', 'D'].map(letter => item[letter]);
+      if (typeof questionText !== 'string' || !questionText.trim()) { problems.push(`${label}: no question text.`); return; }
+      if (!Array.isArray(options) || options.length !== 4) { problems.push(`${label}: it needs exactly 4 options.`); return; }
+      options = options.map(option => String(option ?? '').replace(/^\s*\(?[A-Da-d]\s*[.):]\s+/, '').trim());
+
+      let correct = null;
+      if (Number.isInteger(item.correct_option)) correct = item.correct_option;
+      else {
+        const answer = String(item.answer ?? item.correct ?? item.correct_answer ?? '').trim();
+        const letter = answer.match(/^\(?([A-Da-d])\)?(?:[.):\s]|$)/);
+        if (letter) correct = 'ABCD'.indexOf(letter[1].toUpperCase());
+        else {
+          const hit = options.findIndex(option => normalise(option) === normalise(answer));
+          if (hit >= 0) correct = hit;
+        }
+      }
+      if (correct === null || correct < 0 || correct > 3) { problems.push(`${label}: no clear correct answer.`); return; }
+
+      questions.push({
+        question_text: questionText.trim(), options, correct_option: correct,
+        explanation: String(item.explanation ?? item.why ?? '').trim(),
+        topic: item.topic ? String(item.topic).trim() : null,
+        difficulty: ['easy', 'medium', 'hard'].includes(String(item.difficulty).toLowerCase()) ? String(item.difficulty).toLowerCase() : 'medium'
+      });
+    });
+    return { questions, problems };
+  }
+
+  function parseTextQuestions(text) {
+    const lines = text.replace(/\r/g, '').split('\n');
+    const blocks = [];
+    let current = null;
+    let mode = 'question';
+
+    const optionLine = /^\s*\(?([A-Da-d])\s*[.):\]]\s*(.*\S.*)$/;
+    const answerLine = /^\s*(?:answer|ans|correct(?:\s+answer)?)\s*[:\-]\s*\(?([A-Da-d])\b/i;
+    const explainLine = /^\s*(?:explanation|why|reason)\s*[:\-]\s*(.*)$/i;
+    const topicLine = /^\s*topic\s*[:\-]\s*(.*)$/i;
+    const diffLine = /^\s*difficulty\s*[:\-]\s*(easy|medium|hard)\b/i;
+    const startLine = /^\s*(?:(?:q(?:uestion)?\s*)?\d+\s*[.):\-]|q(?:uestion)?\s*[.):\-])\s*(.*\S.*)$/i;
+
+    const begin = firstText => {
+      current = { text: firstText, options: [], answer: null, explanation: '', topic: null, difficulty: 'medium', closed: false };
+      blocks.push(current);
+      mode = 'question';
+    };
+
+    lines.forEach(rawLine => {
+      const line = rawLine.trimEnd();
+      if (!line.trim()) { if (current && (current.options.length || current.answer !== null)) current.closed = true; return; }
+
+      let match;
+      if ((match = line.match(answerLine))) { if (!current) return; current.answer = 'ABCD'.indexOf(match[1].toUpperCase()); mode = 'answer'; return; }
+      if ((match = line.match(explainLine))) { if (!current) return; current.explanation = match[1].trim(); mode = 'explanation'; return; }
+      if ((match = line.match(topicLine))) { if (!current) return; current.topic = match[1].trim() || null; mode = 'topic'; return; }
+      if ((match = line.match(diffLine))) { if (!current) return; current.difficulty = match[1].toLowerCase(); mode = 'diff'; return; }
+      if (current && !current.closed && (match = line.match(optionLine)) && current.options.length < 4 && mode !== 'explanation') {
+        current.options.push(match[2].trim()); mode = 'option'; return;
+      }
+      if ((match = line.match(startLine)) && (!current || current.closed || current.options.length >= 4 || current.answer !== null)) { begin(match[1].trim()); return; }
+      if (!current || current.closed) { begin(line.trim()); return; }
+
+      if (mode === 'question') current.text += ' ' + line.trim();
+      else if (mode === 'option') current.options[current.options.length - 1] += ' ' + line.trim();
+      else if (mode === 'explanation') current.explanation += ' ' + line.trim();
+    });
+
+    const questions = [];
+    const problems = [];
+    blocks.forEach((block, index) => {
+      const label = `Question ${index + 1} ("${block.text.slice(0, 40)}${block.text.length > 40 ? '...' : ''}")`;
+      if (block.options.length !== 4) { problems.push(`${label}: found ${block.options.length} options, it needs 4.`); return; }
+      if (block.answer === null || block.answer < 0) { problems.push(`${label}: no "Answer:" line.`); return; }
+      questions.push({
+        question_text: block.text, options: block.options, correct_option: block.answer,
+        explanation: block.explanation, topic: block.topic, difficulty: block.difficulty
+      });
+    });
+    if (!blocks.length) problems.push('Nothing that looks like a question was found.');
+    return { questions, problems };
+  }
+
+  function parseImport(text) {
+    const trimmed = text.trim();
+    if (!trimmed) return { questions: [], problems: ['The box is empty.'] };
+    if (trimmed.startsWith('[') || trimmed.startsWith('{')) return parseJsonQuestions(trimmed);
+    return parseTextQuestions(trimmed);
+  }
+
+  // ---------- editing ----------
+  function blankDraft() {
+    return { id: null, status: 'draft', question_text: '', options: ['', '', '', ''], correct_option: 0, explanation: '', topic: '', difficulty: 'medium' };
+  }
+
+  function draftFrom(q) {
+    return {
+      id: q.id, status: q.status, question_text: q.question_text, options: [...q.options],
+      correct_option: q.correct_option, explanation: q.explanation || '', topic: q.topic || '', difficulty: q.difficulty
+    };
+  }
+
+  function draftPayload(d) {
+    return {
+      action: 'save', courseId: state.courseId, id: d.id || undefined,
+      question_text: d.question_text, options: d.options, correct_option: d.correct_option,
+      explanation: d.explanation, topic: d.topic, difficulty: d.difficulty
+    };
+  }
+
+  function problemMessage(failed) {
+    return failed.map(item => item.issues.join(' ')).join(' ');
+  }
+
+  // ---------- clicks ----------
+  panel.addEventListener('click', event => {
+    const target = event.target.closest('[data-action]');
+    if (!target || target.tagName === 'INPUT' && target.type === 'checkbox') return;
+    const action = target.dataset.action;
+
+    if (action === 'refresh') { guarded(reloadAll); return; }
+
+    if (action === 'save-settings') {
+      guarded(async () => {
+        const mode = $('#qb-set-mode').value;
+        const result = await api({
+          action: 'save_settings', courseId: state.courseId, mode,
+          question_count: Number($('#qb-set-count').value),
+          duration_seconds: Math.round(Number($('#qb-set-minutes').value) * 60),
+          marks_per_question: Number($('#qb-set-marks').value),
+          published: $('#qb-set-published').checked
+        });
+        await reloadAll();
+        say(result.enough ? 'Settings saved. The quiz is ready for students.' : 'Settings saved.');
+      });
+      return;
+    }
+
+    if (action === 'new') { state.draft = blankDraft(); renderEditor(true); return; }
+    if (action === 'cancel-edit') { state.draft = null; renderEditor(); return; }
+    if (action === 'toggle-import') { state.importOpen = !state.importOpen; state.importParsed = null; renderImport(); return; }
+    if (action === 'import-cancel') { state.importOpen = false; state.importParsed = null; renderImport(); return; }
+
+    if (action === 'import-check') {
+      state.importParsed = parseImport($('#qb-import-text').value);
+      const keep = $('#qb-import-text').value;
+      renderImport();
+      $('#qb-import-text').value = keep;
+      return;
+    }
+
+    if (action === 'import-run') {
+      guarded(async () => {
+        const list = state.importParsed ? state.importParsed.questions : [];
+        let created = 0, fix = 0, skipped = [];
+        for (let i = 0; i < list.length; i += 100) {
+          const result = await api({ action: 'import', courseId: state.courseId, questions: list.slice(i, i + 100) });
+          created += result.created; fix += result.needFixing; skipped = skipped.concat(result.skipped);
+        }
+        state.importOpen = false;
+        state.importParsed = null;
+        await reloadAll();
+        say(`Imported ${created} draft${created === 1 ? '' : 's'}.${fix ? ` ${fix} need fixing before they can be published.` : ''}${skipped.length ? ` ${skipped.length} skipped (already in the course or incomplete).` : ''}`);
+      });
+      return;
+    }
+
+    if (action === 'filter') { state.filter = target.dataset.filter; state.limit = PAGE_SIZE; renderToolbar(); renderList(); return; }
+    if (action === 'more') { state.limit += PAGE_SIZE; renderList(); return; }
+
+    if (action === 'edit') {
+      const q = state.questions.find(item => item.id === target.dataset.id);
+      if (q) { state.draft = draftFrom(q); renderEditor(true); }
+      return;
+    }
+
+    if (action === 'move') {
+      const i = Number(target.dataset.index);
+      const j = i + Number(target.dataset.dir);
+      const d = state.draft;
+      if (!d || j < 0 || j > 3) return;
+      [d.options[i], d.options[j]] = [d.options[j], d.options[i]];
+      if (d.correct_option === i) d.correct_option = j; else if (d.correct_option === j) d.correct_option = i;
+      const keepScroll = window.scrollY;
+      renderEditor();
+      window.scrollTo({ top: keepScroll });
+      return;
+    }
+
+    if (action === 'save' || action === 'save-publish') {
+      const d = state.draft;
+      if (!d) return;
+      guarded(async () => {
+        const result = await api(draftPayload(d));
+        let note;
+        if (action === 'save-publish') {
+          const outcome = await api({ action: 'set_status', ids: [result.id], status: 'published' });
+          if (outcome.failed.length) throw new Error('Saved, but not published: ' + problemMessage(outcome.failed));
+          note = 'Saved and published.';
+        } else {
+          note = result.issues.length ? 'Saved as a draft. It still needs fixing before it can be published.' : 'Saved.';
+        }
+        state.draft = null;
+        await reloadAll();
+        say(note);
+      });
+      return;
+    }
+
+    if (action === 'status') {
+      guarded(async () => {
+        const outcome = await api({ action: 'set_status', ids: [target.dataset.id], status: target.dataset.status });
+        if (outcome.failed.length) throw new Error('Not changed: ' + problemMessage(outcome.failed));
+        await reloadAll();
+        say(`Moved to ${STATUS_LABEL[target.dataset.status].toLowerCase()}.`);
+      });
+      return;
+    }
+
+    if (action === 'bulk') {
+      const ids = [...state.selected];
+      const status = target.dataset.status;
+      guarded(async () => {
+        const outcome = await api({ action: 'set_status', ids, status });
+        await reloadAll();
+        say(`${outcome.updated} moved to ${STATUS_LABEL[status].toLowerCase()}.${outcome.failed.length ? ` ${outcome.failed.length} could not be changed because they still have problems (see "Needs fixing").` : ''}`, outcome.failed.length ? 'warn' : 'ok');
+      });
+      return;
+    }
+
+    if (action === 'delete' || action === 'bulk-delete') {
+      const ids = action === 'delete' ? [target.dataset.id] : [...state.selected];
+      if (!ids.length) return;
+      if (!window.confirm(`Delete ${ids.length} question${ids.length === 1 ? '' : 's'} for good? This cannot be undone.`)) return;
+      guarded(async () => {
+        await api({ action: 'delete', ids });
+        await reloadAll();
+        say(`Deleted ${ids.length}.`);
+      });
+    }
+  });
+
+  // ---------- typing, ticking, choosing ----------
+  panel.addEventListener('input', event => {
+    const el = event.target;
+    const d = state.draft;
+
+    if (el.id === 'qb-search') {
+      state.search = el.value; state.limit = PAGE_SIZE; renderList();
+      const keep = $('#qb-search'); if (keep) { keep.focus(); keep.setSelectionRange(el.value.length, el.value.length); }
+      return;
+    }
+    if (!d) return;
+    if (el.dataset.field) { d[el.dataset.field] = el.value; refreshProblems(); }
+    else if (el.dataset.option !== undefined) { d.options[Number(el.dataset.option)] = el.value; refreshProblems(); }
+  });
+
+  panel.addEventListener('change', event => {
+    const el = event.target;
+
+    if (el.id === 'qb-course-select') {
+      state.courseId = el.value; state.filter = 'all'; state.search = ''; state.limit = PAGE_SIZE;
+      guarded(loadCourse);
+      return;
+    }
+    if (el.id === 'qb-set-mode') { $('#qb-settings').dataset.mode = el.value; renderSettings(); return; }
+    if (el.name === 'qb-correct' && state.draft) { state.draft.correct_option = Number(el.value); refreshProblems(); return; }
+
+    if (el.dataset.action === 'pick') {
+      if (el.checked) state.selected.add(el.dataset.id); else state.selected.delete(el.dataset.id);
+      renderToolbar(); renderList();
+      return;
+    }
+    if (el.dataset.action === 'select-all') {
+      const shown = filteredQuestions();
+      if (el.checked) shown.forEach(q => state.selected.add(q.id)); else shown.forEach(q => state.selected.delete(q.id));
+      renderToolbar(); renderList();
+    }
+  });
+
+  // ---------- show only while signed in ----------
+  let shownFor = null;
+  async function syncSession(session) {
+    if (session) {
+      panel.hidden = false;
+      if (shownFor !== session.user.id) {
+        shownFor = session.user.id;
+        await guarded(async () => { await loadOverview(); renderAll(); });
+      }
+    } else {
+      shownFor = null;
+      panel.hidden = true;
+      state.overview = null; state.courseId = ''; state.questions = []; state.draft = null;
+      $('#qb-list').innerHTML = ''; $('#qb-editor').innerHTML = '';
+    }
+  }
+
+  supabaseClient.auth.getSession().then(({ data: { session } }) => syncSession(session));
+  supabaseClient.auth.onAuthStateChange((event, session) => {
+    // Run outside the callback so the auth library is never blocked
+    setTimeout(() => syncSession(session), 0);
+  });
+}
+
+initCbtQuestionBank();
     
 </script>
 </body>
