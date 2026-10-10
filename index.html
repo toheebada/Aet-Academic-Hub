@@ -2757,6 +2757,19 @@
         const questions = data.questions;
         const total = questions.length;
         const answers = new Array(total).fill(null);
+        // Each student sees the options in their own random order. Answers are
+        // still stored and sent as the ORIGINAL option number, so marking is unchanged.
+        const shuffleOrder = () => {
+          const order = [0, 1, 2, 3];
+          const random = new Uint32Array(3);
+          crypto.getRandomValues(random);
+          for (let i = 3; i > 0; i--) {
+            const j = random[3 - i] % (i + 1);
+            [order[i], order[j]] = [order[j], order[i]];
+          }
+          return order;
+        };
+        const optionOrders = questions.map(shuffleOrder);
         const deadline = performance.now() + Number(data.durationSeconds) * 1000;
         let index = 0;
         let confirming = false;
@@ -2791,8 +2804,8 @@
 
               <h3>${esc(question.question_text)}</h3>
               <div class="quiz-options" role="group" aria-label="Answer choices">
-                ${question.options.map((option, optionIndex) => `
-                  <button type="button" data-choice="${optionIndex}" class="${answers[index] === optionIndex ? 'selected' : ''}" aria-pressed="${answers[index] === optionIndex}">${esc(option)}</button>
+                ${optionOrders[index].map(optionIndex => `
+                  <button type="button" data-choice="${optionIndex}" class="${answers[index] === optionIndex ? 'selected' : ''}" aria-pressed="${answers[index] === optionIndex}">${esc(question.options[optionIndex])}</button>
                 `).join('')}
               </div>
               ${answers[index] !== null ? '<button type="button" class="quiz-clear" id="quiz-clear">Clear my answer</button>' : ''}
