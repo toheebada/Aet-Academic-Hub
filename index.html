@@ -11,22 +11,24 @@
     content="AET Learning Hub, your one-stop platform for past questions, lecture materials and CBT practice for better preparation."
   >
   <meta name="theme-color" content="#080b63">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%23080b63%22/%3E%3Ctext%20x%3D%2232%22%20y%3D%2242%22%20font-family%3D%22Arial%2CHelvetica%2Csans-serif%22%20font-size%3D%2226%22%20font-weight%3D%22800%22%20text-anchor%3D%22middle%22%20fill%3D%22%23ffd21c%22%3EAET%3C/text%3E%3C/svg%3E">
-  <link rel="canonical" href="https://toheebada.github.io/Aet-Learning-Hub/">
+  <link rel="icon" type="image/png" sizes="192x192" href="favicon.png">
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="canonical" href="https://toheebada.github.io/Aet-Academic-Hub/">
 
   <!-- Link preview (WhatsApp, Telegram, X, etc.) -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="AET Learning Hub">
   <meta property="og:title" content="AET Learning Hub">
   <meta property="og:description" content="Your one-stop platform for past questions, lecture materials and CBT practice for better preparation.">
-  <meta property="og:url" content="https://toheebada.github.io/Aet-Learning-Hub/">
-  <meta property="og:image" content="https://toheebada.github.io/Aet-Learning-Hub/og-image.png">
+  <meta property="og:url" content="https://toheebada.github.io/Aet-Academic-Hub/">
+  <meta property="og:image" content="https://toheebada.github.io/Aet-Academic-Hub/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="AET Learning Hub">
   <meta name="twitter:description" content="Your one-stop platform for past questions, lecture materials and CBT practice for better preparation.">
-  <meta name="twitter:image" content="https://toheebada.github.io/Aet-Learning-Hub/og-image.png">
+  <meta name="twitter:image" content="https://toheebada.github.io/Aet-Academic-Hub/og-image.png">
 
   <!-- SUPABASE INTEGRATION START -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -694,12 +696,14 @@
     /* Resource Views & Empty States */
     .academic-resource-list { display: grid; gap: 12px; }
     .academic-resource-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px; transition: all 0.2s ease; text-decoration: none; }
-    .academic-resource-card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(8, 11, 99, 0.06); border-color: var(--navy); }
+    .academic-resource-card:hover { box-shadow: 0 6px 16px rgba(8, 11, 99, 0.06); border-color: #c9cdea; }
     .academic-resource-info { display: flex; align-items: center; gap: 16px; min-width: 0; }
     .academic-resource-icon { width: 42px; height: 42px; border-radius: 10px; background: var(--background); color: var(--navy); font-weight: 800; font-size: 12px; display: grid; place-items: center; flex-shrink: 0; }
     .academic-resource-text { min-width: 0; }
     .academic-resource-title { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .academic-resource-detail { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .academic-resource-buttons { display: flex; gap: 8px; flex-shrink: 0; }
+    .academic-resource-buttons .rp-btn { padding: 9px 14px; white-space: nowrap; }
     .academic-resource-action { font-size: 13px; font-weight: 800; color: var(--navy); white-space: nowrap; flex-shrink: 0; }
 
     .clean-empty-state { background: white; border: 1px dashed #d0d3e3; border-radius: 16px; padding: 48px 24px; text-align: center; }
@@ -973,7 +977,9 @@
       .view-header { padding: 22px 20px; }
       .quiz-card { padding: 24px; }
 
-      .academic-resource-card { align-items: flex-start; padding: 14px 16px; gap: 12px; }
+      .academic-resource-card { flex-direction: column; align-items: stretch; padding: 14px 16px; gap: 12px; }
+      .academic-resource-buttons { width: 100%; }
+      .academic-resource-buttons .rp-btn { flex: 1; justify-content: center; }
       .academic-resource-info { align-items: flex-start; gap: 12px; }
       .academic-resource-title, .academic-resource-detail { white-space: normal; overflow-wrap: anywhere; }
       .level-chip { flex: 1; }
@@ -984,6 +990,35 @@
       .course-card, .hub-card, .academic-resource-card { transition: none; }
     }
   
+    /* ===== Spacing polish: tighter pages, less scrolling ===== */
+    .nav-inner { max-width: 1224px; padding: 12px 22px; }
+    .hero { padding: 56px 22px 60px; }
+    .hero h1 { font-size: clamp(36px, 5.2vw, 58px); margin-bottom: 18px; }
+    .hero p { font-size: 17px; margin-bottom: 26px; }
+    .hero-card { padding: 24px; }
+    .section { max-width: 1224px; padding: 52px 22px; }
+    .section-heading { margin-bottom: 22px; }
+    .section-heading h2 { font-size: 27px; }
+    .level-card { min-height: 124px; padding: 22px; }
+    .cbt-box { padding: 32px; }
+    footer { padding: 34px 22px; }
+    .app-view { min-height: 40vh; }
+    .breadcrumbs { margin-bottom: 10px; }
+    .back-link { margin: 0 0 14px; padding: 7px 12px; font-size: 13px; border-radius: 9px; }
+    .view-header { padding: 22px 26px; margin-bottom: 20px; }
+    #app-view .view-title { font-size: clamp(24px, 3.6vw, 30px); }
+    .hub-card { padding: 20px; }
+    .course-card-content { padding: 18px 20px; }
+    .course-card-action { padding: 12px 20px; }
+    @media (max-width: 520px) {
+      .hero { padding: 38px 18px 44px; }
+      .section { padding: 38px 18px; }
+      .app-view .section { padding-top: 18px; }
+      .view-header { padding: 18px; }
+      .search-section { padding: 20px 18px; }
+      .cbt-box { padding: 26px 22px; }
+    }
+
     /* ===== Admin: CBT Question Bank ===== */
     .qb-panel { max-width: 960px; margin: 40px auto; padding: 24px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); font-family: inherit; color: #1f2430; }
     .qb-panel[hidden] { display: none !important; }
@@ -1669,13 +1704,10 @@
       // ADD RESOURCES
       // -----------------------------------------
 
-      (
-        resourcesByCourse.get(
-          courseDataItem.id
-        ) || []
-      ).forEach(resource => {
+      aetSortResources(resourcesByCourse.get(courseDataItem.id) || []).forEach(resource => {
 
         let fileUrl = '';
+        let downloadUrl = '';
 
         if (resource.file_path) {
 
@@ -1688,6 +1720,15 @@
 
           fileUrl =
             data?.publicUrl || '';
+
+          // Same file, but the server tells the phone to save it instead of opening it.
+          const saveName = (String(resource.title || 'document')
+            .replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim() || 'document') + '.pdf';
+          const { data: saveData } =
+            supabaseClient.storage
+              .from('academic-resources')
+              .getPublicUrl(resource.file_path, { download: saveName });
+          downloadUrl = saveData?.publicUrl || '';
         }
 
         const mappedResource = {
@@ -1702,7 +1743,9 @@
 
           type: 'pdf',
 
-          fileUrl
+          fileUrl,
+
+          downloadUrl
         };
 
         if (
@@ -1920,6 +1963,22 @@
         : String(index);
     }
 
+    // Order set by the admin (sort_order). Items with no order go last, oldest first.
+    function aetSortResources(list) {
+      const num = value => (value === null || value === undefined || value === '' || !Number.isFinite(Number(value))) ? null : Number(value);
+      return [...list].sort((a, b) => {
+        const ao = num(a.sort_order);
+        const bo = num(b.sort_order);
+        if (ao !== null && bo !== null && ao !== bo) return ao - bo;
+        if (ao !== null && bo === null) return -1;
+        if (ao === null && bo !== null) return 1;
+        const at = String(a.created_at || '');
+        const bt = String(b.created_at || '');
+        if (at !== bt) return at < bt ? -1 : 1;
+        return String(a.title || '').localeCompare(String(b.title || ''));
+      });
+    }
+
     async function refreshPublicCatalog({ renderPage = true } = {}) {
       Object.keys(catalog).forEach(level => {
         catalog[level] = [...(sampleCatalogByLevel[level] || [])];
@@ -2010,8 +2069,8 @@
               typeName: 'Study Materials',
               title: mat.title,
               detail: mat.detail,
-              link: `#resource/${level}/${course.code}/materials/${resourceRouteKey(mat, index)}`,
-              actionText: 'Preview →'
+              link: `#course/${level}/${course.code}/materials`,
+              actionText: 'Open →'
             });
           });
 
@@ -2024,8 +2083,8 @@
               typeName: 'Past Questions',
               title: pq.title,
               detail: pq.detail,
-              link: `#resource/${level}/${course.code}/past-questions/${resourceRouteKey(pq, index)}`,
-              actionText: 'Preview →'
+              link: `#course/${level}/${course.code}/past-questions`,
+              actionText: 'Open →'
             });
           });
 
@@ -2038,7 +2097,7 @@
               type: 'cbt',
               typeName: 'CBT Practice',
               title: `${course.code} Practice Quiz`,
-              detail: plural(cbtCount(course), 'practice question'),
+              detail: 'Timed practice quiz',
               link: `#course/${level}/${course.code}/cbt`,
               actionText: 'Start →'
             });
@@ -2291,7 +2350,7 @@
       }
 
       if (course.quiz) {
-        chips.push(`<span class="chip chip-on">💻 CBT · ${plural(cbtCount(course), 'question')}</span>`);
+        chips.push('<span class="chip chip-on">💻 CBT practice</span>');
       }
 
       if (!chips.length) {
@@ -2381,7 +2440,7 @@
       `;
     }
 
-    function hubCard(icon, title, text, count, href, action) {
+    function hubCard(icon, title, text, count, href, action, hideBadge) {
       if (!count) {
         return `
           <div class="hub-card is-empty">
@@ -2399,7 +2458,7 @@
         <a class="hub-card" href="${esc(href)}">
           <div class="hub-card-top">
             <div class="hub-icon-wrap">${icon}</div>
-            <span class="count-badge">${count}</span>
+            ${hideBadge ? '' : `<span class="count-badge">${count}</span>`}
           </div>
           <h3>${title}</h3>
           <p>${text}</p>
@@ -2449,7 +2508,7 @@
             <div class="hub-grid">
               ${hubCard('📚', 'Study Materials', 'Lecture notes, handouts, and revision resources for this course.', course.materials.length, `${base}/materials`, 'Open study materials')}
               ${hubCard('📝', 'Past Questions', 'Previous examination questions to help you prepare.', course.past.length, `${base}/past-questions`, 'Open past questions')}
-              ${course.quiz ? hubCard('💻', 'CBT Practice', 'Test your understanding with practice questions.', cbtCount(course), `${base}/cbt`, 'Start practice') : ''}
+              ${course.quiz ? hubCard('💻', 'CBT Practice', 'Test your understanding with practice questions.', true, `${base}/cbt`, 'Start practice', true) : ''}
             </div>
           ` : `
             <div class="clean-empty-state">
@@ -2504,8 +2563,8 @@
             resources.length
               ? `
                 <div class="academic-resource-list">
-                  ${resources.map((resource, index) => `
-                    <a class="academic-resource-card" href="#resource/${level}/${course.code}/${section}/${resourceRouteKey(resource, index)}">
+                  ${resources.map(resource => `
+                    <div class="academic-resource-card">
                       <div class="academic-resource-info">
                         <div class="academic-resource-icon">${isPastQuestions ? 'PQ' : 'PDF'}</div>
                         <div class="academic-resource-text">
@@ -2513,8 +2572,12 @@
                           <div class="academic-resource-detail">${esc(resource.detail)}</div>
                         </div>
                       </div>
-                      <div class="academic-resource-action">Preview →</div>
-                    </a>
+                      ${resource.fileUrl ? `
+                        <div class="academic-resource-buttons">
+                          <a class="rp-btn rp-btn-primary" href="${esc(resource.fileUrl)}" target="_blank" rel="noopener">Open PDF</a>
+                          <a class="rp-btn rp-btn-secondary" href="${esc(resource.downloadUrl || resource.fileUrl)}" download>Download</a>
+                        </div>` : '<div class="academic-resource-action">File not available</div>'}
+                    </div>
                   `).join('')}
                 </div>
               `
@@ -4637,7 +4700,7 @@ await showAdminCourseManagement();
       .select('*')
       .eq('course_id', courseId)
       .order('created_at', {
-        ascending: false
+        ascending: true
       });
 
     if (error) {
@@ -4674,7 +4737,64 @@ await showAdminCourseManagement();
 
     resourceList.innerHTML = '';
 
-    resources.forEach(resource => {
+    const ordered = aetSortResources(resources);
+
+    [['study_material', 'Study Materials'], ['past_question', 'Past Questions']].forEach(([typeKey, groupLabel]) => {
+
+    const groupItems = ordered.filter(item =>
+      (item.type === 'past_question' ? 'past_question' : 'study_material') === typeKey
+    );
+
+    if (!groupItems.length) return;
+
+    const heading = document.createElement('div');
+    heading.innerHTML = `
+      <h4 style="margin:24px 0 4px;font-size:15px;">${groupLabel} (${groupItems.length})</h4>
+      <p style="margin:0 0 10px;color:#666;font-size:13px;">Use the arrows to set the order students see. The top one shows first.</p>
+    `;
+    resourceList.appendChild(heading);
+
+    const moveResource = async (index, direction) => {
+      const target = index + direction;
+      if (target < 0 || target >= groupItems.length) return;
+
+      const next = [...groupItems];
+      [next[index], next[target]] = [next[target], next[index]];
+
+      resourceList.style.opacity = '0.55';
+      resourceList.style.pointerEvents = 'none';
+
+      let failed = false;
+
+      for (let position = 0; position < next.length; position++) {
+        const current = next[position].sort_order;
+        if (current !== null && current !== undefined && Number(current) === position) continue;
+
+        const { data: saved, error: saveError } = await supabaseClient
+          .from('resources')
+          .update({ sort_order: position })
+          .eq('id', next[position].id)
+          .select('id');
+
+        if (saveError || !saved || !saved.length) {
+          console.error('AET Admin: Could not save order.', saveError);
+          failed = true;
+          break;
+        }
+      }
+
+      if (failed) {
+        alert('The new order could not be saved.\n\nThe database step for ordering may not be done yet. Nothing was lost.');
+      }
+
+      resourceList.style.opacity = '';
+      resourceList.style.pointerEvents = '';
+
+      await loadAdminResources(courseId);
+      await refreshPublicCatalog();
+    };
+
+    groupItems.forEach((resource, groupIndex) => {
 
       const item =
         document.createElement('div');
@@ -4822,10 +4942,45 @@ await showAdminCourseManagement();
         }
       );
 
+      const actions = document.createElement('div');
+      actions.style.cssText = 'display:flex;gap:6px;align-items:center;flex-shrink:0;';
+
+      const arrowStyle = `
+        width:36px;
+        height:36px;
+        border:1px solid #ccc;
+        border-radius:7px;
+        background:white;
+        cursor:pointer;
+        font-size:15px;
+      `;
+
+      const upButton = document.createElement('button');
+      upButton.textContent = '▲';
+      upButton.setAttribute('aria-label', 'Move up');
+      upButton.style.cssText = arrowStyle;
+      upButton.disabled = groupIndex === 0;
+      if (upButton.disabled) upButton.style.opacity = '0.35';
+      upButton.addEventListener('click', () => moveResource(groupIndex, -1));
+
+      const downButton = document.createElement('button');
+      downButton.textContent = '▼';
+      downButton.setAttribute('aria-label', 'Move down');
+      downButton.style.cssText = arrowStyle;
+      downButton.disabled = groupIndex === groupItems.length - 1;
+      if (downButton.disabled) downButton.style.opacity = '0.35';
+      downButton.addEventListener('click', () => moveResource(groupIndex, 1));
+
+      actions.appendChild(upButton);
+      actions.appendChild(downButton);
+      actions.appendChild(deleteButton);
+
       item.appendChild(info);
-      item.appendChild(deleteButton);
+      item.appendChild(actions);
 
       resourceList.appendChild(item);
+    });
+
     });
   }
 
