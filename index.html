@@ -5045,6 +5045,10 @@ function initCbtQuestionBank() {
     draft: null,          // the question being edited
     importOpen: false,
     importParsed: null,
+    aiOpen: false,
+    aiFor: '',
+    ai: null,            // { configured, provider, model, sources }
+    aiNote: '',
     busy: false
   };
 
@@ -5069,6 +5073,7 @@ function initCbtQuestionBank() {
     <div id="qb-course"></div>
     <div id="qb-settings"></div>
     <div id="qb-toolbar"></div>
+    <div id="qb-ai"></div>
     <div id="qb-import"></div>
     <div id="qb-editor"></div>
     <div id="qb-list"></div>
@@ -5181,6 +5186,7 @@ function initCbtQuestionBank() {
     state.settings = result.settings;
     state.readyPublished = result.readyPublished;
     renderAll();
+    if (state.aiOpen && state.aiFor !== state.courseId) await loadAiSources();
   }
 
   async function reloadAll() {
@@ -5196,6 +5202,7 @@ function initCbtQuestionBank() {
     renderCourse();
     renderSettings();
     renderToolbar();
+    renderAi();
     renderImport();
     renderEditor();
     renderList();
@@ -5307,6 +5314,7 @@ function initCbtQuestionBank() {
         <div class="qb-row">
           <button type="button" class="qb-btn primary" data-action="new">+ New question</button>
           <button type="button" class="qb-btn" data-action="toggle-import">Import many</button>
+          <button type="button" class="qb-btn" data-action="toggle-ai">Generate with AI</button>
         </div>
       </div>
       <div class="qb-tabs" role="tablist">
@@ -5324,6 +5332,70 @@ function initCbtQuestionBank() {
           <button type="button" class="qb-btn danger" data-action="bulk-delete">Delete</button>` : ''}
       </div>
     `;
+  }
+
+  async function loadAiSources() {
+    state.ai = await api({ action: 'ai_sources', courseId: state.courseId });
+    state.aiFor = state.courseId;
+    renderAi();
+  }
+
+  function renderAi() {
+    const box = $('#qb-ai');
+    if (!state.courseId || !state.aiOpen) { box.innerHTML = ''; return; }
+    const ai = state.ai;
+    if (!ai || state.aiFor !== state.courseId) { box.innerHTML = '<div class="qb-card"><p class="qb-muted">Loading...</p></div>'; return; }
+
+    const keep = {
+      resource: box.querySelector('#qb-ai-resource') ? box.querySelector('#qb-ai-resource').value : '',
+      count: box.querySelector('#qb-ai-count') ? box.querySelector('#qb-ai-count').value : '10',
+      difficulty: box.querySelector('#qb-ai-difficulty') ? box.querySelector('#qb-ai-difficulty').value : 'mixed',
+      focus: box.querySelector('#qb-ai-focus') ? box.querySelector('#qb-ai-focus').value : ''
+    };
+
+    if (!ai.configured) {
+      box.innerHTML = `
+        <div class="qb-card">
+          <h3>Generate with AI</h3>
+          <p>The AI is not switched on yet. In Supabase, add the secret <code>GEMINI_API_KEY</code>, then reload this page.</p>
+          <div class="qb-row"><button type="button" class="qb-btn" data-action="ai-close">Close</button></div>
+        </div>`;
+      return;
+    }
+
+    box.innerHTML = `
+      <div class="qb-card">
+        <h3>Generate with AI</h3>
+        <p class="qb-muted">The AI reads one PDF from this course and writes questions. They are saved as <strong>drafts</strong>. Nothing goes live until you check and publish it. Always read each one: AI can be wrong.</p>
+        ${ai.sources.length ? `
+        <label class="qb-label" for="qb-ai-resource">PDF to use</label>
+        <select id="qb-ai-resource" class="qb-input">
+          ${ai.sources.map(source => `<option value="${esc(source.id)}" ${source.id === keep.resource ? 'selected' : ''}>${esc(source.title)}</option>`).join('')}
+        </select>
+        <div class="qb-grid">
+          <div>
+            <label class="qb-label" for="qb-ai-count">How many questions (1 to 20)</label>
+            <input id="qb-ai-count" class="qb-input" type="number" min="1" max="20" value="${esc(keep.count)}">
+          </div>
+          <div>
+            <label class="qb-label" for="qb-ai-difficulty">Difficulty</label>
+            <select id="qb-ai-difficulty" class="qb-input">
+              ${['mixed', 'easy', 'medium', 'hard'].map(d => `<option value="${d}" ${d === keep.difficulty ? 'selected' : ''}>${d[0].toUpperCase() + d.slice(1)}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <label class="qb-label" for="qb-ai-focus">Focus on (optional)</label>
+        <input id="qb-ai-focus" class="qb-input" type="text" maxlength="200" placeholder="For example: Chapter 2, or limits and continuity" value="${esc(keep.focus)}">
+        <div class="qb-row">
+          <button type="button" class="qb-btn primary" data-action="ai-generate">Generate drafts</button>
+          <button type="button" class="qb-btn" data-action="ai-test">Test AI connection</button>
+          <button type="button" class="qb-btn" data-action="ai-close">Close</button>
+        </div>` : `
+        <p>This course has no PDF uploaded yet. Upload one first, then come back.</p>
+        <div class="qb-row"><button type="button" class="qb-btn" data-action="ai-close">Close</button></div>`}
+        <p class="qb-muted" id="qb-ai-note" aria-live="polite">${esc(state.aiNote)}</p>
+        <p class="qb-muted">Using ${esc(ai.provider)} (${esc(ai.model)}). It can take up to 2 minutes.</p>
+      </div>`;
   }
 
   function renderImport() {
@@ -5612,6 +5684,52 @@ Explanation: The power rule gives 2x.</pre>
         });
         await reloadAll();
         say(result.enough ? 'Settings saved. The quiz is ready for students.' : 'Settings saved.');
+      });
+      return;
+    }
+
+    if (action === 'toggle-ai') {
+      state.aiOpen = !state.aiOpen;
+      state.aiNote = '';
+      if (state.aiOpen && state.aiFor !== state.courseId) { renderAi(); guarded(loadAiSources); } else renderAi();
+      return;
+    }
+    if (action === 'ai-close') { state.aiOpen = false; renderAi(); return; }
+
+    if (action === 'ai-test') {
+      guarded(async () => {
+        state.aiNote = 'Testing...'; renderAi();
+        try {
+          const result = await api({ action: 'test_ai' });
+          state.aiNote = '';
+          say(`AI connection works (${result.provider}, ${result.model}).`);
+        } catch (error) {
+          state.aiNote = '';
+          throw error;
+        } finally { renderAi(); }
+      });
+      return;
+    }
+
+    if (action === 'ai-generate') {
+      guarded(async () => {
+        const count = Number($('#qb-ai-count').value);
+        if (!Number.isInteger(count) || count < 1 || count > 20) { say('Choose a number of questions from 1 to 20.', 'bad'); return; }
+        const body = {
+          action: 'generate', courseId: state.courseId,
+          resourceId: $('#qb-ai-resource').value, count,
+          difficulty: $('#qb-ai-difficulty').value,
+          focus: $('#qb-ai-focus').value.trim()
+        };
+        state.aiNote = 'Working... please wait. Do not close this page.'; renderAi();
+        let result;
+        try {
+          result = await api(body);
+        } finally { state.aiNote = ''; renderAi(); }
+        state.filter = 'draft';
+        await reloadAll();
+        const skipped = result.skipped.length;
+        say(`Added ${result.created} draft${result.created === 1 ? '' : 's'} for you to review.${skipped ? ` ${skipped} the AI wrote were thrown away (broken, repeated or "all of the above").` : ''}${result.created < result.requested ? ' You can click Generate again for more.' : ''}`, result.created ? 'ok' : 'bad');
       });
       return;
     }
