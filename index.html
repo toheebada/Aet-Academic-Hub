@@ -1077,7 +1077,7 @@
         <img src="assets/AET LOGO.jpg" alt="Academic Excellence Team (AET) logo" class="brand-logo">
 
         <div class="brand-text">
-          Academic Hub
+          Learning Hub
           <span>Academic Excellence Team</span>
         </div>
       </a>
@@ -1338,7 +1338,7 @@
   <footer>
     <div class="footer-inner">
       <div>
-        <strong>AET Academic Hub</strong>
+        <strong>AET Learning Hub</strong>
         <p>Academic Excellence Team (AET)</p>
         <p class="footer-tag">Learn Better. Prepare Better. Become Better.</p>
       </div>
@@ -2213,9 +2213,9 @@
     // New view: update the tab title, jump to the top, and move focus to the page heading
     function afterAppRender() {
       const heading = app.querySelector('h1');
-      const name = heading ? (heading.dataset.docTitle || heading.textContent.trim()) : 'Academic Hub';
+      const name = heading ? (heading.dataset.docTitle || heading.textContent.trim()) : 'Learning Hub';
 
-      document.title = `${name} | AET Academic Hub`;
+      document.title = `${name} | AET Learning Hub`;
       window.scrollTo({ top: 0, behavior: 'instant' });
 
       if (heading) {
@@ -2352,7 +2352,7 @@
           <a class="back-link" href="#courses">← All levels</a>
 
           <header class="view-header">
-            <span class="view-eyebrow">Academic Hub</span>
+            <span class="view-eyebrow">Learning Hub</span>
             <h1 class="view-title" data-doc-title="${esc(level)} Level Courses">${esc(level)} Level Courses</h1>
             <p class="view-sub">${summary}</p>
 
