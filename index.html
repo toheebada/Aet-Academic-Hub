@@ -1687,6 +1687,7 @@
 
       const mappedCourse = {
         id: courseDataItem.id,
+        sortOrder: courseDataItem.sort_order ?? null,
         code: String(
           courseDataItem.code || ''
         ).trim().toUpperCase(),
@@ -1822,9 +1823,7 @@
     // -----------------------------------------
 
     Object.keys(catalog).forEach(level => {
-      catalog[level].sort((a, b) =>
-        a.code.localeCompare(b.code)
-      );
+      catalog[level].sort(aetCompareCourses);
     });
 
     console.log(
@@ -1961,6 +1960,17 @@
       return resource.id
         ? `id:${encodeURIComponent(resource.id)}`
         : String(index);
+    }
+
+    // Course order set by the admin (sort_order). Courses with no order go last, A to Z by code.
+    function aetCompareCourses(a, b) {
+      const num = value => (value === null || value === undefined || value === '' || !Number.isFinite(Number(value))) ? null : Number(value);
+      const ao = num(a.sortOrder !== undefined ? a.sortOrder : a.sort_order);
+      const bo = num(b.sortOrder !== undefined ? b.sortOrder : b.sort_order);
+      if (ao !== null && bo !== null && ao !== bo) return ao - bo;
+      if (ao !== null && bo === null) return -1;
+      if (ao === null && bo !== null) return 1;
+      return String(a.code || '').localeCompare(String(b.code || ''));
     }
 
     // Order set by the admin (sort_order). Items with no order go last, oldest first.
@@ -3580,8 +3590,67 @@ async function initAdminPanel() {
 
     courseList.innerHTML = '';
 
-
+    const levelIds = [...new Set((levels || []).map(level => String(level.id)))];
     courses.forEach(course => {
+      if (!levelIds.includes(String(course.level_id))) levelIds.push(String(course.level_id));
+    });
+
+    levelIds.forEach(levelId => {
+
+    const groupItems = courses
+      .filter(course => String(course.level_id) === levelId)
+      .sort(aetCompareCourses);
+
+    if (!groupItems.length) return;
+
+    const heading = document.createElement('div');
+    heading.innerHTML = `
+      <h4 style="margin:22px 0 4px;font-size:15px;">${escapeHtml(levelMap[levelId] || 'Unknown Level')} (${groupItems.length})</h4>
+      <p style="margin:0 0 10px;color:#666;font-size:13px;">Use the arrows to set the order students see. The top one shows first.</p>
+    `;
+    courseList.appendChild(heading);
+
+    const moveCourse = async (index, direction) => {
+      const target = index + direction;
+      if (target < 0 || target >= groupItems.length) return;
+
+      const next = [...groupItems];
+      [next[index], next[target]] = [next[target], next[index]];
+
+      courseList.style.opacity = '0.55';
+      courseList.style.pointerEvents = 'none';
+
+      let failed = false;
+
+      for (let position = 0; position < next.length; position++) {
+        const current = next[position].sort_order;
+        if (current !== null && current !== undefined && Number(current) === position) continue;
+
+        const { data: saved, error: saveError } = await supabaseClient
+          .from('courses')
+          .update({ sort_order: position })
+          .eq('id', next[position].id)
+          .select('id');
+
+        if (saveError || !saved || !saved.length) {
+          console.error('AET Admin: Could not save course order.', saveError);
+          failed = true;
+          break;
+        }
+      }
+
+      if (failed) {
+        alert('The new order could not be saved.\n\nThe database step for course ordering may not be done yet. Nothing was lost.');
+      }
+
+      courseList.style.opacity = '';
+      courseList.style.pointerEvents = '';
+
+      await loadCourses();
+      await refreshPublicCatalog();
+    };
+
+    groupItems.forEach((course, groupIndex) => {
 
       const item =
         document.createElement('div');
@@ -3626,7 +3695,20 @@ async function initAdminPanel() {
           display:flex;
           gap:8px;
           margin-top:12px;
+          flex-wrap:wrap;
         ">
+
+          <button
+            class="admin-move-up"
+            aria-label="Move up"
+            style="width:36px;height:36px;border:1px solid #ccc;border-radius:7px;background:white;cursor:pointer;font-size:15px;"
+          >▲</button>
+
+          <button
+            class="admin-move-down"
+            aria-label="Move down"
+            style="width:36px;height:36px;border:1px solid #ccc;border-radius:7px;background:white;cursor:pointer;font-size:15px;"
+          >▼</button>
 
           <button
             class="admin-edit-course"
@@ -3659,6 +3741,16 @@ async function initAdminPanel() {
 
         </div>
       `;
+
+
+      const upButton = item.querySelector('.admin-move-up');
+      const downButton = item.querySelector('.admin-move-down');
+      upButton.disabled = groupIndex === 0;
+      downButton.disabled = groupIndex === groupItems.length - 1;
+      if (upButton.disabled) upButton.style.opacity = '0.35';
+      if (downButton.disabled) downButton.style.opacity = '0.35';
+      upButton.addEventListener('click', () => moveCourse(groupIndex, -1));
+      downButton.addEventListener('click', () => moveCourse(groupIndex, 1));
 
 
       // ======================================
@@ -3803,6 +3895,8 @@ async function initAdminPanel() {
 
 
       courseList.appendChild(item);
+    });
+
     });
   }
 
