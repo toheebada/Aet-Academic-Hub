@@ -210,6 +210,22 @@
       background: rgba(255,255,255,.06);
     }
 
+    .whatsapp-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 14px 21px;
+      border-radius: 11px;
+      font-weight: 700;
+      background: #25d366;
+      color: #04122f;
+      border: 1px solid #25d366;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+    .whatsapp-button:hover { background: #3be07b; transform: translateY(-1px); }
+    .whatsapp-button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+
     .hero-card {
       background: rgba(255,255,255,.08);
       border: 1px solid rgba(255,255,255,.13);
@@ -1043,6 +1059,25 @@
       .cbt-box { padding: 26px 22px; }
     }
 
+    /* ===== Homepage balance ===== */
+    .hero-actions { gap: 10px; }
+    .hero-actions .primary-button, .hero-actions .secondary-button, .hero-actions .whatsapp-button { padding: 13px 20px; font-size: 15px; line-height: 1.2; text-align: center; }
+    .quick-card { padding: 22px; }
+    .quick-card .icon { margin-bottom: 14px; }
+    @media (max-width: 640px) {
+      .hero-actions .primary-button, .hero-actions .secondary-button { flex: 1 1 0; }
+      .hero-actions .whatsapp-button { flex: 1 1 100%; }
+      .hero-card { padding: 20px; }
+      .hero-card h3 { font-size: 20px; margin: 8px 0 14px; }
+      .quick-grid { gap: 10px; }
+      .quick-card { display: grid; grid-template-columns: 44px 1fr; column-gap: 14px; align-items: center; padding: 14px 16px; }
+      .quick-card .icon { grid-row: 1 / span 2; width: 44px; height: 44px; margin: 0; }
+      .quick-card h3 { margin: 0 0 2px; font-size: 16px; }
+      .quick-card p { margin: 0; font-size: 13px; }
+      .section-heading { margin-bottom: 16px; }
+      .section-heading h2 { font-size: 24px; }
+    }
+
     /* ===== Admin: CBT Question Bank ===== */
     .qb-panel { max-width: 960px; margin: 40px auto; padding: 24px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); font-family: inherit; color: #1f2430; }
     .qb-panel[hidden] { display: none !important; }
@@ -1178,18 +1213,16 @@
     <div>
 
       <div class="eyebrow">
-        ACADEMIC EXCELLENCE TEAM • FUTMINNA
+        Academic Excellence Team (AET)
       </div>
 
       <h1>
-        Your <span>FUTMINNA</span><br>
-        academic hub.
+        Your <span>FUTMINNA</span> study resources, in one place.
       </h1>
 
       <p>
-        Academic Excellence Team (AET) brings course materials
-        and past questions together in one place —
-        built specifically for FUTMINNA students.
+        Find course materials, past questions and other useful
+        resources to help you prepare for your courses.
       </p>
 
       <div class="hero-actions">
@@ -1199,6 +1232,11 @@
 
         <a href="#courses" class="secondary-button" data-cbt hidden>
           Practice CBT
+        </a>
+
+        <a href="https://whatsapp.com/channel/0029VbCFdLSLikg6aeAF1S3m" class="whatsapp-button" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.85 9.85 0 0 0 12.04 2zm0 18.15h-.01a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.23 8.24-8.23 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.83c0 4.54-3.7 8.22-8.23 8.22zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.78.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.42h-.48c-.17 0-.43.06-.66.31-.23.25-.87.85-.87 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.23-.16-.48-.29z"/></svg>
+          Join Our WhatsApp Channel
         </a>
       </div>
 
