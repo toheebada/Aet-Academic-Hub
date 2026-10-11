@@ -5314,10 +5314,10 @@ await showAdminCourseManagement();
         return;
       }
 
-      if (file.size > 6 * 1024 * 1024) {
+      if (file.size > 50 * 1024 * 1024) {
 
         statusText.textContent =
-          'This PDF is larger than 6MB. We will add large-file upload support later.';
+          'This PDF is larger than 50MB. We will add large-file upload support later.';
 
         statusText.style.color =
           '#b91c1c';
