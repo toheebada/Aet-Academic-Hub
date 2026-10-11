@@ -1082,6 +1082,20 @@
       .section-heading h2 { font-size: 24px; }
     }
 
+    /* ===== Maths ($...$ shown with KaTeX) ===== */
+    .math-inline { display: inline; }
+    .math-inline .katex { font-size: 1.08em; }
+    .quiz-card button[data-choice] .katex, .quiz-results .katex { white-space: nowrap; }
+    .qb-math-preview { margin: 10px 0 0; padding: 12px 14px; border: 1px dashed #c9cdea; border-radius: 10px; background: #fafbff; }
+    .qb-math-preview .qb-math-head { display: block; font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #6b7280; margin-bottom: 6px; }
+    .qb-math-row { display: flex; gap: 8px; align-items: baseline; padding: 3px 0; font-size: 15px; }
+    .qb-math-row b { flex: 0 0 auto; min-width: 22px; color: #080b63; }
+    .qb-math-help { margin: 8px 0 0; font-size: 13px; color: #4b5563; }
+    .qb-math-help summary { cursor: pointer; font-weight: 700; color: #080b63; }
+    .qb-math-help table { border-collapse: collapse; margin-top: 8px; width: 100%; }
+    .qb-math-help td { padding: 4px 8px; border-top: 1px solid #e5e7eb; vertical-align: top; font-size: 13px; }
+    .qb-math-help code { background: #f3f4f6; padding: 1px 5px; border-radius: 5px; font-size: 12.5px; word-break: break-all; }
+
     /* ===== Admin page on its own (?admin=1) ===== */
     .admin-back { display: none; }
     html.admin-mode body > :not(.navbar):not(#aet-admin-upload):not(#aet-admin-cbt):not(script):not(style) { display: none !important; }
@@ -5937,6 +5951,21 @@ Explanation: The power rule gives 2x.</pre>
 
         <label class="qb-label" for="qb-q-text">Question</label>
         <textarea id="qb-q-text" class="qb-input qb-textarea" data-field="question_text">${esc(d.question_text)}</textarea>
+        <details class="qb-math-help" data-nomath>
+          <summary>Writing maths (powers, fractions, roots)</summary>
+          <p>Put maths between dollar signs. A preview appears below the explanation. Normal words stay outside the dollar signs. For a real dollar amount, write <code>\$5</code>.</p>
+          <table>
+            <tr><td>Power</td><td><code>$x^2$</code>, <code>$x^{10}$</code></td></tr>
+            <tr><td>Inverse function</td><td><code>$f^{-1}(x)$</code></td></tr>
+            <tr><td>Fraction</td><td><code>$\frac{1}{2}x - 3$</code></td></tr>
+            <tr><td>Square root</td><td><code>$\sqrt{x+1}$</code></td></tr>
+            <tr><td>Subscript</td><td><code>$x_1$</code>, <code>$a_{n+1}$</code></td></tr>
+            <tr><td>Limit</td><td><code>$\lim_{x \to 2} f(x)$</code></td></tr>
+            <tr><td>Integral</td><td><code>$\int_0^1 x\,dx$</code></td></tr>
+            <tr><td>Sum</td><td><code>$\sum_{i=1}^{n} i$</code></td></tr>
+            <tr><td>Greek / signs</td><td><code>$\pi$</code>, <code>$\theta$</code>, <code>$\leq$</code>, <code>$\neq$</code>, <code>$\times$</code>, <code>$\infty$</code></td></tr>
+          </table>
+        </details>
 
         <p class="qb-label">Options (tap the circle to mark the correct one)</p>
         ${[0, 1, 2, 3].map(i => `
@@ -5950,6 +5979,7 @@ Explanation: The power rule gives 2x.</pre>
 
         <label class="qb-label" for="qb-q-explain">Explanation (shown after the quiz)</label>
         <textarea id="qb-q-explain" class="qb-input qb-textarea" data-field="explanation">${esc(d.explanation)}</textarea>
+        <div id="qb-math-preview" class="qb-math-preview" hidden></div>
 
         <div class="qb-grid">
           <div>
@@ -5990,6 +6020,30 @@ Explanation: The power rule gives 2x.</pre>
     const publishButton = $('#qb-save-publish');
     if (publishButton) publishButton.disabled = errors.length > 0;
     panel.querySelectorAll('.qb-option').forEach((row, i) => row.classList.toggle('correct', d.correct_option === i));
+    updateMathPreview(d);
+  }
+
+  // Shows the question the way students will see it, but only when it contains maths.
+  function updateMathPreview(d) {
+    const box = $('#qb-math-preview');
+    if (!box) return;
+    const rows = [['Q', d.question_text], ...d.options.map((o, i) => [LETTERS[i], o]), ['Why', d.explanation]];
+    box.textContent = '';
+    if (!rows.some(([, text]) => String(text || '').includes('$'))) { box.hidden = true; return; }
+    box.hidden = false;
+    const head = document.createElement('span');
+    head.className = 'qb-math-head';
+    head.textContent = 'Preview as students see it';
+    box.appendChild(head);
+    rows.forEach(([label, text]) => {
+      if (!String(text || '').trim()) return;
+      const row = document.createElement('div');
+      row.className = 'qb-math-row';
+      const l = document.createElement('b'); l.textContent = label;
+      const t = document.createElement('span'); t.textContent = String(text);
+      row.append(l, t);
+      box.appendChild(row);
+    });
   }
 
   function actionsFor(q) {
@@ -6401,6 +6455,137 @@ Explanation: The power rule gives 2x.</pre>
 
 initCbtQuestionBank();
     
+</script>
+
+<script>
+/* ==========================================================
+   Maths in questions: text between $ ... $ is shown with KaTeX.
+   - Works on text only (never inserts HTML from questions).
+   - "$5 and $10" stays normal text. Write \$ for a literal dollar sign.
+   - If the library cannot load, the typed text stays visible.
+   ========================================================== */
+(function () {
+  const KATEX_JS = 'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js';
+  const KATEX_CSS = 'https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css';
+  const SKIP = new Set(['SCRIPT', 'STYLE', 'TEXTAREA', 'INPUT', 'SELECT', 'OPTION', 'CODE', 'PRE']);
+  const done = new WeakSet();
+  let state = 'idle';   // idle | loading | ready | failed
+
+  function loadKatex() {
+    if (state !== 'idle') return;
+    state = 'loading';
+    try {
+      const css = document.createElement('link');
+      css.rel = 'stylesheet'; css.href = KATEX_CSS;
+      document.head.appendChild(css);
+      const js = document.createElement('script');
+      js.src = KATEX_JS; js.async = true;
+      js.onload = () => { state = window.katex ? 'ready' : 'failed'; if (state === 'ready') schedule(); };
+      js.onerror = () => { state = 'failed'; };
+      document.head.appendChild(js);
+    } catch (e) { state = 'failed'; }
+  }
+
+  // Split text into plain pieces and maths pieces.
+  function splitMath(text) {
+    const out = [];
+    let buf = '';
+    let i = 0;
+    while (i < text.length) {
+      const c = text[i];
+      if (c === '\\' && text[i + 1] === '$') { buf += '$'; i += 2; continue; }
+      if (c === '$' && i + 1 < text.length && !/\s/.test(text[i + 1]) && text[i + 1] !== '$') {
+        let j = i + 1;
+        let found = -1;
+        while (j < text.length && j - i <= 400) {
+          if (text[j] === '\\') { j += 2; continue; }
+          if (text[j] === '$') {
+            if (!/\s/.test(text[j - 1]) && !/[0-9]/.test(text[j + 1] || '')) found = j;
+            break;
+          }
+          j++;
+        }
+        if (found !== -1) {
+          if (buf) { out.push({ math: false, v: buf }); buf = ''; }
+          out.push({ math: true, v: text.slice(i + 1, found) });
+          i = found + 1;
+          continue;
+        }
+      }
+      buf += c;
+      i++;
+    }
+    if (buf) out.push({ math: false, v: buf });
+    return out;
+  }
+
+  function blocked(node) {
+    for (let el = node.parentNode; el && el.nodeType === 1; el = el.parentNode) {
+      if (SKIP.has(el.tagName)) return true;
+      if (el.classList && el.classList.contains('katex')) return true;
+      if (el.hasAttribute && el.hasAttribute('data-nomath')) return true;
+    }
+    return false;
+  }
+
+  function processRoot(root) {
+    if (!root) return;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      if (done.has(n) || n.nodeValue.indexOf('$') === -1) continue;
+      nodes.push(n);
+    }
+    nodes.forEach(node => {
+      if (!node.parentNode || blocked(node)) { done.add(node); return; }
+      const parts = splitMath(node.nodeValue);
+      const hasMath = parts.some(p => p.math);
+      const joined = parts.map(p => p.v).join('');
+      if (!hasMath && joined === node.nodeValue) { done.add(node); return; }
+      if (hasMath) {
+        if (state === 'idle') { loadKatex(); return; }
+        if (state === 'loading') return;
+        if (state === 'failed' || !window.katex) { done.add(node); return; }
+      }
+      const frag = document.createDocumentFragment();
+      parts.forEach(p => {
+        if (!p.math) {
+          const t = document.createTextNode(p.v);
+          done.add(t);
+          frag.appendChild(t);
+          return;
+        }
+        const span = document.createElement('span');
+        span.className = 'math-inline';
+        try {
+          window.katex.render(p.v, span, { throwOnError: false, displayMode: false, trust: false, strict: 'ignore', maxExpand: 1000 });
+        } catch (e) {
+          span.textContent = '$' + p.v + '$';
+        }
+        frag.appendChild(span);
+      });
+      node.parentNode.replaceChild(frag, node);
+    });
+  }
+
+  let queued = false;
+  function schedule() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      processRoot(document.getElementById('app-view'));
+      processRoot(document.getElementById('aet-admin-cbt'));
+    });
+  }
+
+  function start() {
+    new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true, characterData: true });
+    schedule();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+  window.aetRenderMath = schedule;
+})();
 </script>
 </body>
 </html>
