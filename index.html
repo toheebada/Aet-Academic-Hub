@@ -31,6 +31,10 @@
   <meta name="twitter:image" content="https://toheebada.github.io/Aet-Academic-Hub/og-image.png">
 
   <!-- SUPABASE INTEGRATION START -->
+  <script>
+    // Admin page (?admin=1) shows only the admin tools, not the homepage.
+    try { if (new URLSearchParams(location.search).get('admin') === '1') document.documentElement.classList.add('admin-mode'); } catch (e) {}
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- SUPABASE INTEGRATION END -->
 
@@ -1078,6 +1082,15 @@
       .section-heading h2 { font-size: 24px; }
     }
 
+    /* ===== Admin page on its own (?admin=1) ===== */
+    .admin-back { display: none; }
+    html.admin-mode body > :not(.navbar):not(#aet-admin-upload):not(#aet-admin-cbt):not(script):not(style) { display: none !important; }
+    html.admin-mode .nav-links, html.admin-mode .mobile-menu-toggle, html.admin-mode .mobile-nav { display: none !important; }
+    html.admin-mode .admin-back { display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; border-radius: 11px; border: 1px solid var(--border); background: #fff; color: var(--navy); font-weight: 700; font-size: 14px; white-space: nowrap; }
+    html.admin-mode .admin-back:hover { background: #f0f3ff; }
+    html.admin-mode body { background: #f6f7fb; padding-bottom: 60px; }
+    .qb-ai-error { margin: 10px 0 0; padding: 10px 12px; border-radius: 10px; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; font-weight: 600; font-size: 14px; }
+
     /* ===== Admin: CBT Question Bank ===== */
     .qb-panel { max-width: 960px; margin: 40px auto; padding: 24px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.08); font-family: inherit; color: #1f2430; }
     .qb-panel[hidden] { display: none !important; }
@@ -1175,6 +1188,8 @@
           <span>Academic Excellence Team</span>
         </div>
       </a>
+
+      <a href="." class="admin-back" id="admin-back-link">← Back to website</a>
 
       <nav class="nav-links" aria-label="Primary navigation">
         <a href="#courses">Courses</a>
@@ -3296,6 +3311,9 @@ async function initAdminPanel() {
   // Only open admin panel with ?admin=1
   if (params.get('admin') !== '1') return;
 
+  const backLink = document.getElementById('admin-back-link');
+  if (backLink) backLink.href = window.location.pathname;
+
   const adminPanel = document.createElement('section');
 
   adminPanel.id = 'aet-admin-upload';
@@ -5317,7 +5335,7 @@ await showAdminCourseManagement();
       if (file.size > 50 * 1024 * 1024) {
 
         statusText.textContent =
-          'This PDF is larger than 50MB. We will add large-file upload support later.';
+          'This PDF is larger than 50MB. Compress it first (for example on ilovepdf.com) and try again.';
 
         statusText.style.color =
           '#b91c1c';
@@ -5523,6 +5541,7 @@ function initCbtQuestionBank() {
     aiFor: '',
     ai: null,            // { configured, provider, model, sources }
     aiNote: '',
+    aiError: '',
     busy: false
   };
 
@@ -5591,6 +5610,7 @@ function initCbtQuestionBank() {
     const box = $('#qb-message');
     box.textContent = text || '';
     box.className = `qb-message ${text ? 'show ' + kind : ''}`;
+    if (text && kind === 'bad' && box.scrollIntoView) { try { box.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {} }
     clearTimeout(messageTimer);
     if (text && kind === 'ok') {
       messageTimer = setTimeout(() => { box.className = 'qb-message'; box.textContent = ''; }, 6000);
@@ -5868,6 +5888,7 @@ function initCbtQuestionBank() {
         <p>This course has no PDF uploaded yet. Upload one first, then come back.</p>
         <div class="qb-row"><button type="button" class="qb-btn" data-action="ai-close">Close</button></div>`}
         <p class="qb-muted" id="qb-ai-note" aria-live="polite">${esc(state.aiNote)}</p>
+        ${state.aiError ? `<p class="qb-ai-error" role="alert">${esc(state.aiError)}</p>` : ''}
         <p class="qb-muted">Using ${esc(ai.provider)} (${esc(ai.model)}). It can take up to 2 minutes.</p>
       </div>`;
   }
@@ -6164,7 +6185,7 @@ Explanation: The power rule gives 2x.</pre>
 
     if (action === 'toggle-ai') {
       state.aiOpen = !state.aiOpen;
-      state.aiNote = '';
+      state.aiNote = ''; state.aiError = '';
       if (state.aiOpen && state.aiFor !== state.courseId) { renderAi(); guarded(loadAiSources); } else renderAi();
       return;
     }
@@ -6172,13 +6193,14 @@ Explanation: The power rule gives 2x.</pre>
 
     if (action === 'ai-test') {
       guarded(async () => {
-        state.aiNote = 'Testing...'; renderAi();
+        state.aiNote = 'Testing...'; state.aiError = ''; renderAi();
         try {
           const result = await api({ action: 'test_ai' });
           state.aiNote = '';
-          say(`AI connection works (${result.provider}, ${result.model}).`);
+          say(`AI connection works (${result.provider}, ${result.model}${result.usedBackup ? ', backup model' : ''}).`);
         } catch (error) {
           state.aiNote = '';
+          state.aiError = error.message || 'The AI did not answer.';
           throw error;
         } finally { renderAi(); }
       });
@@ -6195,15 +6217,18 @@ Explanation: The power rule gives 2x.</pre>
           difficulty: $('#qb-ai-difficulty').value,
           focus: $('#qb-ai-focus').value.trim()
         };
-        state.aiNote = 'Working... please wait. Do not close this page.'; renderAi();
+        state.aiNote = 'Working... please wait. Do not close this page.'; state.aiError = ''; renderAi();
         let result;
         try {
           result = await api(body);
+        } catch (error) {
+          state.aiError = error.message || 'The AI did not answer.';
+          throw error;
         } finally { state.aiNote = ''; renderAi(); }
         state.filter = 'draft';
         await reloadAll();
         const skipped = result.skipped.length;
-        say(`Added ${result.created} draft${result.created === 1 ? '' : 's'} for you to review.${skipped ? ` ${skipped} the AI wrote were thrown away (broken, repeated or "all of the above").` : ''}${result.created < result.requested ? ' You can click Generate again for more.' : ''}`, result.created ? 'ok' : 'bad');
+        say(`Added ${result.created} draft${result.created === 1 ? '' : 's'} for you to review.${skipped ? ` ${skipped} the AI wrote were thrown away (broken, repeated or "all of the above").` : ''}${result.created < result.requested ? ' You can click Generate again for more.' : ''}${result.usedBackup ? ' (The main AI was busy, so the backup AI wrote these.)' : ''}`, result.created ? 'ok' : 'bad');
       });
       return;
     }
