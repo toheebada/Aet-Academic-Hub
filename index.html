@@ -702,6 +702,18 @@
     .academic-resource-text { min-width: 0; }
     .academic-resource-title { font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .academic-resource-detail { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .topic-group { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .topic-group > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 14px 20px; font-weight: 700; font-size: 15px; color: var(--navy, #080b63); user-select: none; }
+    .topic-group > summary::-webkit-details-marker { display: none; }
+    .topic-group > summary:hover { background: #f6f7fd; }
+    .topic-group > summary:focus-visible { outline: 2px solid #4c52c9; outline-offset: -2px; }
+    .topic-arrow { display: inline-block; width: 10px; height: 10px; border-right: 2.5px solid currentColor; border-bottom: 2.5px solid currentColor; transform: rotate(-45deg); transition: transform 0.2s ease; flex-shrink: 0; margin: 0 4px 0 2px; }
+    .topic-group[open] > summary .topic-arrow { transform: rotate(45deg); }
+    .topic-name { flex: 1; min-width: 0; }
+    .topic-count { font-weight: 600; font-size: 12px; color: #6b7280; background: #eef0fb; border-radius: 999px; padding: 3px 10px; white-space: nowrap; }
+    .topic-body { display: grid; gap: 10px; padding: 4px 14px 14px; border-top: 1px solid var(--border); background: #fafbff; padding-top: 14px; }
+    .topic-body .academic-resource-card { border-radius: 10px; }
+    @media (prefers-reduced-motion: reduce) { .topic-arrow { transition: none; } }
     .academic-resource-buttons { display: flex; gap: 8px; flex-shrink: 0; }
     .academic-resource-buttons .rp-btn { padding: 9px 14px; white-space: nowrap; }
     .academic-resource-action { font-size: 13px; font-weight: 800; color: var(--navy); white-space: nowrap; flex-shrink: 0; }
@@ -1744,6 +1756,8 @@
 
           type: 'pdf',
 
+          topic: String(resource.topic || '').replace(/\s+/g, ' ').trim(),
+
           fileUrl,
 
           downloadUrl
@@ -2535,6 +2549,56 @@
     }
 
     // Resource List View
+    // One resource card
+    function aetResourceCard(resource, isPastQuestions) {
+      return `
+        <div class="academic-resource-card">
+          <div class="academic-resource-info">
+            <div class="academic-resource-icon">${isPastQuestions ? 'PQ' : 'PDF'}</div>
+            <div class="academic-resource-text">
+              <div class="academic-resource-title">${esc(resource.title)}</div>
+              <div class="academic-resource-detail">${esc(resource.detail)}</div>
+            </div>
+          </div>
+          ${resource.fileUrl ? `
+            <div class="academic-resource-buttons">
+              <a class="rp-btn rp-btn-primary" href="${esc(resource.fileUrl)}" target="_blank" rel="noopener">Open PDF</a>
+              <a class="rp-btn rp-btn-secondary" href="${esc(resource.downloadUrl || resource.fileUrl)}" download>Download</a>
+            </div>` : '<div class="academic-resource-action">File not available</div>'}
+        </div>`;
+    }
+
+    // Items with a topic share one collapsible group, placed where its first item sits.
+    // Items with no topic stay as normal cards. Topics start closed.
+    function aetResourceBlocks(resources, isPastQuestions) {
+      const blocks = [];
+      const groups = new Map();
+      resources.forEach(resource => {
+        const topic = String(resource.topic || '').trim();
+        if (!topic) { blocks.push({ single: resource }); return; }
+        const key = topic.toLowerCase();
+        if (!groups.has(key)) {
+          const group = { topic, items: [] };
+          groups.set(key, group);
+          blocks.push({ group });
+        }
+        groups.get(key).items.push(resource);
+      });
+      return blocks.map(block => {
+        if (block.single) return aetResourceCard(block.single, isPastQuestions);
+        const g = block.group;
+        return `
+          <details class="topic-group">
+            <summary>
+              <span class="topic-arrow" aria-hidden="true"></span>
+              <span class="topic-name">${esc(g.topic)}</span>
+              <span class="topic-count">${g.items.length} ${g.items.length === 1 ? 'file' : 'files'}</span>
+            </summary>
+            <div class="topic-body">${g.items.map(r => aetResourceCard(r, isPastQuestions)).join('')}</div>
+          </details>`;
+      }).join('');
+    }
+
     function renderResourcesList(level, course, section) {
       const isPastQuestions = section === 'past-questions';
       const resources = isPastQuestions ? course.past : course.materials;
@@ -2573,22 +2637,7 @@
             resources.length
               ? `
                 <div class="academic-resource-list">
-                  ${resources.map(resource => `
-                    <div class="academic-resource-card">
-                      <div class="academic-resource-info">
-                        <div class="academic-resource-icon">${isPastQuestions ? 'PQ' : 'PDF'}</div>
-                        <div class="academic-resource-text">
-                          <div class="academic-resource-title">${esc(resource.title)}</div>
-                          <div class="academic-resource-detail">${esc(resource.detail)}</div>
-                        </div>
-                      </div>
-                      ${resource.fileUrl ? `
-                        <div class="academic-resource-buttons">
-                          <a class="rp-btn rp-btn-primary" href="${esc(resource.fileUrl)}" target="_blank" rel="noopener">Open PDF</a>
-                          <a class="rp-btn rp-btn-secondary" href="${esc(resource.downloadUrl || resource.fileUrl)}" download>Download</a>
-                        </div>` : '<div class="academic-resource-action">File not available</div>'}
-                    </div>
-                  `).join('')}
+                  ${aetResourceBlocks(resources, isPastQuestions)}
                 </div>
               `
               : `
@@ -4497,6 +4546,33 @@ await showAdminCourseManagement();
       margin-top:20px;
       font-weight:600;
     ">
+      Topic <span style="font-weight:400;color:#666;">(optional)</span>
+    </label>
+
+    <input
+      id="admin-resource-topic"
+      type="text"
+      list="admin-topic-options"
+      maxlength="80"
+      placeholder="e.g. Limits and Continuity. Leave empty for no topic"
+      style="
+        width:100%;
+        box-sizing:border-box;
+        padding:12px;
+        margin-top:8px;
+        border:1px solid #ccc;
+        border-radius:8px;
+        font-size:15px;
+      "
+    >
+    <datalist id="admin-topic-options"></datalist>
+    <p style="margin:6px 0 0;color:#666;font-size:13px;">Files with the same topic show together under one arrow for students.</p>
+
+    <label style="
+      display:block;
+      margin-top:20px;
+      font-weight:600;
+    ">
       PDF File
     </label>
 
@@ -4833,6 +4909,21 @@ await showAdminCourseManagement();
 
     const ordered = aetSortResources(resources);
 
+    const topicOptions = document.getElementById('admin-topic-options');
+    if (topicOptions) {
+      const seen = new Set();
+      topicOptions.innerHTML = '';
+      ordered.forEach(r => {
+        const t = String(r.topic || '').trim();
+        if (t && !seen.has(t.toLowerCase())) {
+          seen.add(t.toLowerCase());
+          const o = document.createElement('option');
+          o.value = t;
+          topicOptions.appendChild(o);
+        }
+      });
+    }
+
     [['study_material', 'Study Materials'], ['past_question', 'Past Questions']].forEach(([typeKey, groupLabel]) => {
 
     const groupItems = ordered.filter(item =>
@@ -4925,7 +5016,7 @@ await showAdminCourseManagement();
           color:#666;
           font-size:13px;
         ">
-          ${typeLabel}
+          ${typeLabel}${resource.topic ? ' · Topic: <strong>' + escapeHtml(resource.topic) + '</strong>' : ''}
         </div>
       `;
 
@@ -5039,6 +5130,33 @@ await showAdminCourseManagement();
       const actions = document.createElement('div');
       actions.style.cssText = 'display:flex;gap:6px;align-items:center;flex-shrink:0;';
 
+      const topicButton = document.createElement('button');
+      topicButton.textContent = resource.topic ? 'Change topic' : 'Set topic';
+      topicButton.style.cssText = 'padding:8px 12px;border:1px solid #ccc;border-radius:7px;background:white;cursor:pointer;font-weight:600;font-size:13px;';
+      topicButton.addEventListener('click', async () => {
+        const answer = prompt(
+          'Topic for "' + resource.title + '"\n\nType a topic name. Files with the same topic show together under one arrow.\nLeave empty to remove the topic.',
+          resource.topic || ''
+        );
+        if (answer === null) return;
+        const cleaned = answer.replace(/\s+/g, ' ').trim().slice(0, 80);
+        topicButton.disabled = true;
+        const { data: saved, error: saveError } = await supabaseClient
+          .from('resources')
+          .update({ topic: cleaned || null })
+          .eq('id', resource.id)
+          .select('id');
+        if (saveError || !saved || !saved.length) {
+          console.error('AET Admin: Could not save topic.', saveError);
+          alert('The topic could not be saved.\n\nThe database step for topics may not be done yet. Nothing was lost.');
+          topicButton.disabled = false;
+          return;
+        }
+        await loadAdminResources(courseId);
+        await refreshPublicCatalog();
+      });
+      actions.appendChild(topicButton);
+
       const arrowStyle = `
         width:36px;
         height:36px;
@@ -5106,6 +5224,10 @@ await showAdminCourseManagement();
         document.getElementById(
           'admin-resource-title'
         ).value.trim();
+
+      const topicValue =
+        (document.getElementById('admin-resource-topic')?.value || '')
+          .replace(/\s+/g, ' ').trim().slice(0, 80);
 
       const file =
         document.getElementById(
@@ -5240,7 +5362,8 @@ await showAdminCourseManagement();
           file_path: filePath,
           description:
             `${title} - ${courseCode}`,
-          published: true
+          published: true,
+          ...(topicValue ? { topic: topicValue } : {})
         });
 
       if (resourceError) {
