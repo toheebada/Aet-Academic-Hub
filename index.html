@@ -1022,6 +1022,18 @@
     .hub-card { padding: 20px; }
     .course-card-content { padding: 18px 20px; }
     .course-card-action { padding: 12px 20px; }
+    /* Phones: compact course cards, two per row */
+    @media (max-width: 640px) {
+      .course-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .course-card { border-radius: 14px; }
+      .course-card-content { padding: 14px 13px 13px; }
+      .course-code { font-size: 17px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+      .course-code::after { content: "\2192"; font-size: 15px; font-weight: 700; opacity: .55; }
+      .course-title { font-size: 12.5px; line-height: 1.35; margin-top: 3px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+      .course-card .chip-row { margin-top: 10px; gap: 5px; }
+      .course-card .chip { font-size: 11px; padding: 3px 8px; gap: 4px; }
+      .course-card-action { display: none; }
+    }
     @media (max-width: 520px) {
       .hero { padding: 38px 18px 44px; }
       .section { padding: 38px 18px; }
