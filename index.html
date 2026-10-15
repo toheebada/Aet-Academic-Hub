@@ -838,7 +838,8 @@
     .review-status.wrong { color: #a33333; }
     .review-status.skipped { color: var(--muted); }
     .quiz-review-options { display: grid; gap: 8px; list-style: none; padding: 0; margin: 0; }
-    .quiz-review-options li { border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 14px; display: flex; justify-content: space-between; gap: 10px; }
+    .quiz-review-options li { border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 14px; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 10px; }
+    .quiz-review-options li > span:first-child { flex: 1 1 140px; min-width: 0; overflow-wrap: anywhere; }
     .quiz-review-options li.is-correct { background: #eef9f2; border-color: #cceadd; color: #16723b; font-weight: 600; }
     .quiz-review-options li.is-wrong { background: #fdf3f3; border-color: #fadcdc; color: #a33333; font-weight: 600; }
     .quiz-review-options .tag { font-size: 11px; font-weight: 800; text-transform: uppercase; white-space: nowrap; }
