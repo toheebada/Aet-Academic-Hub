@@ -1237,6 +1237,10 @@
     .cp-label { display: block; margin: 18px 0 6px; font-weight: 700; font-size: 14px; color: #1f2430; padding: 0; }
     .cp-label em { font-weight: 500; font-style: normal; color: #6b7280; }
     .cp-input { width: 100%; box-sizing: border-box; padding: 12px 13px; border: 1px solid #c9cde0; border-radius: 10px; font-size: 16px; font-family: inherit; background: #fff; color: inherit; }
+    .cp-new { margin: 10px 0 16px; padding: 14px; border: 1px dashed #c9a400; border-radius: 12px; background: #fff9db; }
+    .cp-new[hidden] { display: none; }
+    .cp-new p { margin: 0 0 8px; font-size: 14px; color: #4a4300; }
+    .cp-new .cp-label { margin-top: 10px; }
     .cp-input:focus { outline: none; border-color: #080b63; box-shadow: 0 0 0 3px rgba(8, 11, 99, 0.12); }
     textarea.cp-input { resize: vertical; min-height: 64px; }
     .cp-help { margin: 6px 0 0; font-size: 13px; color: #6b7280; line-height: 1.45; }
@@ -6814,7 +6818,11 @@ function initContributePage() {
     });
     return [...groups.entries()].map(([level, list]) =>
       `<optgroup label="${esc(level)}">${list.map(c => `<option value="${esc(c.id)}">${esc(c.code)} · ${esc(c.title)}</option>`).join('')}</optgroup>`
-    ).join('');
+    ).join('') + (info.canSuggestCourse ? '<option value="__new">+ My course is not listed</option>' : '');
+  }
+
+  function levelOptions(info) {
+    return '<option value="">Choose the level</option>' + (info.levels || []).map(l => `<option value="${esc(l.id)}">${esc(l.name)}</option>`).join('');
   }
 
   function renderSent() {
@@ -6859,6 +6867,9 @@ function initContributePage() {
 
     const keep = {
       course: body.querySelector('#cp-course') ? body.querySelector('#cp-course').value : '',
+      newLevel: body.querySelector('#cp-newlevel') ? body.querySelector('#cp-newlevel').value : '',
+      newCode: body.querySelector('#cp-newcode') ? body.querySelector('#cp-newcode').value : '',
+      newTitle: body.querySelector('#cp-newtitle') ? body.querySelector('#cp-newtitle').value : '',
       type: (body.querySelector('input[name="cp-type"]:checked') || {}).value || 'study_material'
     };
 
@@ -6866,6 +6877,15 @@ function initContributePage() {
       <form id="cp-form" novalidate>
         <label class="cp-label" for="cp-course">Course</label>
         <select id="cp-course" class="cp-input"><option value="">Choose a course</option>${courseOptions(info)}</select>
+        <div class="cp-new" id="cp-newcourse" hidden>
+          <p>Course not in the list? Add it here. AET will check it and add the course.</p>
+          <label class="cp-label" for="cp-newlevel">Level</label>
+          <select id="cp-newlevel" class="cp-input">${levelOptions(info)}</select>
+          <label class="cp-label" for="cp-newcode">Course code</label>
+          <input id="cp-newcode" class="cp-input" type="text" maxlength="20" autocomplete="off" placeholder="e.g. AGE201">
+          <label class="cp-label" for="cp-newtitle">Course name</label>
+          <input id="cp-newtitle" class="cp-input" type="text" maxlength="120" autocomplete="off" placeholder="e.g. Introduction to Farm Management">
+        </div>
 
         <fieldset class="cp-types">
           <legend class="cp-label">What are you sending?</legend>
@@ -6894,7 +6914,13 @@ function initContributePage() {
       </form>
       <div id="cp-sent"></div>`;
 
-    body.querySelector('#cp-course').value = info.courses.some(c => c.id === keep.course) ? keep.course : (info.courses.length === 1 ? info.courses[0].id : '');
+    body.querySelector('#cp-course').value = (keep.course === '__new' && info.canSuggestCourse) || info.courses.some(c => c.id === keep.course) ? keep.course : (info.courses.length === 1 && !info.canSuggestCourse ? info.courses[0].id : '');
+    const showNew = () => { body.querySelector('#cp-newcourse').hidden = body.querySelector('#cp-course').value !== '__new'; };
+    body.querySelector('#cp-course').addEventListener('change', showNew);
+    keep.newLevel && (body.querySelector('#cp-newlevel').value = keep.newLevel);
+    body.querySelector('#cp-newcode').value = keep.newCode || '';
+    body.querySelector('#cp-newtitle').value = keep.newTitle || '';
+    showNew();
     const typeInput = body.querySelector(`input[name="cp-type"][value="${keep.type}"]`) || body.querySelector('input[name="cp-type"]');
     typeInput.checked = true;
     body.querySelector('#cp-form').addEventListener('submit', onSubmit);
@@ -6926,13 +6952,24 @@ function initContributePage() {
     const file = body.querySelector('#cp-file').files[0];
 
     if (!courseId) return setMessage('Choose the course this file belongs to.', 'bad');
+    const isNew = courseId === '__new';
+    const newLevelId = isNew ? body.querySelector('#cp-newlevel').value : '';
+    const newCode = isNew ? body.querySelector('#cp-newcode').value.replace(/\s+/g, ' ').trim() : '';
+    const newTitle = isNew ? body.querySelector('#cp-newtitle').value.replace(/\s+/g, ' ').trim() : '';
+    if (isNew) {
+      if (!newLevelId) return setMessage('Choose the level of your course.', 'bad');
+      if (newCode.length < 2) return setMessage('Type the course code, for example AGE201.', 'bad');
+      if (newTitle.length < 3) return setMessage('Type the course name.', 'bad');
+    }
     if (title.length < 3) return setMessage('Give the file a title (at least 3 letters).', 'bad');
     const fileProblem = await checkFile(file);
     if (fileProblem) return setMessage(fileProblem, 'bad');
 
     lockForm(true);
     setMessage('Preparing the upload...', 'info');
-    const started = await call({ action: 'start', courseId, title, type, topic, note, fileName: file.name, size: file.size });
+    const started = await call(isNew
+      ? { action: 'start', courseId: 'new', newCode, newTitle, newLevelId, title, type, topic, note, fileName: file.name, size: file.size }
+      : { action: 'start', courseId, title, type, topic, note, fileName: file.name, size: file.size });
     if (!started.ok) {
       lockForm(false);
       return setMessage(problem(started), 'bad');
@@ -6953,7 +6990,7 @@ function initContributePage() {
     }
 
     const course = state.info.courses.find(c => c.id === courseId);
-    await finishUpload({ uploadId: started.data.uploadId, title, code: course ? course.code : '' });
+    await finishUpload({ uploadId: started.data.uploadId, title, code: isNew ? newCode.toUpperCase() + ' (new course)' : (course ? course.code : '') });
   }
 
   async function finishUpload(pending) {
@@ -6984,6 +7021,8 @@ function initContributePage() {
     state.sent.unshift({ title: pending.title, code: pending.code });
     const refreshed = await call({ action: 'info' });
     if (refreshed.ok) state.info = refreshed.data;
+    state.busy = false;
+    state.retry = null;
     renderForm();
     if (body.querySelector('#cp-form')) {
       setMessage(`Received! Thank you. AET will check "${pending.title}" before students see it. You can send another file.`, 'ok');
@@ -7095,14 +7134,14 @@ function initContribAdmin() {
     state.courses = courses.data || [];
   }
 
-  function courseSelect(selected, field) {
+  function courseSelect(selected, field, newLabel) {
     const groups = new Map();
     state.courses.forEach(course => {
       const key = state.levels.get(String(course.level_id)) || 'Courses';
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key).push(course);
     });
-    return `<select class="qb-input" data-f="${field}">${[...groups.entries()].map(([level, list]) =>
+    return `<select class="qb-input" data-f="${field}">${newLabel ? `<option value="__new"${selected === '__new' ? ' selected' : ''}>+ Create new course: ${esc(newLabel)}</option>` : ''}${[...groups.entries()].map(([level, list]) =>
       `<optgroup label="${esc(level)}">${list.map(c => `<option value="${esc(c.id)}"${c.id === selected ? ' selected' : ''}>${esc(c.code)} · ${esc(c.title)}</option>`).join('')}</optgroup>`
     ).join('')}</select>`;
   }
@@ -7204,7 +7243,16 @@ function initContribAdmin() {
           <div class="ct-sub"><strong>${esc(item.fileName || 'file.pdf')}</strong> · ${esc(fmtSize(item.sizeBytes))} · from ${esc(item.from)} · ${esc(fmtDate(item.createdAt))}</div>
           <div class="ct-grid">
             <div class="wide"><label>Title (students will see this)</label><input class="qb-input" data-f="title" type="text" maxlength="120" value="${esc(item.title)}"></div>
-            <div><label>Course</label>${courseSelect(item.courseId, 'courseId')}</div>
+            ${item.courseId ? `<div><label>Course</label>${courseSelect(item.courseId, 'courseId')}</div>` : `
+            <div class="wide ct-newcourse"><p class="ct-note" style="margin-top:0"><strong>The rep says their course is not in the list.</strong> Check the code and name. Approving creates the course and publishes the file. Or pick an existing course if the rep made a typo.</p></div>
+            <div class="wide"><label>Course</label>${courseSelect('__new', 'courseId', item.newCourseCode)}</div>
+            <div class="wide ct-newfields">
+              <div class="ct-grid">
+                <div><label>Level</label><select class="qb-input" data-f="newLevel">${[...state.levels.entries()].map(([id, name]) => `<option value="${esc(id)}"${String(id) === String(item.newLevelId) ? ' selected' : ''}>${esc(name)}</option>`).join('')}</select></div>
+                <div><label>Course code</label><input class="qb-input" data-f="newCode" type="text" maxlength="20" value="${esc(item.newCourseCode || '')}"></div>
+                <div class="wide"><label>Course name</label><input class="qb-input" data-f="newTitle" type="text" maxlength="120" value="${esc(item.newCourseTitle || '')}"></div>
+              </div>
+            </div>`}
             <div><label>Type</label><select class="qb-input" data-f="type"><option value="study_material"${item.type === 'study_material' ? ' selected' : ''}>Study material</option><option value="past_question"${item.type === 'past_question' ? ' selected' : ''}>Past question</option></select></div>
             <div class="wide"><label>Topic (optional)</label><input class="qb-input" data-f="topic" type="text" maxlength="80" value="${esc(item.topic || '')}"></div>
           </div>
@@ -7234,6 +7282,11 @@ function initContribAdmin() {
   function renderAll() { renderBadge(); renderLinks(); renderReview(); }
 
   panel.addEventListener('change', event => {
+    if (event.target && event.target.dataset && event.target.dataset.f === 'courseId') {
+      const card = event.target.closest('.ct-item');
+      const fields = card && card.querySelector('.ct-newfields');
+      if (fields) fields.hidden = event.target.value !== '__new';
+    }
     if (event.target && event.target.name === 'ct-scope') {
       const list = $('#ct-courses');
       if (list) list.hidden = event.target.value !== 'some';
@@ -7307,13 +7360,18 @@ function initContribAdmin() {
     }
     if (action === 'approve') {
       const field = name => card.querySelector(`[data-f="${name}"]`).value;
+      const payload = { action: 'contribution_review', id: el.dataset.id, decision: 'approve', title: field('title'), type: field('type'), topic: field('topic') };
+      if (field('courseId') === '__new') {
+        payload.createCourse = { levelId: field('newLevel'), code: field('newCode').trim(), title: field('newTitle').trim() };
+        if (payload.createCourse.code.length < 2 || payload.createCourse.title.length < 3) return say('Fill in the course code and the course name first.', 'bad');
+      } else {
+        payload.courseId = field('courseId');
+      }
       return guarded(async () => {
-        const result = await api({
-          action: 'contribution_review', id: el.dataset.id, decision: 'approve',
-          title: field('title'), courseId: field('courseId'), type: field('type'), topic: field('topic')
-        });
+        const result = await api(payload);
+        if (result.courseCreated) await loadCourses();
         await loadAll();
-        say(`Published. Students can open it now (${result.filePath}).`, 'ok');
+        say(result.courseCreated ? `New course added and the file is published (${result.filePath}).` : `Published. Students can open it now (${result.filePath}).`, 'ok');
       });
     }
   });
