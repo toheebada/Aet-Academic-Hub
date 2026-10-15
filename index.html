@@ -35,6 +35,18 @@
   <script>
     // Admin page (?admin=1) shows only the admin tools, not the homepage.
     try { if (new URLSearchParams(location.search).get('admin') === '1') document.documentElement.classList.add('admin-mode'); } catch (e) {}
+    // Course rep upload page (?contribute=...) shows only the upload form.
+    // The link is private: keep it out of search engines and out of referrer headers.
+    try {
+      if (new URLSearchParams(location.search).has('contribute')) {
+        document.documentElement.classList.add('contribute-mode');
+        [['robots', 'noindex,nofollow'], ['referrer', 'no-referrer']].forEach(pair => {
+          const meta = document.createElement('meta');
+          meta.name = pair[0]; meta.content = pair[1];
+          document.head.appendChild(meta);
+        });
+      }
+    } catch (e) {}
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- SUPABASE INTEGRATION END -->
@@ -646,7 +658,7 @@
        ========================================= */
 
     .app-view { display: none; min-height: 55vh; }
-    body.app-mode > :not(.navbar):not(#app-view):not(#aet-admin-upload):not(#aet-admin-cbt):not(footer) { display: none; }
+    body.app-mode > :not(.navbar):not(#app-view):not(#aet-admin-upload):not(#aet-admin-cbt):not(#aet-admin-contrib):not(footer) { display: none; }
     body.app-mode #app-view { display: block; padding-bottom: 72px; }
     .app-view .section { padding-top: 32px; }
 
@@ -1099,7 +1111,10 @@
 
     /* ===== Admin page on its own (?admin=1) ===== */
     .admin-back { display: none; }
-    html.admin-mode body > :not(.navbar):not(#aet-admin-upload):not(#aet-admin-cbt):not(script):not(style) { display: none !important; }
+    html.admin-mode body > :not(.navbar):not(#aet-admin-upload):not(#aet-admin-cbt):not(#aet-admin-contrib):not(script):not(style) { display: none !important; }
+    html.contribute-mode body > :not(.navbar):not(#aet-contribute):not(script):not(style) { display: none !important; }
+    html.contribute-mode .nav-links, html.contribute-mode .mobile-menu-toggle, html.contribute-mode .mobile-nav { display: none !important; }
+    html.contribute-mode body { background: #f6f7fb; padding-bottom: 60px; }
     html.admin-mode .nav-links, html.admin-mode .mobile-menu-toggle, html.admin-mode .mobile-nav { display: none !important; }
     html.admin-mode .admin-back { display: inline-flex; align-items: center; gap: 6px; padding: 10px 16px; border-radius: 11px; border: 1px solid var(--border); background: #fff; color: var(--navy); font-weight: 700; font-size: 14px; white-space: nowrap; }
     html.admin-mode .admin-back:hover { background: #f0f3ff; }
@@ -1208,6 +1223,79 @@
     #install-help ul { padding-left: 18px; margin: 8px 0 12px; }
     #install-help .ih-close { background: #080b63; color: #fff; border: 0; border-radius: 999px; padding: 10px 20px; font-weight: 700; font-size: 14px; cursor: pointer; }
     #install-help .ih-close:focus-visible { outline: 3px solid #4c52c9; outline-offset: 2px; }
+
+    /* ---- Course rep upload page ---- */
+    .cp { max-width: 640px; margin: 28px auto 0; padding: 0 16px; color: #1f2430; }
+    .cp-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 18px; padding: 26px 22px; box-shadow: 0 8px 30px rgba(8, 11, 99, 0.07); }
+    .cp-eyebrow { margin: 0 0 6px; font-size: 12px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #6b5a00; }
+    .cp h1 { margin: 0 0 10px; font-size: 26px; line-height: 1.2; color: #080b63; }
+    .cp-lead { margin: 0 0 18px; font-size: 15px; line-height: 1.55; color: #4b5563; }
+    .cp-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 20px; }
+    .cp-strip > div { background: #f3f4fb; border-radius: 12px; padding: 10px 12px; min-width: 0; }
+    .cp-strip span { display: block; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em; }
+    .cp-strip strong { display: block; margin-top: 2px; font-size: 14px; color: #080b63; overflow-wrap: anywhere; }
+    .cp-label { display: block; margin: 18px 0 6px; font-weight: 700; font-size: 14px; color: #1f2430; padding: 0; }
+    .cp-label em { font-weight: 500; font-style: normal; color: #6b7280; }
+    .cp-input { width: 100%; box-sizing: border-box; padding: 12px 13px; border: 1px solid #c9cde0; border-radius: 10px; font-size: 16px; font-family: inherit; background: #fff; color: inherit; }
+    .cp-input:focus { outline: none; border-color: #080b63; box-shadow: 0 0 0 3px rgba(8, 11, 99, 0.12); }
+    textarea.cp-input { resize: vertical; min-height: 64px; }
+    .cp-help { margin: 6px 0 0; font-size: 13px; color: #6b7280; line-height: 1.45; }
+    .cp-types { border: 0; margin: 0; padding: 0; min-width: 0; }
+    .cp-types-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .cp-type { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border: 1.5px solid #c9cde0; border-radius: 12px; cursor: pointer; background: #fff; }
+    .cp-type input { margin-top: 3px; accent-color: #080b63; }
+    .cp-type:has(input:checked) { border-color: #080b63; background: #f3f4fb; }
+    .cp-type strong { display: block; font-size: 14px; color: #080b63; }
+    .cp-type small { display: block; margin-top: 2px; font-size: 12px; color: #6b7280; }
+    .cp-file { width: 100%; box-sizing: border-box; padding: 12px; border: 1.5px dashed #aab0cf; border-radius: 12px; background: #fafbff; font-size: 14px; font-family: inherit; }
+    .cp-msg { display: none; margin: 18px 0 0; padding: 12px 14px; border-radius: 10px; font-size: 14px; font-weight: 600; line-height: 1.45; }
+    .cp-msg.show { display: block; }
+    .cp-msg.info { background: #eef1ff; color: #080b63; border: 1px solid #d5dbff; }
+    .cp-msg.ok { background: #eef9f2; color: #16723b; border: 1px solid #cceadd; }
+    .cp-msg.bad { background: #fdf3f3; color: #a33333; border: 1px solid #fadcdc; }
+    .cp-send { width: 100%; margin-top: 18px; padding: 14px 18px; border: 0; border-radius: 12px; background: #080b63; color: #fff; font-size: 16px; font-weight: 800; font-family: inherit; cursor: pointer; }
+    .cp-send:hover { background: #050747; }
+    .cp-send:focus-visible { outline: 3px solid #ffd21c; outline-offset: 2px; }
+    .cp-send:disabled { opacity: 0.55; cursor: not-allowed; }
+    .cp-sent { margin-top: 22px; padding-top: 16px; border-top: 1px solid #e5e7eb; }
+    .cp-sent h2 { margin: 0 0 8px; font-size: 15px; color: #080b63; }
+    .cp-sent ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+    .cp-sent li { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; padding: 8px 10px; background: #f7f8fc; border-radius: 8px; }
+    .cp-sent li span { color: #16723b; font-weight: 700; white-space: nowrap; }
+    .cp-wa { display: inline-flex; margin-top: 14px; padding: 11px 18px; border-radius: 999px; background: #25d366; color: #063b1c; font-weight: 800; font-size: 14px; text-decoration: none; }
+    @media (max-width: 520px) {
+      .cp { margin-top: 16px; padding: 0 12px; }
+      .cp-card { padding: 20px 16px; }
+      .cp h1 { font-size: 22px; }
+      .cp-strip { grid-template-columns: 1fr 1fr; }
+      .cp-strip > div:first-child { grid-column: 1 / -1; }
+      .cp-types-row { grid-template-columns: 1fr; }
+    }
+
+    /* ---- Admin: course rep uploads ---- */
+    .ct-badge[hidden] { display: none; }
+    .ct-badge { display: inline-block; margin-left: 8px; padding: 2px 10px; border-radius: 999px; background: #ffd21c; color: #3b2f00; font-size: 13px; font-weight: 800; vertical-align: middle; }
+    .ct-link-url { width: 100%; box-sizing: border-box; padding: 10px 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 13px; font-family: ui-monospace, Menlo, Consolas, monospace; background: #fff; }
+    .ct-row { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; justify-content: space-between; padding: 12px 14px; border: 1px solid #e5e7eb; border-radius: 12px; background: #fff; margin-top: 10px; }
+    .ct-row h4 { margin: 0; font-size: 15px; }
+    .ct-sub { margin: 3px 0 0; font-size: 13px; color: #6b7280; }
+    .ct-chip { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 800; }
+    .ct-chip.active { background: #eef9f2; color: #16723b; }
+    .ct-chip.expired, .ct-chip.revoked { background: #f3f4f6; color: #6b7280; }
+    .ct-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0 4px; }
+    .ct-tab { padding: 8px 14px; border: 1px solid #ccd0de; border-radius: 999px; background: #fff; font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit; color: #1f2430; }
+    .ct-tab.on { background: #080b63; border-color: #080b63; color: #fff; }
+    .ct-item { margin-top: 12px; padding: 16px; border: 1px solid #e5e7eb; border-radius: 14px; background: #fff; }
+    .ct-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; margin-top: 10px; }
+    .ct-grid .wide { grid-column: 1 / -1; }
+    .ct-grid label { display: block; font-size: 12px; font-weight: 700; color: #4b5563; margin-bottom: 4px; }
+    .ct-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .ct-note { margin: 10px 0 0; padding: 8px 10px; background: #fff8e6; border-radius: 8px; font-size: 13px; color: #6b4a00; }
+    .ct-courses { max-height: 180px; overflow: auto; border: 1px solid #e5e7eb; border-radius: 10px; padding: 8px 12px; background: #fff; margin-top: 8px; }
+    .ct-courses label { display: flex; gap: 8px; align-items: center; padding: 4px 0; font-size: 14px; font-weight: 500; margin: 0; }
+    .ct-courses h5 { margin: 8px 0 2px; font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em; }
+    .ct-empty { margin: 14px 0 0; color: #6b7280; font-size: 14px; }
+    @media (max-width: 560px) { .ct-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 
@@ -1538,7 +1626,8 @@
     }
 
     (function () {
-      const isAdmin = new URLSearchParams(location.search).get('admin') === '1';
+      const query = new URLSearchParams(location.search);
+      const isAdmin = query.get('admin') === '1' || query.has('contribute');
 
       // ---------- Visit counting ----------
       let skipCounting = isAdmin || !AET_STATS_URL || !/^https:\/\//.test(AET_STATS_URL) ||
@@ -6650,6 +6739,605 @@ Explanation: The power rule gives 2x.</pre>
 }
 
 initCbtQuestionBank();
+
+// ===============================
+// COURSE REP UPLOAD PAGE (?contribute=...)
+// A rep with a private link can send PDFs. Nothing is shown to students
+// until the admin approves it.
+// ===============================
+const CONTRIBUTE_URL = `${SUPABASE_URL}/functions/v1/contribute`;
+
+function initContributePage() {
+  const params = new URLSearchParams(window.location.search);
+  if (!params.has('contribute')) return;
+  const token = String(params.get('contribute') || '').trim();
+
+  const MAX_BYTES = 50 * 1024 * 1024;
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[character]));
+  const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+  const WHATSAPP = 'https://wa.me/2348050804036?text=' + encodeURIComponent('Hello AET, I need a new upload link for the Learning Hub.');
+
+  const root = document.createElement('section');
+  root.id = 'aet-contribute';
+  root.className = 'cp';
+  root.innerHTML = `
+    <div class="cp-card">
+      <p class="cp-eyebrow">Academic Excellence Team (AET)</p>
+      <h1>Share course materials</h1>
+      <p class="cp-lead">Send past questions and study materials for the AET Learning Hub. AET checks every file before students can see it.</p>
+      <div id="cp-body"><p class="cp-help" id="cp-loading">Checking your link...</p></div>
+    </div>`;
+  document.body.appendChild(root);
+  const body = root.querySelector('#cp-body');
+
+  const state = { info: null, sent: [], busy: false, retry: null };
+
+  async function call(payload) {
+    try {
+      const response = await fetch(CONTRIBUTE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...payload, token })
+      });
+      let data = null;
+      try { data = await response.json(); } catch (error) { data = null; }
+      return { ok: response.ok, status: response.status, data };
+    } catch (error) {
+      return { ok: false, status: 0, data: null };
+    }
+  }
+
+  function problem(result, fallback) {
+    if (result.status === 0) return 'Could not reach the server. Check your internet connection and try again.';
+    return (result.data && result.data.error) || fallback || 'Something went wrong. Please try again.';
+  }
+
+  function renderInvalid(message) {
+    body.innerHTML = `
+      <div class="cp-msg show bad" role="alert" id="cp-invalid">${esc(message)}</div>
+      <a class="cp-wa" href="${WHATSAPP}" target="_blank" rel="noopener">Ask AET for a new link on WhatsApp</a>`;
+  }
+
+  function fmtDate(value) {
+    const date = new Date(value);
+    return isNaN(date) ? '' : date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function courseOptions(info) {
+    const groups = new Map();
+    info.courses.forEach(course => {
+      const key = course.level || 'Courses';
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(course);
+    });
+    return [...groups.entries()].map(([level, list]) =>
+      `<optgroup label="${esc(level)}">${list.map(c => `<option value="${esc(c.id)}">${esc(c.code)} · ${esc(c.title)}</option>`).join('')}</optgroup>`
+    ).join('');
+  }
+
+  function renderSent() {
+    const box = body.querySelector('#cp-sent');
+    if (!box) return;
+    box.innerHTML = state.sent.length
+      ? `<div class="cp-sent"><h2>Sent in this visit</h2><ul>${state.sent.map(item => `<li><div>${esc(item.title)} <small>(${esc(item.code)})</small></div><span>Waiting for review</span></li>`).join('')}</ul></div>`
+      : '';
+  }
+
+  function setMessage(text, kind) {
+    const box = body.querySelector('#cp-msg');
+    if (!box) return;
+    box.textContent = text || '';
+    box.className = 'cp-msg' + (text ? ' show ' + kind : '');
+    if (text && kind === 'bad' && box.scrollIntoView) { try { box.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {} }
+  }
+
+  function lockForm(locked) {
+    state.busy = locked;
+    body.querySelectorAll('#cp-form input, #cp-form select, #cp-form textarea, #cp-form button').forEach(el => { el.disabled = locked; });
+  }
+
+  function renderForm() {
+    const info = state.info;
+    const left = Math.max(0, Number(info.remaining) || 0);
+    const strip = `
+      <div class="cp-strip">
+        <div><span>Link for</span><strong id="cp-label">${esc(info.label)}</strong></div>
+        <div><span>Files left</span><strong id="cp-left">${left} of ${Number(info.maxUploads) || 0}</strong></div>
+        <div><span>Valid until</span><strong>${esc(fmtDate(info.expiresAt))}</strong></div>
+      </div>`;
+
+    if (!left) {
+      body.innerHTML = strip + `
+        <div class="cp-msg show info" id="cp-full">This link has reached its upload limit. Thank you for your help! Ask AET for a new link if you have more to send.</div>
+        <div id="cp-sent"></div>
+        <a class="cp-wa" href="${WHATSAPP}" target="_blank" rel="noopener">Ask AET for a new link on WhatsApp</a>`;
+      renderSent();
+      return;
+    }
+
+    const keep = {
+      course: body.querySelector('#cp-course') ? body.querySelector('#cp-course').value : '',
+      type: (body.querySelector('input[name="cp-type"]:checked') || {}).value || 'study_material'
+    };
+
+    body.innerHTML = strip + `
+      <form id="cp-form" novalidate>
+        <label class="cp-label" for="cp-course">Course</label>
+        <select id="cp-course" class="cp-input"><option value="">Choose a course</option>${courseOptions(info)}</select>
+
+        <fieldset class="cp-types">
+          <legend class="cp-label">What are you sending?</legend>
+          <div class="cp-types-row">
+            <label class="cp-type"><input type="radio" name="cp-type" value="study_material"><span><strong>Study material</strong><small>Notes, slides, handouts</small></span></label>
+            <label class="cp-type"><input type="radio" name="cp-type" value="past_question"><span><strong>Past question</strong><small>Exam or test papers</small></span></label>
+          </div>
+        </fieldset>
+
+        <label class="cp-label" for="cp-title">Title</label>
+        <input id="cp-title" class="cp-input" type="text" maxlength="120" autocomplete="off" placeholder="e.g. MTH101 Limits and Continuity notes">
+
+        <label class="cp-label" for="cp-topic">Topic <em>(optional)</em></label>
+        <input id="cp-topic" class="cp-input" type="text" maxlength="80" autocomplete="off" placeholder="e.g. Limits">
+        <p class="cp-help">Files with the same topic are grouped together for students.</p>
+
+        <label class="cp-label" for="cp-note">Note to AET <em>(optional)</em></label>
+        <textarea id="cp-note" class="cp-input" maxlength="300" rows="2" placeholder="Anything AET should know about this file"></textarea>
+
+        <label class="cp-label" for="cp-file">PDF file</label>
+        <input id="cp-file" class="cp-file" type="file" accept="application/pdf,.pdf">
+        <p class="cp-help">PDF only, up to 50MB. Too big? Compress it first on ilovepdf.com.</p>
+
+        <div id="cp-msg" class="cp-msg" role="status" aria-live="polite"></div>
+        <button type="submit" id="cp-send" class="cp-send">Send for review</button>
+      </form>
+      <div id="cp-sent"></div>`;
+
+    body.querySelector('#cp-course').value = info.courses.some(c => c.id === keep.course) ? keep.course : (info.courses.length === 1 ? info.courses[0].id : '');
+    const typeInput = body.querySelector(`input[name="cp-type"][value="${keep.type}"]`) || body.querySelector('input[name="cp-type"]');
+    typeInput.checked = true;
+    body.querySelector('#cp-form').addEventListener('submit', onSubmit);
+    renderSent();
+  }
+
+  async function checkFile(file) {
+    if (!file) return 'Choose a PDF file to send.';
+    if (!/\.pdf$/i.test(file.name)) return 'Only PDF files are allowed.';
+    if (file.size < 1) return 'That file looks empty.';
+    if (file.size > MAX_BYTES) return 'This PDF is larger than 50MB. Compress it first (for example on ilovepdf.com) and try again.';
+    try {
+      const head = new Uint8Array(await file.slice(0, 1024).arrayBuffer());
+      if (!new TextDecoder('latin1').decode(head).includes('%PDF-')) return 'This file does not look like a real PDF. Please choose another file.';
+    } catch (error) { /* the server checks again */ }
+    return '';
+  }
+
+  async function onSubmit(event) {
+    event.preventDefault();
+    if (state.busy) return;
+    if (state.retry) return finishUpload(state.retry);
+
+    const courseId = body.querySelector('#cp-course').value;
+    const type = body.querySelector('input[name="cp-type"]:checked').value;
+    const title = body.querySelector('#cp-title').value.replace(/\s+/g, ' ').trim();
+    const topic = body.querySelector('#cp-topic').value.replace(/\s+/g, ' ').trim();
+    const note = body.querySelector('#cp-note').value.trim();
+    const file = body.querySelector('#cp-file').files[0];
+
+    if (!courseId) return setMessage('Choose the course this file belongs to.', 'bad');
+    if (title.length < 3) return setMessage('Give the file a title (at least 3 letters).', 'bad');
+    const fileProblem = await checkFile(file);
+    if (fileProblem) return setMessage(fileProblem, 'bad');
+
+    lockForm(true);
+    setMessage('Preparing the upload...', 'info');
+    const started = await call({ action: 'start', courseId, title, type, topic, note, fileName: file.name, size: file.size });
+    if (!started.ok) {
+      lockForm(false);
+      return setMessage(problem(started), 'bad');
+    }
+
+    setMessage('Uploading your file. Please keep this page open...', 'info');
+    let upload;
+    try {
+      upload = await supabaseClient.storage.from('pending-uploads')
+        .uploadToSignedUrl(started.data.path, started.data.uploadToken, file, { contentType: 'application/pdf' });
+    } catch (error) {
+      upload = { error };
+    }
+    if (upload.error) {
+      await call({ action: 'cancel', uploadId: started.data.uploadId });
+      lockForm(false);
+      return setMessage('The upload did not go through. Check your internet connection and try again.', 'bad');
+    }
+
+    const course = state.info.courses.find(c => c.id === courseId);
+    await finishUpload({ uploadId: started.data.uploadId, title, code: course ? course.code : '' });
+  }
+
+  async function finishUpload(pending) {
+    lockForm(true);
+    setMessage('Checking the file...', 'info');
+    let result = await call({ action: 'finish', uploadId: pending.uploadId });
+    for (let attempt = 0; attempt < 2 && (result.status === 0 || result.status >= 500); attempt++) {
+      await sleep(1500);
+      result = await call({ action: 'finish', uploadId: pending.uploadId });
+    }
+
+    if (result.status === 0 || result.status >= 500) {
+      // The file is uploaded, but we could not confirm it. Let them try the check again.
+      state.retry = pending;
+      lockForm(false);
+      body.querySelector('#cp-send').textContent = 'Check again';
+      return setMessage('The file was uploaded, but we could not confirm it yet. Check your internet, then tap "Check again".', 'bad');
+    }
+
+    state.retry = null;
+    if (!result.ok) {
+      if (result.status === 409) await call({ action: 'cancel', uploadId: pending.uploadId });
+      lockForm(false);
+      body.querySelector('#cp-send').textContent = 'Send for review';
+      return setMessage(problem(result), 'bad');
+    }
+
+    state.sent.unshift({ title: pending.title, code: pending.code });
+    const refreshed = await call({ action: 'info' });
+    if (refreshed.ok) state.info = refreshed.data;
+    renderForm();
+    if (body.querySelector('#cp-form')) {
+      setMessage(`Received! Thank you. AET will check "${pending.title}" before students see it. You can send another file.`, 'ok');
+    }
+  }
+
+  (async () => {
+    const result = await call({ action: 'info' });
+    if (!result.ok) {
+      if (result.status === 0) return renderInvalid('Could not reach the server. Check your internet connection and open the link again.');
+      return renderInvalid((result.data && result.data.error) || 'This upload link is not valid. Ask AET for a new one.');
+    }
+    state.info = result.data;
+    renderForm();
+  })();
+}
+
+initContributePage();
+
+// ===============================
+// AET ADMIN - COURSE REP UPLOADS
+// Make upload links for course reps and approve what they send.
+// Talks only to the protected cbt-admin function.
+// ===============================
+function initContribAdmin() {
+  if (new URLSearchParams(window.location.search).get('admin') !== '1') return;
+
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, character => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[character]));
+
+  const state = {
+    links: null, items: [], tab: 'pending', waiting: 0,
+    courses: [], levels: new Map(), formOpen: false, created: null,
+    rejecting: null, busy: false
+  };
+
+  const panel = document.createElement('section');
+  panel.id = 'aet-admin-contrib';
+  panel.className = 'qb-panel';
+  panel.hidden = true;
+  panel.innerHTML = `
+    <div class="qb-head">
+      <div>
+        <h2>Course rep uploads <span class="ct-badge" id="ct-badge" hidden></span></h2>
+        <p>Give a course rep a private link. They send PDFs. Nothing shows to students until you approve it.</p>
+      </div>
+      <button type="button" class="qb-btn" data-ct="refresh">Refresh</button>
+    </div>
+    <div id="ct-message" class="qb-message" role="status" aria-live="polite"></div>
+    <div id="ct-links"></div>
+    <div id="ct-review"></div>
+  `;
+  document.body.appendChild(panel);
+  const $ = selector => panel.querySelector(selector);
+
+  async function api(body) {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) throw new Error('Please sign in as admin.');
+    let response;
+    try {
+      response = await fetch(CBT_ADMIN_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session.access_token}` },
+        body: JSON.stringify(body)
+      });
+    } catch (error) {
+      throw new Error('Could not reach the server. Check your internet connection.');
+    }
+    let data = null;
+    try { data = await response.json(); } catch (error) { data = null; }
+    if (!response.ok) throw new Error((data && data.error) || 'Something went wrong.');
+    return data;
+  }
+
+  let timer = null;
+  function say(text, kind = 'ok') {
+    const box = $('#ct-message');
+    box.textContent = text || '';
+    box.className = `qb-message ${text ? 'show ' + kind : ''}`;
+    if (text && kind === 'bad' && box.scrollIntoView) { try { box.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {} }
+    clearTimeout(timer);
+    if (text && kind === 'ok') timer = setTimeout(() => { box.className = 'qb-message'; box.textContent = ''; }, 7000);
+  }
+
+  async function guarded(job) {
+    if (state.busy) return;
+    state.busy = true;
+    panel.classList.add('is-busy');
+    try { await job(); } catch (error) { say(error.message || 'Something went wrong.', 'bad'); }
+    finally { state.busy = false; panel.classList.remove('is-busy'); }
+  }
+
+  const fmtDate = value => {
+    const date = new Date(value);
+    return isNaN(date) ? '' : date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
+  const fmtSize = bytes => {
+    const n = Number(bytes) || 0;
+    return n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB';
+  };
+
+  async function loadCourses() {
+    const [levels, courses] = await Promise.all([
+      supabaseClient.from('levels').select('id, name'),
+      supabaseClient.from('courses').select('id, code, title, level_id').order('code')
+    ]);
+    state.levels = new Map((levels.data || []).map(l => [String(l.id), l.name]));
+    state.courses = courses.data || [];
+  }
+
+  function courseSelect(selected, field) {
+    const groups = new Map();
+    state.courses.forEach(course => {
+      const key = state.levels.get(String(course.level_id)) || 'Courses';
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(course);
+    });
+    return `<select class="qb-input" data-f="${field}">${[...groups.entries()].map(([level, list]) =>
+      `<optgroup label="${esc(level)}">${list.map(c => `<option value="${esc(c.id)}"${c.id === selected ? ' selected' : ''}>${esc(c.code)} · ${esc(c.title)}</option>`).join('')}</optgroup>`
+    ).join('')}</select>`;
+  }
+
+  async function loadAll() {
+    const [links, list] = await Promise.all([
+      api({ action: 'link_list' }),
+      api({ action: 'contributions_list', status: state.tab })
+    ]);
+    state.links = links.links || [];
+    state.items = list.items || [];
+    state.waiting = state.links.reduce((sum, link) => sum + (Number(link.pending) || 0), 0);
+    renderAll();
+  }
+
+  function renderBadge() {
+    const badge = $('#ct-badge');
+    badge.hidden = !state.waiting;
+    badge.textContent = state.waiting ? `${state.waiting} waiting` : '';
+  }
+
+  function linkUrl(token) {
+    return `${location.origin}${location.pathname}?contribute=${token}`;
+  }
+
+  function renderLinks() {
+    const box = $('#ct-links');
+    let html = `<div class="qb-card"><div class="qb-head" style="margin:0"><div><h3>Upload links</h3><p>One link per course rep. Links stop working on their expiry date, or when you revoke them.</p></div>
+      <button type="button" class="qb-btn primary" data-ct="new-link">${state.formOpen ? 'Close' : '+ New link'}</button></div>`;
+
+    if (state.created) {
+      const url = linkUrl(state.created.token);
+      const wa = 'https://wa.me/?text=' + encodeURIComponent(`Hello ${state.created.label}, here is your private AET Learning Hub upload link. Please do not share it with anyone else:\n${url}`);
+      html += `<div class="qb-card" id="ct-created" style="background:#eef9f2;border-color:#cceadd">
+        <h3>Link ready for ${esc(state.created.label)}</h3>
+        <input class="ct-link-url" id="ct-url" type="text" readonly value="${esc(url)}">
+        <div class="ct-actions">
+          <button type="button" class="qb-btn good" data-ct="copy">Copy link</button>
+          <a class="qb-btn" href="${esc(wa)}" target="_blank" rel="noopener" style="text-decoration:none">Send on WhatsApp</a>
+          <button type="button" class="qb-btn" data-ct="dismiss-created">Done</button>
+        </div>
+        <p class="ct-note">Copy it now. For safety the full link is not saved and cannot be shown again. If it is lost, revoke it and make a new one. It expires on ${esc(fmtDate(state.created.expiresAt))} and allows up to ${Number(state.created.maxUploads)} files.</p>
+      </div>`;
+    }
+
+    if (state.formOpen) {
+      const groups = new Map();
+      state.courses.forEach(course => {
+        const key = state.levels.get(String(course.level_id)) || 'Courses';
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(course);
+      });
+      html += `<form class="qb-card" id="ct-form" novalidate>
+        <label class="qb-label" for="ct-label" style="margin-top:0">Who is this link for?</label>
+        <input id="ct-label" class="qb-input" type="text" maxlength="80" placeholder="e.g. Ade, 200L Maths rep">
+        <label class="qb-label">Which courses can they upload to?</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:14px"><input type="radio" name="ct-scope" value="all" checked> All courses</label>
+        <label style="display:flex;gap:8px;align-items:center;font-size:14px;margin-top:6px"><input type="radio" name="ct-scope" value="some"> Only these courses</label>
+        <div class="ct-courses" id="ct-courses" hidden>
+          ${[...groups.entries()].map(([level, list]) => `<h5>${esc(level)}</h5>${list.map(c => `<label><input type="checkbox" value="${esc(c.id)}"> ${esc(c.code)} · ${esc(c.title)}</label>`).join('')}`).join('')}
+        </div>
+        <div class="ct-grid">
+          <div><label for="ct-days">Link works for (days)</label><input id="ct-days" class="qb-input" type="number" min="1" max="90" value="14"></div>
+          <div><label for="ct-max">Most files they can send</label><input id="ct-max" class="qb-input" type="number" min="1" max="50" value="15"></div>
+        </div>
+        <div class="ct-actions"><button type="submit" class="qb-btn primary">Create link</button><button type="button" class="qb-btn" data-ct="new-link">Cancel</button></div>
+      </form>`;
+    }
+
+    const links = state.links || [];
+    if (!links.length) {
+      html += `<p class="ct-empty" id="ct-nolinks">No links yet. Tap "+ New link" to make the first one.</p>`;
+    } else {
+      html += links.map(link => `
+        <div class="ct-row" data-link="${esc(link.id)}">
+          <div>
+            <h4>${esc(link.label)} <span class="ct-chip ${esc(link.state)}">${esc(link.state)}</span></h4>
+            <p class="ct-sub">${link.state === 'expired' ? 'Expired' : 'Expires'} ${esc(fmtDate(link.expiresAt))} · up to ${Number(link.maxUploads)} files · ${link.courseCount ? link.courseCount + ' courses' : 'all courses'}</p>
+            <p class="ct-sub">${Number(link.pending)} waiting · ${Number(link.approved)} approved · ${Number(link.rejected)} rejected${link.lastUsedAt ? ' · last used ' + esc(fmtDate(link.lastUsedAt)) : ''}</p>
+          </div>
+          ${link.state === 'active' ? `<button type="button" class="qb-btn danger" data-ct="revoke" data-id="${esc(link.id)}">Revoke</button>` : ''}
+        </div>`).join('');
+    }
+    html += `</div>`;
+    box.innerHTML = html;
+  }
+
+  function renderReview() {
+    const box = $('#ct-review');
+    const tabs = [['pending', `Waiting${state.waiting ? ' (' + state.waiting + ')' : ''}`], ['approved', 'Approved'], ['rejected', 'Rejected']];
+    let html = `<div class="qb-card"><h3>Files from course reps</h3>
+      <div class="ct-tabs">${tabs.map(([key, label]) => `<button type="button" class="ct-tab${state.tab === key ? ' on' : ''}" data-ct="tab" data-tab="${key}">${esc(label)}</button>`).join('')}</div>`;
+
+    if (!state.items.length) {
+      html += `<p class="ct-empty" id="ct-noitems">${state.tab === 'pending' ? 'Nothing is waiting for review.' : 'Nothing here yet.'}</p>`;
+    } else if (state.tab === 'pending') {
+      html += state.items.map(item => `
+        <div class="ct-item" data-id="${esc(item.id)}">
+          <div class="ct-sub"><strong>${esc(item.fileName || 'file.pdf')}</strong> · ${esc(fmtSize(item.sizeBytes))} · from ${esc(item.from)} · ${esc(fmtDate(item.createdAt))}</div>
+          <div class="ct-grid">
+            <div class="wide"><label>Title (students will see this)</label><input class="qb-input" data-f="title" type="text" maxlength="120" value="${esc(item.title)}"></div>
+            <div><label>Course</label>${courseSelect(item.courseId, 'courseId')}</div>
+            <div><label>Type</label><select class="qb-input" data-f="type"><option value="study_material"${item.type === 'study_material' ? ' selected' : ''}>Study material</option><option value="past_question"${item.type === 'past_question' ? ' selected' : ''}>Past question</option></select></div>
+            <div class="wide"><label>Topic (optional)</label><input class="qb-input" data-f="topic" type="text" maxlength="80" value="${esc(item.topic || '')}"></div>
+          </div>
+          ${item.note ? `<p class="ct-note"><strong>Note from the rep:</strong> ${esc(item.note)}</p>` : ''}
+          ${state.rejecting === item.id ? `
+            <div class="ct-grid"><div class="wide"><label>Reason (optional, kept for your records)</label><input class="qb-input" data-f="reason" type="text" maxlength="200" placeholder="e.g. Blurry scan"></div></div>
+            <div class="ct-actions"><button type="button" class="qb-btn danger" data-ct="reject-confirm" data-id="${esc(item.id)}">Confirm reject</button><button type="button" class="qb-btn" data-ct="reject-cancel">Cancel</button></div>
+          ` : `
+            <div class="ct-actions">
+              <button type="button" class="qb-btn" data-ct="preview" data-id="${esc(item.id)}">Preview PDF</button>
+              <button type="button" class="qb-btn good" data-ct="approve" data-id="${esc(item.id)}">Approve and publish</button>
+              <button type="button" class="qb-btn danger" data-ct="reject" data-id="${esc(item.id)}">Reject</button>
+            </div>`}
+        </div>`).join('');
+    } else {
+      html += state.items.map(item => `
+        <div class="ct-row"><div>
+          <h4>${esc(item.title)}</h4>
+          <p class="ct-sub">${esc(item.courseCode)} · ${item.type === 'past_question' ? 'Past question' : 'Study material'} · from ${esc(item.from)} · ${esc(fmtDate(item.createdAt))}</p>
+          ${item.rejectReason ? `<p class="ct-sub">Reason: ${esc(item.rejectReason)}</p>` : ''}
+        </div></div>`).join('');
+    }
+    html += `</div>`;
+    box.innerHTML = html;
+  }
+
+  function renderAll() { renderBadge(); renderLinks(); renderReview(); }
+
+  panel.addEventListener('change', event => {
+    if (event.target && event.target.name === 'ct-scope') {
+      const list = $('#ct-courses');
+      if (list) list.hidden = event.target.value !== 'some';
+    }
+  });
+
+  panel.addEventListener('submit', event => {
+    if (event.target.id !== 'ct-form') return;
+    event.preventDefault();
+    const label = $('#ct-label').value.replace(/\s+/g, ' ').trim();
+    if (!label) return say('Give the link a name, for example the rep\'s name and class.', 'bad');
+    const body = { action: 'link_create', label, days: Number($('#ct-days').value), maxUploads: Number($('#ct-max').value) };
+    if (panel.querySelector('input[name="ct-scope"]:checked').value === 'some') {
+      body.courseIds = [...panel.querySelectorAll('#ct-courses input:checked')].map(box => box.value);
+      if (!body.courseIds.length) return say('Tick at least one course, or choose "All courses".', 'bad');
+    }
+    guarded(async () => {
+      const made = await api(body);
+      state.created = made;
+      state.formOpen = false;
+      await loadAll();
+      say('Link created. Copy it now.', 'ok');
+    });
+  });
+
+  panel.addEventListener('click', event => {
+    const el = event.target.closest('[data-ct]');
+    if (!el || el.disabled) return;
+    const action = el.dataset.ct;
+    const card = el.closest('.ct-item');
+
+    if (action === 'refresh') return guarded(loadAll);
+    if (action === 'new-link') { state.formOpen = !state.formOpen; return renderLinks(); }
+    if (action === 'dismiss-created') { state.created = null; return renderLinks(); }
+    if (action === 'copy') {
+      const input = $('#ct-url');
+      const done = () => say('Link copied.', 'ok');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(input.value).then(done, () => { input.select(); say('Press Ctrl+C (or hold and copy) to copy the link.', 'warn'); });
+      } else { input.select(); say('Press Ctrl+C (or hold and copy) to copy the link.', 'warn'); }
+      return;
+    }
+    if (action === 'revoke') {
+      if (!window.confirm('Stop this link from working? Files already sent stay in your review list.')) return;
+      return guarded(async () => { await api({ action: 'link_revoke', id: el.dataset.id }); await loadAll(); say('Link revoked.', 'ok'); });
+    }
+    if (action === 'tab') {
+      state.tab = el.dataset.tab; state.rejecting = null;
+      return guarded(loadAll);
+    }
+    if (action === 'preview') {
+      // Open the tab first so the browser does not block it, then point it at the file.
+      const win = window.open('about:blank', '_blank');
+      return guarded(async () => {
+        try {
+          const result = await api({ action: 'contribution_preview', id: el.dataset.id });
+          if (win) win.location.href = result.url; else say('Your browser blocked the new tab. Allow pop-ups for this site and try again.', 'warn');
+        } catch (error) { if (win) win.close(); throw error; }
+      });
+    }
+    if (action === 'reject') { state.rejecting = el.dataset.id; return renderReview(); }
+    if (action === 'reject-cancel') { state.rejecting = null; return renderReview(); }
+    if (action === 'reject-confirm') {
+      const reason = card.querySelector('[data-f="reason"]').value;
+      return guarded(async () => {
+        await api({ action: 'contribution_review', id: el.dataset.id, decision: 'reject', reason });
+        state.rejecting = null;
+        await loadAll();
+        say('Rejected. The file was deleted.', 'ok');
+      });
+    }
+    if (action === 'approve') {
+      const field = name => card.querySelector(`[data-f="${name}"]`).value;
+      return guarded(async () => {
+        const result = await api({
+          action: 'contribution_review', id: el.dataset.id, decision: 'approve',
+          title: field('title'), courseId: field('courseId'), type: field('type'), topic: field('topic')
+        });
+        await loadAll();
+        say(`Published. Students can open it now (${result.filePath}).`, 'ok');
+      });
+    }
+  });
+
+  let shownFor = null;
+  async function syncSession(session) {
+    if (session) {
+      panel.hidden = false;
+      if (shownFor !== session.user.id) {
+        shownFor = session.user.id;
+        await guarded(async () => { await loadCourses(); await loadAll(); });
+      }
+    } else {
+      shownFor = null;
+      panel.hidden = true;
+      state.links = null; state.items = []; state.created = null; state.formOpen = false;
+      $('#ct-links').innerHTML = ''; $('#ct-review').innerHTML = '';
+    }
+  }
+  supabaseClient.auth.getSession().then(({ data: { session } }) => syncSession(session));
+  supabaseClient.auth.onAuthStateChange((event, session) => { setTimeout(() => syncSession(session), 0); });
+}
+
+initContribAdmin();
     
 </script>
 
