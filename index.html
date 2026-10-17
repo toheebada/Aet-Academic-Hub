@@ -7784,5 +7784,138 @@ initContribAdmin();
   }
 })();
 </script>
+<!-- ===== AET ADMIN: UNDO FOR CBT QUESTION CHANGES (admin page only) ===== -->
+<style>
+  #aet-undo { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 400; display: flex; align-items: center; gap: 14px; max-width: calc(100vw - 24px); padding: 12px 14px 12px 18px; border-radius: 14px; background: #111827; color: #fff; font-size: 14px; font-weight: 600; box-shadow: 0 14px 34px rgba(0,0,0,.35); }
+  #aet-undo[hidden] { display: none; }
+  html.admin-mode body > #aet-undo#aet-undo#aet-undo#aet-undo#aet-undo:not([hidden]) { display: flex !important; }
+  #aet-undo button { flex: none; padding: 8px 16px; border: none; border-radius: 9px; background: #ffd21c; color: #050747; font: inherit; font-weight: 800; cursor: pointer; }
+  #aet-undo button:disabled { opacity: .6; cursor: progress; }
+  #aet-undo .u-bar { position: absolute; left: 14px; right: 14px; bottom: 4px; height: 3px; border-radius: 2px; background: rgba(255,255,255,.18); overflow: hidden; }
+  #aet-undo .u-bar i { display: block; height: 100%; width: 100%; background: #ffd21c; transform-origin: left; }
+  #aet-undo.bad { background: #991b1b; }
+</style>
+<script>
+(function () {
+  if (new URLSearchParams(location.search).get('admin') !== '1') return;
+  if (window.__aetUndoInstalled) return; window.__aetUndoInstalled = true;
+
+  var WINDOW_MS = 10000;
+  var LABEL = { draft: 'draft', approved: 'approved', published: 'published', rejected: 'rejected' };
+  var cache = new Map();          // id -> question as last listed (status, text, options, answer ...)
+  var lastHeaders = null;         // headers of the latest admin request (for the undo call)
+  var courseId = '';
+  var toast = null, timer = null, current = null;
+
+  function isAdminCall(url, init) {
+    return typeof url === 'string' && url.indexOf('/functions/v1/cbt-admin') !== -1 && init && String(init.method || '').toUpperCase() === 'POST' && typeof init.body === 'string';
+  }
+  function callAdmin(body) {
+    return origFetch(adminUrl, { method: 'POST', headers: lastHeaders, body: JSON.stringify(body) }).then(function (r) {
+      return r.json().catch(function () { return null; }).then(function (d) {
+        if (!r.ok) throw new Error((d && d.error) || 'Something went wrong.');
+        return d;
+      });
+    });
+  }
+  var adminUrl = '';
+  var origFetch = window.fetch;
+
+  window.fetch = function (input, init) {
+    var url = typeof input === 'string' ? input : (input && input.url) || '';
+    var body = null;
+    if (isAdminCall(url, init)) {
+      try { body = JSON.parse(init.body); } catch (e) { body = null; }
+    }
+    if (!body) return origFetch.apply(this, arguments);
+
+    adminUrl = url;
+    try {
+      var h = {}; var src = init.headers;
+      if (src && typeof src.forEach === 'function' && !Array.isArray(src)) src.forEach(function (v, k) { h[k] = v; });
+      else if (Array.isArray(src)) src.forEach(function (kv) { h[kv[0]] = kv[1]; });
+      else Object.assign(h, src || {});
+      lastHeaders = h;
+    } catch (e) {}
+    var before = null;
+    if (body.action === 'set_status' && Array.isArray(body.ids)) {
+      before = body.ids.map(function (id) { var q = cache.get(id); return { id: id, status: q ? q.status : null }; });
+    } else if (body.action === 'delete' && Array.isArray(body.ids)) {
+      before = body.ids.map(function (id) { var q = cache.get(id); return q ? JSON.parse(JSON.stringify(q)) : null; });
+    }
+
+    var p = origFetch.apply(this, arguments);
+    p.then(function (resp) {
+      if (!resp || !resp.ok) return;
+      resp.clone().json().then(function (data) {
+        if (body.action === 'list' && data && Array.isArray(data.questions)) {
+          courseId = body.courseId || courseId;
+          cache = new Map(); data.questions.forEach(function (q) { cache.set(q.id, q); });
+        } else if (body.action === 'set_status' && before && data) {
+          var failed = {}; (data.failed || []).forEach(function (f) { failed[f.id] = true; });
+          var groups = {};
+          before.forEach(function (b) {
+            if (failed[b.id] || !b.status || b.status === body.status) return;
+            (groups[b.status] = groups[b.status] || []).push(b.id);
+          });
+          var n = Object.keys(groups).reduce(function (a, k) { return a + groups[k].length; }, 0);
+          if (n) offer('Moved ' + n + ' to ' + LABEL[body.status] + '.', async function () {
+            for (var s in groups) await callAdmin({ action: 'set_status', ids: groups[s], status: s });
+          });
+        } else if (body.action === 'delete' && before) {
+          var snaps = before.filter(Boolean);
+          if (snaps.length) offer('Deleted ' + snaps.length + '.', async function () {
+            var byStatus = {};
+            for (var i = 0; i < snaps.length; i++) {
+              var q = snaps[i];
+              var saved = await callAdmin({ action: 'save', courseId: courseId || q.course_id, question_text: q.question_text, options: q.options, correct_option: q.correct_option, explanation: q.explanation || '', topic: q.topic || '', difficulty: q.difficulty });
+              if (q.status && q.status !== 'draft') (byStatus[q.status] = byStatus[q.status] || []).push(saved.id);
+            }
+            for (var s in byStatus) await callAdmin({ action: 'set_status', ids: byStatus[s], status: s });
+          });
+        }
+      }).catch(function () {});
+    }).catch(function () {});
+    return p;
+  };
+
+  function ensureToast() {
+    if (toast) return toast;
+    toast = document.createElement('div');
+    toast.id = 'aet-undo'; toast.hidden = true; toast.setAttribute('role', 'status'); toast.setAttribute('aria-live', 'polite');
+    toast.innerHTML = '<span class="u-msg"></span><button type="button">Undo</button><span class="u-bar"><i></i></span>';
+    document.body.appendChild(toast);
+    toast.querySelector('button').addEventListener('click', run);
+    return toast;
+  }
+  function hide() { clearTimeout(timer); current = null; if (toast) toast.hidden = true; }
+  function offer(text, undoFn) {
+    ensureToast(); clearTimeout(timer);
+    current = undoFn; toast.classList.remove('bad');
+    toast.querySelector('.u-msg').textContent = text;
+    var btn = toast.querySelector('button'); btn.disabled = false; btn.hidden = false;
+    toast.hidden = false;
+    var bar = toast.querySelector('.u-bar i');
+    bar.style.transition = 'none'; bar.style.transform = 'scaleX(1)';
+    void bar.offsetWidth; bar.style.transition = 'transform ' + WINDOW_MS + 'ms linear'; bar.style.transform = 'scaleX(0)';
+    timer = setTimeout(hide, WINDOW_MS);
+  }
+  async function run() {
+    var fn = current; if (!fn) return;
+    var btn = toast.querySelector('button'); btn.disabled = true; clearTimeout(timer);
+    toast.querySelector('.u-bar i').style.transition = 'none';
+    try {
+      await fn();
+      toast.querySelector('.u-msg').textContent = 'Undone.'; btn.hidden = true;
+      var r = document.querySelector('#aet-admin-cbt [data-action="refresh"]'); if (r) r.click();
+      timer = setTimeout(hide, 2500);
+    } catch (err) {
+      toast.classList.add('bad'); toast.querySelector('.u-msg').textContent = 'Could not undo: ' + (err && err.message ? err.message : 'error');
+      btn.hidden = true; timer = setTimeout(hide, 6000);
+    }
+    current = null;
+  }
+})();
+</script>
 </body>
 </html>
