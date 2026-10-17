@@ -7530,5 +7530,146 @@ initContribAdmin();
   window.aetRenderMath = schedule;
 })();
 </script>
+AET ADMIN TABS PATCH (one paste, admin page only)
+
+WHERE TO PASTE
+Open index.html and scroll to the very end of the file. You will see:
+
+  </script>
+  </body>
+  </html>
+
+Paste everything below the line of dashes on its own, right ABOVE </body>.
+(After the last </script>, before </body>.) Save and commit.
+
+It only runs on ?admin=1, so the student site is untouched.
+
+---------------------------------------------------------------
+
+<!-- ===== AET ADMIN TABS (admin page only) ===== -->
+<style>
+  #aet-admin-tabs { display: none; border-top: 1px solid #e5e7eb; background: #fff; }
+  html[data-alog] #aet-admin-tabs { display: block; }
+  #aet-admin-tabs .at-in { max-width: 960px; margin: 0 auto; padding: 8px 22px; display: flex; gap: 6px; align-items: center; overflow-x: auto; scrollbar-width: none; }
+  #aet-admin-tabs .at-in::-webkit-scrollbar { display: none; }
+  #aet-admin-tabs button { flex: none; display: inline-flex; align-items: center; gap: 7px; padding: 10px 16px; border-radius: 10px; border: 1px solid #e5e7eb; background: #f8f9fc; color: #1f2430; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  #aet-admin-tabs button.on { background: #080b63; border-color: #080b63; color: #fff; }
+  #aet-admin-tabs button:focus-visible { outline: 3px solid #ffd21c; outline-offset: 2px; }
+  #aet-admin-tabs .at-badge { min-width: 20px; padding: 1px 7px; border-radius: 999px; background: #ffd21c; color: #050747; font-size: 12px; font-weight: 800; text-align: center; }
+  #aet-admin-tabs .at-badge[hidden] { display: none; }
+  #aet-admin-tabs .at-out { margin-left: auto; background: #fff; color: #6b7280; font-weight: 600; }
+  html[data-alog][data-atab="res"] #aet-admin-cbt,
+  html[data-alog][data-atab="res"] #aet-admin-contrib,
+  html[data-alog][data-atab="res"] #aet-admin-course-management,
+  html[data-alog][data-atab="crs"] #aet-admin-cbt,
+  html[data-alog][data-atab="crs"] #aet-admin-contrib,
+  html[data-alog][data-atab="crs"] #aet-admin-upload > [data-ag="res"],
+  html[data-alog][data-atab="cbt"] #aet-admin-upload,
+  html[data-alog][data-atab="cbt"] #aet-admin-contrib,
+  html[data-alog][data-atab="rep"] #aet-admin-upload,
+  html[data-alog][data-atab="rep"] #aet-admin-cbt { display: none !important; }
+  html[data-alog][data-atab="crs"] #aet-admin-course-management { margin-top: 10px !important; padding-top: 0 !important; border-top: none !important; }
+  #aet-res-search { width: 100%; box-sizing: border-box; padding: 11px 12px; margin: 14px 0 4px; border: 1px solid #ccc; border-radius: 8px; font: inherit; font-size: 14px; }
+  @media (max-width: 640px) { #aet-admin-tabs .at-in { padding: 8px 12px; } #aet-admin-tabs button { padding: 9px 13px; } }
+</style>
+<script>
+(function () {
+  if (new URLSearchParams(location.search).get('admin') !== '1') return;
+  var TABS = [['res', 'Resources'], ['crs', 'Courses'], ['cbt', 'CBT'], ['rep', 'Rep uploads']];
+  var KEY = 'aet-admin-tab';
+  var cur = 'res';
+  try { var saved = localStorage.getItem(KEY); if (TABS.some(function (t) { return t[0] === saved; })) cur = saved; } catch (e) {}
+
+  var nav = document.querySelector('header.navbar');
+  if (!nav) return;
+  var bar = document.createElement('div');
+  bar.id = 'aet-admin-tabs';
+  var inner = document.createElement('div');
+  inner.className = 'at-in';
+  inner.setAttribute('role', 'tablist');
+  var btns = {};
+  TABS.forEach(function (t) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.setAttribute('role', 'tab'); b.dataset.tab = t[0];
+    b.appendChild(document.createTextNode(t[1]));
+    if (t[0] === 'rep') {
+      var badge = document.createElement('span'); badge.className = 'at-badge'; badge.hidden = true; b.appendChild(badge);
+    }
+    b.addEventListener('click', function () { setTab(t[0], true); });
+    inner.appendChild(b); btns[t[0]] = b;
+  });
+  var out = document.createElement('button');
+  out.type = 'button'; out.className = 'at-out'; out.textContent = 'Logout';
+  out.addEventListener('click', function () { var l = document.getElementById('admin-logout-button'); if (l) l.click(); });
+  inner.appendChild(out);
+  bar.appendChild(inner);
+  nav.appendChild(bar);
+
+  function setTab(id, scroll) {
+    cur = id;
+    document.documentElement.setAttribute('data-atab', id);
+    TABS.forEach(function (t) { var on = t[0] === id; btns[t[0]].classList.toggle('on', on); btns[t[0]].setAttribute('aria-selected', on ? 'true' : 'false'); });
+    try { localStorage.setItem(KEY, id); } catch (e) {}
+    if (scroll) window.scrollTo(0, 0);
+  }
+
+  // Tag the upload panel's children so each tab can show its own part
+  function tagPanel(panel) {
+    Array.prototype.forEach.call(panel.children, function (c, i) {
+      if (c.id === 'aet-admin-course-management') c.dataset.ag = 'crs';
+      else if (i === 0) c.dataset.ag = 'hdr';
+      else c.dataset.ag = 'res';
+    });
+  }
+
+  // Search box for Existing Resources
+  function ensureSearch() {
+    var list = document.getElementById('admin-resource-list');
+    if (!list) return;
+    if (!document.getElementById('aet-res-search')) {
+      var s = document.createElement('input');
+      s.id = 'aet-res-search'; s.type = 'search'; s.placeholder = 'Search these resources by title...'; s.setAttribute('aria-label', 'Search resources');
+      s.addEventListener('input', filterList);
+      list.parentNode.insertBefore(s, list);
+    }
+    if (!list.dataset.atWatch) {
+      list.dataset.atWatch = '1';
+      new MutationObserver(filterList).observe(list, { childList: true });
+    }
+  }
+  function filterList() {
+    var list = document.getElementById('admin-resource-list'), s = document.getElementById('aet-res-search');
+    if (!list || !s) return;
+    var q = s.value.trim().toLowerCase();
+    Array.prototype.forEach.call(list.children, function (c) {
+      var isItem = !!c.querySelector('button');
+      c.style.display = (isItem && q && c.textContent.toLowerCase().indexOf(q) === -1) ? 'none' : '';
+    });
+  }
+
+  function sync() {
+    var panel = document.getElementById('aet-admin-upload');
+    var logged = !!document.getElementById('admin-logout-button');
+    if (logged) document.documentElement.setAttribute('data-alog', ''); else document.documentElement.removeAttribute('data-alog');
+    if (panel && logged) { tagPanel(panel); ensureSearch(); }
+  }
+  function syncBadge() {
+    var src = document.getElementById('ct-badge'), dst = btns.rep.querySelector('.at-badge');
+    if (!src || !dst) return;
+    var n = src.hidden ? '' : src.textContent.trim();
+    dst.textContent = n; dst.hidden = !n;
+  }
+
+  setTab(cur, false);
+  function watch() {
+    var panel = document.getElementById('aet-admin-upload');
+    if (!panel) { setTimeout(watch, 150); return; }
+    new MutationObserver(sync).observe(panel, { childList: true });
+    sync();
+  }
+  watch();
+  setInterval(function () { sync(); syncBadge(); }, 1500);
+})();
+</script>
 </body>
 </html>
