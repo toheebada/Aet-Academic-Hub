@@ -7655,5 +7655,134 @@ initContribAdmin();
   setInterval(function () { sync(); syncBadge(); }, 1500);
 })();
 </script>
+<!-- ===== AET ADMIN: TITLE AUTO-FILL + UPLOAD MANY PDFs AT ONCE (admin page only) ===== -->
+<style>
+  #aet-multi-note { margin: 8px 0 0; padding: 10px 12px; border-radius: 8px; background: #f3f6ff; border: 1px solid #dbe3ff; color: #1f2430; font-size: 13px; line-height: 1.5; }
+  #aet-multi-note[hidden] { display: none; }
+  #aet-multi-note ul { margin: 6px 0 0; padding-left: 18px; max-height: 150px; overflow: auto; }
+  #aet-multi-note b { color: #080b63; }
+</style>
+<script>
+(function () {
+  if (new URLSearchParams(location.search).get('admin') !== '1') return;
+  var MAX_FILES = 25, MAX_BYTES = 50 * 1024 * 1024;
+
+  function nice(name) {
+    return String(name).replace(/\.pdf$/i, '').replace(/_+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 150);
+  }
+  function $(id) { return document.getElementById(id); }
+  function isPdf(f) { return f.type === 'application/pdf' || /\.pdf$/i.test(f.name); }
+
+  // Allow picking many files + keep a small note under the file box
+  function ensure() {
+    var f = $('admin-resource-file');
+    if (!f) return;
+    if (!f.multiple) f.multiple = true;
+    if (!$('aet-multi-note')) {
+      var n = document.createElement('div');
+      n.id = 'aet-multi-note'; n.hidden = true; n.setAttribute('aria-live', 'polite');
+      f.parentNode.insertBefore(n, f.nextSibling);
+    }
+  }
+  setInterval(ensure, 700);
+
+  function showNote(files) {
+    var n = $('aet-multi-note'), t = $('admin-resource-title');
+    if (!n || !t) return;
+    if (files.length > 1) {
+      n.hidden = false;
+      var html = '<b>' + files.length + ' files selected.</b> Each file name becomes its title. Level, course, type and topic apply to all of them.<ul>';
+      Array.prototype.forEach.call(files, function (x) {
+        var li = nice(x.name).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; });
+        html += '<li>' + li + '</li>';
+      });
+      n.innerHTML = html + '</ul>';
+      t.disabled = true; t.dataset.prevPh = t.dataset.prevPh || t.placeholder; t.placeholder = 'Using each file name as the title';
+      if (t.dataset.auto !== undefined && t.value === t.dataset.auto) t.value = '';
+      t.dataset.auto = '';
+    } else {
+      n.hidden = true; n.innerHTML = '';
+      t.disabled = false; if (t.dataset.prevPh) { t.placeholder = t.dataset.prevPh; delete t.dataset.prevPh; }
+    }
+  }
+
+  // 1) Title auto-fill when one file is chosen
+  document.addEventListener('change', function (e) {
+    if (!e.target || e.target.id !== 'admin-resource-file') return;
+    var files = e.target.files, t = $('admin-resource-title');
+    showNote(files);
+    if (files.length === 1 && t) {
+      var untouched = t.value.trim() === '' || (t.dataset.auto !== undefined && t.value === t.dataset.auto);
+      if (untouched) { t.value = nice(files[0].name); t.dataset.auto = t.value; }
+    }
+    if (files.length === 0 && t && t.dataset.auto !== undefined && t.value === t.dataset.auto) { t.value = ''; t.dataset.auto = ''; }
+  }, true);
+
+  // 2) Upload many: only takes over when 2 or more files are chosen
+  document.addEventListener('click', function (e) {
+    var btn = e.target && e.target.closest && e.target.closest('#admin-upload-button');
+    if (!btn) return;
+    var input = $('admin-resource-file');
+    if (!input || input.files.length < 2) return; // single file: the normal upload runs
+    e.stopPropagation(); e.preventDefault();
+    uploadMany(btn, input);
+  }, true);
+
+  function setStatus(msg, color) { var s = $('admin-upload-status'); if (s) { s.textContent = msg; s.style.color = color || '#666'; } }
+
+  async function uploadMany(btn, input) {
+    if (btn.disabled) return;
+    var levelSel = $('admin-level-select'), courseSel = $('admin-course-select');
+    var type = $('admin-resource-type').value;
+    var topic = (($('admin-resource-topic') || {}).value || '').replace(/\s+/g, ' ').trim().slice(0, 80);
+    var files = Array.prototype.slice.call(input.files);
+
+    if (!levelSel.value || !courseSel.value) { setStatus('Pick the level and the course first.', '#b91c1c'); return; }
+    if (files.length > MAX_FILES) { setStatus('Pick at most ' + MAX_FILES + ' files at a time.', '#b91c1c'); return; }
+    var bad = files.filter(function (f) { return !isPdf(f); });
+    if (bad.length) { setStatus('Only PDF files are allowed. Remove: ' + bad.map(function (f) { return f.name; }).join(', '), '#b91c1c'); return; }
+    var big = files.filter(function (f) { return f.size > MAX_BYTES; });
+    if (big.length) { setStatus('Too large (over 50MB), compress first: ' + big.map(function (f) { return f.name; }).join(', '), '#b91c1c'); return; }
+
+    var levelName = levelSel.options[levelSel.selectedIndex].textContent.trim();
+    var courseOpt = courseSel.options[courseSel.selectedIndex];
+    var courseCode = courseOpt.dataset.code, courseId = courseSel.value;
+
+    btn.disabled = true; var oldLabel = btn.textContent;
+    var ok = 0, failed = [];
+    for (var i = 0; i < files.length; i++) {
+      var file = files[i], title = nice(file.name);
+      btn.textContent = 'Uploading ' + (i + 1) + ' of ' + files.length + '...';
+      setStatus('Uploading ' + (i + 1) + ' of ' + files.length + ': ' + file.name, '#666');
+      var safe = file.name.replace(/\s+/g, ' ').replace(/[^\w.\- ]/g, '').trim();
+      var path = levelName + '/' + courseCode + '/' + safe;
+      try {
+        var up = await supabaseClient.storage.from('academic-resources').upload(path, file, { contentType: 'application/pdf', upsert: false });
+        if (up.error) { failed.push(file.name + ' (' + up.error.message + ')'); continue; }
+        var row = { course_id: courseId, title: title, type: type, file_path: path, description: title + ' - ' + courseCode, published: true };
+        if (topic) row.topic = topic;
+        var ins = await supabaseClient.from('resources').insert(row);
+        if (ins.error) {
+          await supabaseClient.storage.from('academic-resources').remove([path]);
+          failed.push(file.name + ' (could not save, file removed)');
+          continue;
+        }
+        ok++;
+      } catch (err) {
+        failed.push(file.name + ' (' + (err && err.message ? err.message : 'error') + ')');
+      }
+    }
+
+    var msg = ok + ' of ' + files.length + ' uploaded.';
+    if (failed.length) msg += ' Not uploaded: ' + failed.join('; ');
+    setStatus(msg, failed.length ? (ok ? '#b45309' : '#b91c1c') : '#15803d');
+    input.value = ''; showNote(input.files);
+    var t = $('admin-resource-title'); if (t) { t.value = ''; t.dataset.auto = ''; }
+    btn.disabled = false; btn.textContent = oldLabel;
+    courseSel.dispatchEvent(new Event('change'));           // reloads the Existing Resources list
+    try { if (typeof refreshPublicCatalog === 'function') await refreshPublicCatalog(); } catch (e) {}
+  }
+})();
+</script>
 </body>
 </html>
