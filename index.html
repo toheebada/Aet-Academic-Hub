@@ -1360,7 +1360,7 @@
 .hx-photo{position:absolute;top:0;right:0;bottom:0;width:60%;background:linear-gradient(90deg,#fff 0%,rgba(255,255,255,0) 50%),url(hero.webp) center/cover no-repeat,linear-gradient(160deg,#a9c3df,#d9e3d0 60%,#bfae8e)}
 .hx-in{position:relative;padding:30px 30px 8px}
 .hx-eb{font-size:12px;letter-spacing:.08em;color:#080b63;font-weight:700}
-.hx-hero h1{font-size:46px;color:#080b63;margin:8px 0 8px;line-height:1.05}
+.hx-hero h1{font-size:42px;color:#080b63;margin:8px 0 8px;line-height:1.05}
 .hx-hero h1 em{font-style:normal;background:linear-gradient(transparent 62%,#ffd21c 62%)}
 .hx-tag{font-size:17px;color:#2b3050;max-width:430px;margin:0}
 .hx-links{display:flex;gap:18px;margin:16px 0;font-size:14px;font-weight:600;flex-wrap:wrap}
@@ -1369,19 +1369,16 @@
 #hx-search-slot{max-width:640px}
 #hx-search-slot .search-box-wrap{margin:0}
 #hx-search-slot .search-input{background:#fff;border:1px solid #e7e9f1;border-radius:14px;padding:15px 16px 15px 44px;font-size:15px;box-shadow:0 8px 22px rgba(8,11,99,.1)}
-.hx-low{position:relative;display:grid;grid-template-columns:1.1fr 1fr;gap:16px;padding:22px 30px 26px;margin-top:6px}
-.hx-lv{background:#f4f6fc;border:1px solid #e7e9f1;border-radius:16px;padding:14px}
-.hx-lv small{color:#6d7185;font-size:13px}
-.hx-lvs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
-.hx-lvs a{text-align:center;border-radius:10px;padding:12px 0;font-weight:700;font-size:14px;text-decoration:none}
-.hx-wa{display:flex;gap:12px;align-items:center;background:#fff;border:1px solid #e7e9f1;border-radius:16px;padding:14px;text-decoration:none;color:#11152b}
-.hx-wa u{width:44px;height:44px;border-radius:50%;background:#25d366;flex:none;display:grid;place-items:center;color:#fff;text-decoration:none}
+.hx-low{position:relative;padding:12px 30px 22px}
+.hx-wa{display:inline-flex;gap:12px;align-items:center;max-width:100%;background:#fff;border:1px solid #e7e9f1;border-radius:14px;padding:10px 16px 10px 10px;text-decoration:none;color:#11152b;box-shadow:0 6px 16px rgba(8,11,99,.08)}
+.hx-wa u{width:38px;height:38px;border-radius:50%;background:#25d366;flex:none;display:grid;place-items:center;color:#fff;text-decoration:none}
 .hx-wa b{font-size:14px;display:block}.hx-wa small{display:block;color:#6d7185;font-size:12px;margin-top:3px}
 /* search results appear under the hero only once someone searches */
-.search-section:not(:has(.search-results-area.active)){display:none}
+.search-section{background:none;border:0;padding:0 22px}
+#hx-search-slot .filters-row{margin-top:10px}
 .search-section .section-heading{display:none}
 @media(max-width:900px){.hx-wrap.has-side{grid-template-columns:minmax(0,1fr)}}
-@media(max-width:760px){.hx-wrap{padding:12px}.hx-photo{width:100%;opacity:.45}.hx-hero h1{font-size:32px}.hx-low{grid-template-columns:1fr;padding:14px 18px 20px}.hx-in{padding:22px 18px 4px}.hx-links{gap:12px}}
+@media(max-width:760px){.hx-wrap{padding:12px}.hx-photo{width:100%;opacity:.45}.hx-wa{display:flex}.hx-hero h1{font-size:32px}.hx-low{padding:10px 18px 18px}.hx-in{padding:22px 18px 4px}.hx-links{gap:12px}}
 </style>
 
 <section class="hx-wrap" id="hx-wrap">
@@ -1399,27 +1396,20 @@
       <div id="hx-search-slot"></div>
     </div>
     <div class="hx-low">
-      <div class="hx-lv"><small>Browse by Level</small>
-        <div class="hx-lvs">
-          <a href="#level/100" style="background:#e3f6e8;color:#17703a">100L</a>
-          <a href="#level/200" style="background:#e1ecfb;color:#1a4f9c">200L</a>
-          <a href="#level/300" style="background:#ece6fb;color:#5a3aa8">300L</a>
-          <a href="#level/400" style="background:#fdeedd;color:#a45a0a">400L</a>
-        </div>
-      </div>
       <a class="hx-wa" href="https://whatsapp.com/channel/0029VbCFdLSLikg6aeAF1S3m" target="_blank" rel="noopener noreferrer">
-        <u>💬</u><span><b>Join Our WhatsApp Channel</b><small>Updates, tutorials and new materials</small></span>
+        <u><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.85 9.85 0 0 0 12.04 2zm0 18.15h-.01a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.23 8.24-8.23 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.83c0 4.54-3.7 8.22-8.23 8.22zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.78.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.42h-.48c-.17 0-.43.06-.66.31-.23.25-.87.85-.87 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.23-.16-.48-.29z"/></svg></u><span><b>Join Our WhatsApp Channel</b><small>Updates, tutorials and new materials</small></span>
       </a>
     </div>
   </div>
   <aside id="hx-side"></aside>
 </section>
 <script>
-/* moves the existing search box into the hero (it keeps all its search behaviour) */
+/* moves the existing search box and filters into the hero (it keeps all its search behaviour) */
 (function () {
   function mv() {
-    var slot = document.getElementById('hx-search-slot'), box = document.querySelector('.search-box-wrap');
+    var slot = document.getElementById('hx-search-slot'), box = document.querySelector('.search-box-wrap'), fil = document.querySelector('.filters-row');
     if (slot && box && box.parentNode !== slot) slot.appendChild(box);
+    if (slot && fil && fil.parentNode !== slot) slot.appendChild(fil);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mv); else mv();
 })();
@@ -1474,7 +1464,6 @@
       </div>
     </div>
   </section>
-
 
   <!-- QUICK ACCESS -->
 
