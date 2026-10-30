@@ -74,6 +74,12 @@
     '.ax-lead{font-size:14px;color:#6d7185;margin:0 0 12px;line-height:1.5}',
     '.ax-notice{background:#fff;border:1px solid #e7e9f1;border-radius:16px;padding:14px;box-shadow:0 12px 35px rgba(8,11,99,.06)}',
     '.ax-notice+.ax-notice{margin-top:10px}',
+    '.ax-nc{background:#fff;border:1px solid #e7e9f1;border-radius:18px;padding:16px;box-shadow:0 12px 35px rgba(8,11,99,.06)}',
+    '.ax-nh{font-size:18px;margin:0 0 2px;color:#080b63}',
+    '.ax-nc .ax-lead{font-size:12px;margin:0 0 4px}',
+    '.ax-nc .ax-notice{background:none;border:0;border-top:1px solid #e7e9f1;border-radius:0;box-shadow:none;padding:12px 0 2px;margin-top:10px}',
+    '.ax-nsrc{font-size:10px;letter-spacing:.06em;color:#6d7185;font-weight:700;text-transform:uppercase}',
+    '.ax-nbody{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}',
     '.ax-ntitle{font-weight:800;font-size:15px;margin:7px 0 3px;color:#11152b}',
     '.ax-nbody{font-size:13.5px;color:#454a63;line-height:1.5}',
     '.ax-nmeta{font-size:12px;color:#6d7185;margin-top:8px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}',
@@ -159,13 +165,35 @@
 
   function noticeCard(n) {
     var labels = { open: 'OPEN', closing_soon: 'CLOSING SOON', closed: 'CLOSED' };
-    var src = isHttps(n.source) ? h('a', { href: n.source, target: '_blank', rel: 'noopener noreferrer', text: 'Source ↗' }) : h('span', { text: 'Source: ' + n.source });
+    var host = n.source;
+    if (isHttps(n.source)) { try { host = new URL(n.source).hostname.replace(/^www\./, ''); } catch (e) {} }
+    var src = isHttps(n.source) ? h('a', { href: n.source, target: '_blank', rel: 'noopener noreferrer', text: 'Source ↗' }) : null;
     return h('div', { class: 'ax-notice' },
-      n.tag && labels[n.tag] ? h('span', { class: 'ax-chip ' + n.tag, text: labels[n.tag] }) : null,
+      h('div', { class: 'ax-nsrc', text: host }),
       h('div', { class: 'ax-ntitle', text: n.title }),
       n.details ? h('div', { class: 'ax-nbody', text: n.details }) : null,
-      h('div', { class: 'ax-nmeta' }, h('span', { text: 'Posted ' + fmtDay(n.shows_from) + ' · until ' + fmtDay(n.ends_at) }), src)
+      h('div', { class: 'ax-nmeta' },
+        h('span', { text: 'Posted ' + fmtDay(n.shows_from) + ' · until ' + fmtDay(n.ends_at) }),
+        n.tag && labels[n.tag] ? h('span', { class: 'ax-chip ' + n.tag, text: labels[n.tag] }) : src)
     );
+  }
+
+  // notices: side column next to the hero when the new hero is installed, else a block above the search
+  var sideBox = null;
+  function placeSide(notices) {
+    var side = document.getElementById('hx-side');
+    var wrap = document.getElementById('hx-wrap');
+    if (sideBox && sideBox.parentNode) sideBox.parentNode.removeChild(sideBox);
+    sideBox = null;
+    if (wrap) wrap.classList.toggle('has-side', !!notices.length);
+    if (!notices.length) return;
+    var card = h('div', { class: 'ax-nc', id: 'aet-notices' },
+      h('h2', { class: 'ax-nh', text: '🔔 Latest notices' }),
+      h('p', { class: 'ax-lead', text: 'Posted by AET. Always check the source.' }));
+    notices.forEach(function (n) { card.appendChild(noticeCard(n)); });
+    if (side) side.appendChild(card);
+    else { var a = document.getElementById('search-section'); if (a && a.parentNode) { var w = h('section', { class: 'ax-home' }, card); a.parentNode.insertBefore(w, a); sideBox = w; return; } }
+    sideBox = card;
   }
 
   function renderHome() {
@@ -179,7 +207,8 @@
     var withNotes = live.sessions.filter(function (s) { return s.notes_path && new Date(s.hide_after).getTime() <= now; })
       .sort(function (a, b) { return new Date(b.starts_at) - new Date(a.starts_at); })[0] || null;
 
-    if (!notices.length && !upcoming.length && !withNotes) {
+    placeSide(notices);
+    if (!upcoming.length && !withNotes) {
       if (homeBox && homeBox.parentNode) homeBox.parentNode.removeChild(homeBox);
       homeBox = null;
       return;
@@ -191,11 +220,6 @@
       box.appendChild(grid);
     } else if (withNotes) {
       box.appendChild(h('div', { class: 'ax-tuts' }, notesOnlyCard(withNotes)));
-    }
-    if (notices.length) {
-      box.appendChild(h('h2', { class: 'ax-h2', text: 'Latest notices' }));
-      box.appendChild(h('p', { class: 'ax-lead', text: 'Updates for students. Always check the source.' }));
-      notices.forEach(function (n) { box.appendChild(noticeCard(n)); });
     }
     if (homeBox && homeBox.parentNode) homeBox.parentNode.replaceChild(box, homeBox);
     else anchor.parentNode.insertBefore(box, anchor);
