@@ -792,3 +792,172 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
 })();
+
+
+/* ============================================================
+   AET Learning Hub: maths helper for "Import many" (admin page)
+   Press Check as usual. The maths is wrapped in $ signs for you.
+   ============================================================ */
+(function () {
+  'use strict';
+  if (window.__aetMathfix) return;
+  window.__aetMathfix = true;
+  // ---------- maths helper for "Import many" (admin page) ----------
+  // Before "Check" runs, tidy the pasted text so maths sits between single $ signs:
+  //   - removes \bm / \boldsymbol markers that Gemini adds
+  //   - wraps loose maths (x^2, \frac{1}{2}, \sqrt{x} ...) and anything after a \bm marker in $ ... $
+  //   - turns $$..$$, \( .. \) and \[ .. \] into single $ ... $
+  //   - repairs JSON where \frac, \times, \beta ... lost their backslash meaning (\f, \t, \b are JSON escapes)
+  var OPS = /^(?:[+\-=*\/<>]|≤|≥|×|÷|·)$/;
+  var CMD = /\\[A-Za-z]+/;
+  var END_PUNCT = /[,.;:?!]+$/;
+
+  function tokType(w) {
+    if (/^\s+$/.test(w)) return 'S';
+    var core = w.replace(END_PUNCT, '');
+    if (/^\\(?:bm|boldsymbol)$/.test(core)) return 'B';
+    if (OPS.test(core)) return 'O';
+    if (CMD.test(core) || /[A-Za-z0-9)}\]][\^_]/.test(core)) return 'M';
+    if (/^(?:[0-9]+(?:\.[0-9]+)?|[A-Za-z]|[0-9]*[A-Za-z]\([A-Za-z0-9]*\))$/.test(core)) return 'A';
+    return 'P';
+  }
+
+  function cleanInside(s) {
+    return s.replace(/\\(?:bm|boldsymbol|mathbf|mathbb)\b\s*/g, '').replace(/\s+$/, '');
+  }
+
+  function splitWords(s) {
+    // split on spaces, but never inside { ... }
+    var parts = [], cur = '', depth = 0, space = false;
+    for (var i = 0; i < s.length; i++) {
+      var c = s[i], sp = /\s/.test(c) && depth === 0;
+      if (sp !== space && cur) { parts.push(cur); cur = ''; }
+      space = sp;
+      if (c === '{') depth++; else if (c === '}' && depth > 0) depth--;
+      cur += c;
+    }
+    if (cur) parts.push(cur);
+    return parts;
+  }
+
+  function wrapOutside(s) {
+    if (!s) return s;
+    var parts = splitWords(s), types = parts.map(tokType), n = parts.length, out = [], i = 0, count = 0;
+    function nextNonSpace(k) { k++; while (k < n && types[k] === 'S') k++; return k; }
+    while (i < n) {
+      var t = types[i], start = -1, end = -1;
+      if (t === 'B') {
+        var f = nextNonSpace(i);
+        if (f < n && types[f] !== 'B') { start = i; end = f; } else { out.push(''); i++; continue; }
+      } else if (t === 'M') { start = i; end = i; }
+      else if (t === 'A') {
+        var k1 = nextNonSpace(i), k2 = k1 < n ? nextNonSpace(k1) : n;
+        if (k1 < n && types[k1] === 'O' && k2 < n && (types[k2] === 'M' || types[k2] === 'A')) { start = i; end = i; }
+      }
+      if (start < 0) { out.push(parts[i]); i++; continue; }
+      // extend to the right
+      for (;;) {
+        var a = nextNonSpace(end);
+        if (a >= n) break;
+        if (types[a] === 'M' || (types[a] === 'A' && /\(/.test(parts[a]))) { end = a; continue; }
+        if (types[a] === 'O') {
+          var b = nextNonSpace(a);
+          if (b < n && (types[b] === 'M' || types[b] === 'A')) { end = b; continue; }
+        }
+        break;
+      }
+      var chunk = parts.slice(start, end + 1).join('');
+      var trail = (chunk.match(END_PUNCT) || [''])[0];
+      if (trail) chunk = chunk.slice(0, chunk.length - trail.length);
+      chunk = cleanInside(chunk);
+      if (chunk) { out.push('$' + chunk + '$' + trail); count++; } else out.push(trail);
+      i = end + 1;
+    }
+    wrapOutside.count = (wrapOutside.count || 0) + count;
+    return out.join('');
+  }
+
+  function fixMathString(text) {
+    var s = String(text);
+    s = s.replace(/\$\$/g, '$').replace(/\\\(|\\\)|\\\[|\\\]/g, '$');
+    // control characters that are really lost backslashes (backspace, form feed)
+    s = s.replace(/\u0008/g, '\\b').replace(/\u000c/g, '\\f');
+    var out = '', i = 0, buf = '';
+    while (i < s.length) {
+      var c = s[i];
+      if (c === '\\' && s[i + 1] === '$') { buf += '\\$'; i += 2; continue; }
+      if (c === '$' && i + 1 < s.length && !/\s/.test(s[i + 1])) {
+        var j = i + 1, found = -1;
+        while (j < s.length && j - i <= 400) {
+          if (s[j] === '\\') { j += 2; continue; }
+          if (s[j] === '$') { if (!/\s/.test(s[j - 1]) && !/[0-9]/.test(s[j + 1] || '')) found = j; break; }
+          j++;
+        }
+        if (found !== -1) {
+          out += wrapOutside(buf); buf = '';
+          out += '$' + cleanInside(s.slice(i + 1, found)) + '$';
+          i = found + 1; continue;
+        }
+      }
+      buf += c; i++;
+    }
+    return out + wrapOutside(buf);
+  }
+
+  var JSON_FIX = /(\\+)(frac|forall|beta|bar|bm|boldsymbol|binom|times|theta|tan|tau|text|textbf|neq|ne|nu|nabla|not|right|rho|rightarrow|rangle|rbrace|rfloor|rceil)(?![A-Za-z])/g;
+  function fixImportText(raw) {
+    var t = String(raw).trim();
+    wrapOutside.count = 0;
+    if (!t) return { text: raw, changed: 0 };
+    if (t[0] === '[' || t[0] === '{') {
+      var repaired = t.replace(JSON_FIX, function (m, bs, cmd) { return bs.length % 2 === 1 ? bs + '\\' + cmd : m; });
+      var data;
+      try { data = JSON.parse(repaired); } catch (e) { return { text: raw, changed: 0 }; }
+      var walk = function (v, key) {
+        if (typeof v === 'string') return /^(question|question_text|q|options|choices|explanation|why|A|B|C|D)$/.test(key || '') || key === 'item' ? fixMathString(v) : v;
+        if (Array.isArray(v)) return v.map(function (x) { return walk(x, key === 'options' || key === 'choices' ? 'item' : key); });
+        if (v && typeof v === 'object') { var o = {}; Object.keys(v).forEach(function (k) { o[k] = walk(v[k], k); }); return o; }
+        return v;
+      };
+      var fixed = JSON.stringify(walk(data, ''), null, 2);
+      return { text: fixed, changed: fixed === t ? 0 : Math.max(wrapOutside.count, 1) };
+    }
+    var fixedText = t.split('\n').map(function (line) {
+      // leave the labels alone, fix the maths in the rest
+      var m = line.match(/^(\s*(?:\(?[A-Da-d]\s*[.):\]]|(?:q(?:uestion)?\s*)?\d+\s*[.):\-]|answer\s*[:\-]|ans\s*[:\-]|correct(?:\s+answer)?\s*[:\-]|explanation\s*[:\-]|why\s*[:\-]|reason\s*[:\-]|topic\s*[:\-]|difficulty\s*[:\-])\s*)([\s\S]*)$/i);
+      if (/^\s*(?:answer|ans|correct(?:\s+answer)?|topic|difficulty)\s*[:\-]/i.test(line)) return line;
+      return m ? m[1] + fixMathString(m[2]) : fixMathString(line);
+    }).join('\n');
+    return { text: fixedText, changed: fixedText === t ? 0 : Math.max(wrapOutside.count, 1) };
+  }
+
+  var original = null, skipOnce = false;
+  document.addEventListener('click', function (e) {
+    var t = e.target && e.target.closest ? e.target.closest('[data-action="import-check"],[data-axm="undo"]') : null;
+    if (!t) return;
+    var box = document.getElementById('qb-import-text');
+    if (!box) return;
+    if (t.getAttribute('data-axm') === 'undo') {
+      e.preventDefault(); e.stopPropagation();
+      if (original !== null) { box.value = original; skipOnce = true; var n = document.getElementById('axm-note'); if (n) n.textContent = 'Original text put back. Press Check to continue without the maths fix.'; }
+      return;
+    }
+    if (skipOnce) { skipOnce = false; return; }
+    var r;
+    try { r = fixImportText(box.value); } catch (err) { return; }
+    if (!r.changed) return;
+    original = box.value;
+    box.value = r.text;
+    setTimeout(function () {
+      var res = document.querySelector('#qb-import .qb-importresult');
+      if (!res || document.getElementById('axm-note')) return;
+      var p = document.createElement('p');
+      p.className = 'qb-muted'; p.style.margin = '8px 0';
+      var span = document.createElement('span'); span.id = 'axm-note';
+      span.textContent = 'Maths tidied: loose maths was put between $ signs and any \\bm was removed. The text above is the fixed version. ';
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'qb-btn'; b.setAttribute('data-axm', 'undo'); b.textContent = 'Put my original text back';
+      p.appendChild(span); p.appendChild(b); res.insertBefore(p, res.firstChild);
+    }, 30);
+  }, true);
+})();
