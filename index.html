@@ -138,7 +138,11 @@
     }
 
     .nav-links {
-      display: none;
+      display: flex;
+      gap: 25px;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 600;
     }
 
     .nav-links a:hover {
@@ -750,33 +754,6 @@
     .academic-resource-buttons { display: flex; gap: 8px; flex-shrink: 0; }
     .academic-resource-buttons .rp-btn { padding: 9px 14px; white-space: nowrap; }
     .academic-resource-action { font-size: 13px; font-weight: 800; color: var(--navy); white-space: nowrap; flex-shrink: 0; }
-    .resource-save-button { border: 1px solid var(--border); border-radius: 9px; background: white; color: var(--muted); padding: 8px 10px; font-size: 18px; line-height: 1; cursor: pointer; }
-    .resource-save-button:hover, .resource-save-button.is-saved { border-color: var(--navy); color: var(--navy); background: #f4f5ff; }
-    .resource-save-button:focus-visible { outline: 3px solid rgba(8, 11, 99, 0.14); outline-offset: 2px; }
-    .activity-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-    .activity-card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: 0 4px 18px rgba(8, 11, 99, 0.04); }
-    .activity-card h2 { color: var(--navy); font-size: 18px; margin-bottom: 5px; }
-    .activity-card > p { color: var(--muted); font-size: 13px; margin-bottom: 16px; }
-    .activity-stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
-    .activity-stat { background: #f4f5ff; border-radius: 11px; padding: 12px; }
-    .activity-stat strong { display: block; color: var(--navy); font-size: 21px; }
-    .activity-stat span { color: var(--muted); font-size: 11px; }
-    .activity-list { display: grid; gap: 9px; }
-    .activity-item { display: flex; align-items: center; gap: 11px; padding: 11px 0; border-bottom: 1px solid #eef0f5; }
-    .activity-item:last-child { border-bottom: 0; padding-bottom: 0; }
-    .activity-item-info { min-width: 0; flex: 1; }
-    .activity-item-info strong { display: block; overflow: hidden; color: var(--navy); text-overflow: ellipsis; white-space: nowrap; }
-    .activity-item-info span { color: var(--muted); font-size: 12px; }
-    .score-badge { width: 47px; height: 47px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 13px; background: #e7f7ef; color: #159957; font-weight: 900; }
-    .activity-empty { border: 1px dashed var(--border); border-radius: 11px; padding: 18px; color: var(--muted); font-size: 13px; text-align: center; }
-    .activity-progress { height: 8px; border-radius: 99px; background: #edf0f7; overflow: hidden; margin-top: 8px; }
-    .activity-progress span { display: block; height: 100%; border-radius: inherit; background: var(--navy); }
-    .resource-preview-save { margin-top: 8px; }
-    @media (max-width: 760px) {
-      .activity-grid { grid-template-columns: 1fr; }
-      .activity-stat-row { gap: 7px; }
-      .activity-stat { padding: 10px; }
-    }
 
     .clean-empty-state { background: white; border: 1px dashed #d0d3e3; border-radius: 16px; padding: 48px 24px; text-align: center; }
     .clean-empty-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.6; }
@@ -872,13 +849,13 @@
     .quiz-review-options .tag { font-size: 11px; font-weight: 800; text-transform: uppercase; white-space: nowrap; }
     .quiz-explain { margin-top: 12px; font-size: 14px; line-height: 1.55; color: var(--text); background: #f9fafe; border-radius: 10px; padding: 12px 14px; }
 
-    /* SIDE NAVIGATION */
+    /* MOBILE NAVIGATION */
 
     .mobile-menu-toggle {
-      display: flex;
+      display: none;
       width: 42px;
       height: 42px;
-      border: 1px solid #dfe3f0;
+      border: 1px solid var(--border);
       border-radius: 10px;
       background: white;
       color: var(--navy);
@@ -896,157 +873,42 @@
       outline-offset: 2px;
     }
 
-    .side-nav-backdrop {
-      position: fixed;
-      inset: 0;
-      z-index: 109;
-      background: rgba(5, 7, 24, 0.62);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.25s ease;
-    }
-
-    .side-nav-backdrop.is-open {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
     .mobile-nav {
-      position: fixed;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 110;
-      display: flex;
-      width: min(340px, 88vw);
-      padding: 20px;
-      flex-direction: column;
-      background: #fff;
-      color: var(--text);
-      box-shadow: -16px 0 36px rgba(8, 11, 99, 0.18);
-      transform: translateX(100%);
-      transition: transform 0.28s ease;
-      overflow-y: auto;
-    }
-
-    .mobile-nav.is-open {
-      transform: translateX(0);
-    }
-
-    .side-nav-close {
-      width: 34px;
-      height: 34px;
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      background: white;
-      color: var(--navy);
-      font-size: 24px;
-      font-weight: 400;
-      line-height: 1;
-      cursor: pointer;
-    }
-
-    .side-nav-close:hover,
-    .side-nav-close:focus-visible {
-      border-color: var(--navy);
-      outline: 3px solid rgba(8, 11, 99, 0.12);
-      outline-offset: 2px;
-    }
-
-    .side-nav-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding-bottom: 18px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .side-nav-brand {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      color: var(--navy);
-      font-size: 14px;
-      font-weight: 800;
-    }
-
-    .side-nav-mark {
-      display: grid;
-      width: 30px;
-      height: 30px;
-      place-items: center;
-      border-radius: 9px;
-      background: var(--navy);
-      color: var(--yellow);
-      font-size: 10px;
-      font-weight: 900;
-    }
-
-    .side-nav-label {
-      margin: 22px 0 7px;
-      color: var(--muted);
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      display: none;
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 22px 16px;
     }
 
     .mobile-nav a {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 12px 11px;
+      display: block;
+      padding: 12px 14px;
       border-radius: 10px;
-      color: var(--text);
       font-size: 14px;
       font-weight: 700;
     }
 
-    .mobile-nav a + a {
-      margin-top: 3px;
-    }
-
     .mobile-nav a:hover,
-    .mobile-nav a:focus-visible,
-    .mobile-nav a.is-active {
-      background: #f0f2ff;
+    .mobile-nav a:focus-visible {
+      background: #f4f5ff;
       color: var(--navy);
       outline: none;
     }
 
     .mobile-nav .mobile-nav-button {
-      background: #fff8d8;
-      color: #6b5700;
-    }
-
-    .mobile-nav .mobile-nav-button::after {
-      color: #8d7300;
-    }
-
-    .side-nav-contact {
-      margin-top: auto;
-      padding-top: 22px;
-    }
-
-    .side-nav-contact a {
-      justify-content: center;
-      border: 1px solid var(--navy);
-      border-radius: 999px;
+      margin-top: 4px;
       background: var(--navy);
       color: white;
-      font-size: 13px;
-    }
-
-    .side-nav-contact a::after {
-      content: "→";
-      color: var(--yellow);
+      text-align: center;
     }
 
     /* MOBILE Breakpoints */
 
     @media (max-width: 850px) {
+
+      .mobile-menu-toggle {
+        display: flex;
+      }
 
       .nav-links {
         display: none;
@@ -1079,6 +941,11 @@
 
       .footer-inner {
         flex-direction: column;
+      }
+
+      .mobile-nav.is-open {
+        display: grid;
+        gap: 4px;
       }
 
       .course-grid, .search-results-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1459,6 +1326,13 @@
 
       <a href="." class="admin-back" id="admin-back-link">← Back to website</a>
 
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="#courses">Courses</a>
+        <a href="#courses">Past Questions</a>
+        <a href="#courses" data-cbt hidden>CBT</a>
+        <a href="#courses" class="nav-button" data-cbt hidden>Practice Now</a>
+      </nav>
+
       <button
         class="mobile-menu-toggle"
         type="button"
@@ -1471,28 +1345,13 @@
 
     </div>
 
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation">
+      <a href="#courses">Courses</a>
+      <a href="#courses">Past Questions</a>
+      <a href="#courses" data-cbt hidden>CBT</a>
+      <a href="#courses" class="mobile-nav-button" data-cbt hidden>Practice Now</a>
+    </nav>
   </header>
-
-  <div class="side-nav-backdrop" id="side-nav-backdrop" hidden></div>
-  <nav class="mobile-nav" id="mobile-nav" aria-label="Primary navigation" aria-labelledby="side-nav-title" hidden>
-    <div class="side-nav-head">
-      <div class="side-nav-brand">
-        <span class="side-nav-mark">AET</span>
-        <span id="side-nav-title">Learning Hub</span>
-      </div>
-      <button class="side-nav-close" type="button" aria-label="Close navigation menu">×</button>
-    </div>
-    <div class="side-nav-label">Explore</div>
-    <a href="#">Home</a>
-    <a href="#courses">Browse resources</a>
-    <a href="#search-section">Search resources</a>
-    <div class="side-nav-label">Your activity</div>
-    <a href="#activity">My activity</a>
-    <a href="#courses" data-cbt hidden>Practice CBT</a>
-    <div class="side-nav-contact">
-      <a href="https://wa.me/2348050804036?text=Hello%20AET%2C%20I%20need%20help%20with%20the%20Learning%20Hub." target="_blank" rel="noopener">Contact AET</a>
-    </div>
-  </nav>
 
 
   <!-- HERO -->
@@ -1904,195 +1763,6 @@
   </script>
 
   <script>
-    // Browser-local student activity. No account or personal data is required.
-    const AET_LOCAL_KEYS = {
-      bookmarks: 'aet_bookmarks_v1',
-      recent: 'aet_recent_v1',
-      progress: 'aet_progress_v1',
-      quizHistory: 'aet_quiz_history_v1',
-      streak: 'aet_streak_v1'
-    };
-
-    function aetLocalRead(key, fallback) {
-      try {
-        const value = JSON.parse(localStorage.getItem(key) || '');
-        return value ?? fallback;
-      } catch (_) {
-        return fallback;
-      }
-    }
-
-    function aetLocalWrite(key, value) {
-      try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {}
-    }
-
-    function aetResourceKey(level, code, section, resource) {
-      return [level, code, section, resource.id || resource.title].map(value => String(value || '').trim()).join('|');
-    }
-
-    function aetActivityItem(level, code, section, resource) {
-      return {
-        key: aetResourceKey(level, code, section, resource),
-        level: String(level),
-        code: String(code),
-        section: String(section),
-        title: String(resource.title || 'Untitled resource'),
-        detail: String(resource.detail || ''),
-        fileUrl: String(resource.fileUrl || ''),
-        viewedAt: new Date().toISOString()
-      };
-    }
-
-    function aetRememberResource(level, code, section, resource) {
-      const item = aetActivityItem(level, code, section, resource);
-      const recent = aetLocalRead(AET_LOCAL_KEYS.recent, []).filter(entry => entry.key !== item.key);
-      aetLocalWrite(AET_LOCAL_KEYS.recent, [item, ...recent].slice(0, 12));
-      const progress = aetLocalRead(AET_LOCAL_KEYS.progress, {});
-      if (!progress[item.key]) progress[item.key] = { completed: false, percent: 0 };
-      progress[item.key].lastViewedAt = item.viewedAt;
-      aetLocalWrite(AET_LOCAL_KEYS.progress, progress);
-      aetUpdateStreak();
-    }
-
-    function aetIsBookmarked(key) {
-      return aetLocalRead(AET_LOCAL_KEYS.bookmarks, []).some(item => item.key === key);
-    }
-
-    function aetToggleBookmark(item) {
-      const bookmarks = aetLocalRead(AET_LOCAL_KEYS.bookmarks, []);
-      const exists = bookmarks.some(entry => entry.key === item.key);
-      const next = exists
-        ? bookmarks.filter(entry => entry.key !== item.key)
-        : [item, ...bookmarks].slice(0, 100);
-      aetLocalWrite(AET_LOCAL_KEYS.bookmarks, next);
-      if (!exists && item.fileUrl && navigator.serviceWorker?.controller) {
-        navigator.serviceWorker.controller.postMessage({ type: 'cache-resource', url: item.fileUrl });
-      }
-      if (typeof window.aetTrack === 'function') window.aetTrack(exists ? 'bookmark-removed' : 'bookmark-added');
-      return !exists;
-    }
-
-    function aetUpdateProgress(key, completed) {
-      const progress = aetLocalRead(AET_LOCAL_KEYS.progress, {});
-      progress[key] = { ...(progress[key] || {}), completed: !!completed, percent: completed ? 100 : (progress[key]?.percent || 0), updatedAt: new Date().toISOString() };
-      aetLocalWrite(AET_LOCAL_KEYS.progress, progress);
-    }
-
-    function aetUpdateStreak() {
-      const today = new Date().toISOString().slice(0, 10);
-      const state = aetLocalRead(AET_LOCAL_KEYS.streak, { days: [], count: 0 });
-      const days = Array.from(new Set([...(state.days || []), today])).sort().slice(-30);
-      let count = 0;
-      for (let index = days.length - 1; index >= 0; index -= 1) {
-        const expected = new Date();
-        expected.setDate(expected.getDate() - (days.length - 1 - index));
-        if (days[index] !== expected.toISOString().slice(0, 10)) break;
-        count += 1;
-      }
-      aetLocalWrite(AET_LOCAL_KEYS.streak, { days, count });
-    }
-
-    function aetRecordQuizResult(course, data) {
-      const history = aetLocalRead(AET_LOCAL_KEYS.quizHistory, []);
-      history.unshift({
-        courseCode: String(course.code),
-        courseTitle: String(course.title || ''),
-        score: Number(data.score) || 0,
-        totalMarks: Number(data.totalMarks) || 0,
-        percentage: Math.round(Number(data.percentage) || 0),
-        correctCount: Number(data.correctCount) || 0,
-        incorrectCount: Number(data.incorrectCount) || 0,
-        unansweredCount: Number(data.unansweredCount) || 0,
-        attemptedAt: new Date().toISOString()
-      });
-      aetLocalWrite(AET_LOCAL_KEYS.quizHistory, history.slice(0, 30));
-      aetUpdateStreak();
-      if (typeof window.aetTrack === 'function') window.aetTrack('cbt-result-saved');
-    }
-
-    function aetFormatActivityDate(value) {
-      try { return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(new Date(value)); }
-      catch (_) { return ''; }
-    }
-
-    function aetActivityResourceLink(item) {
-      return `#course/${item.level}/${item.code}/${item.section}`;
-    }
-
-    function aetRenderActivity() {
-      const bookmarks = aetLocalRead(AET_LOCAL_KEYS.bookmarks, []);
-      const recent = aetLocalRead(AET_LOCAL_KEYS.recent, []);
-      const history = aetLocalRead(AET_LOCAL_KEYS.quizHistory, []);
-      const streak = aetLocalRead(AET_LOCAL_KEYS.streak, { count: 0 });
-      const average = history.length ? Math.round(history.reduce((sum, item) => sum + item.percentage, 0) / history.length) : 0;
-      const progress = aetLocalRead(AET_LOCAL_KEYS.progress, {});
-      const completed = Object.values(progress).filter(item => item.completed).length;
-
-      document.body.classList.add('app-mode');
-      app.innerHTML = `
-        <section class="section">
-          <a class="back-link" href="#courses">← Back to courses</a>
-          <header class="view-header">
-            <span class="view-eyebrow">Saved on this device</span>
-            <h1 class="view-title" data-doc-title="My activity">My activity</h1>
-            <p class="view-sub">Bookmarks, recent resources and CBT results stay in this browser. No sign-in required.</p>
-          </header>
-          <div class="activity-stat-row">
-            <div class="activity-stat"><strong>${bookmarks.length}</strong><span>Saved resources</span></div>
-            <div class="activity-stat"><strong>${history.length}</strong><span>CBT attempts</span></div>
-            <div class="activity-stat"><strong>${streak.count || 0}</strong><span>Day streak</span></div>
-          </div>
-          <div class="activity-grid">
-            <article class="activity-card">
-              <h2>Saved resources</h2><p>Keep useful files close for your next study session.</p>
-              <div class="activity-list">
-                ${bookmarks.length ? bookmarks.map(item => `
-                  <div class="activity-item">
-                    <div class="academic-resource-icon">PDF</div>
-                    <div class="activity-item-info"><strong>${esc(item.title)}</strong><span>${esc(item.code)} · ${esc(item.detail || 'Saved locally')}</span></div>
-                    <button class="resource-save-button is-saved" data-bookmark-key="${esc(item.key)}" aria-label="Remove ${esc(item.title)} from bookmarks">★</button>
-                  </div>`).join('') : '<div class="activity-empty">No saved resources yet. Use the star on any resource.</div>'}
-              </div>
-            </article>
-            <article class="activity-card">
-              <h2>Recently viewed</h2><p>Continue from where you last stopped.</p>
-              <div class="activity-list">
-                ${recent.length ? recent.slice(0, 5).map(item => `
-                  <div class="activity-item">
-                    <div class="academic-resource-icon">${item.section === 'past-questions' ? 'PQ' : 'PDF'}</div>
-                    <div class="activity-item-info"><strong>${esc(item.title)}</strong><span>${esc(item.code)} · Viewed ${esc(aetFormatActivityDate(item.viewedAt))}</span></div>
-                    <a class="empty-link" href="${esc(aetActivityResourceLink(item))}">Open</a>
-                  </div>`).join('') : '<div class="activity-empty">Recently viewed resources will appear here.</div>'}
-              </div>
-            </article>
-            <article class="activity-card">
-              <h2>Study progress</h2><p>${completed} resources marked complete across this browser.</p>
-              <div class="activity-progress"><span style="width:${Math.min(100, completed * 10)}%"></span></div>
-              <div class="privacy"><span class="dot"></span>Stored locally and never tied to a student account.</div>
-            </article>
-            <article class="activity-card">
-              <h2>CBT performance</h2><p>${history.length ? `Average score: ${average}%` : 'Complete a CBT attempt to see your results here.'}</p>
-              <div class="activity-list">
-                ${history.length ? history.slice(0, 5).map(item => `
-                  <div class="activity-item">
-                    <div class="score-badge">${item.percentage}%</div>
-                    <div class="activity-item-info"><strong>${esc(item.courseCode)} · ${esc(item.courseTitle)}</strong><span>${item.correctCount} correct · ${esc(aetFormatActivityDate(item.attemptedAt))}</span></div>
-                  </div>`).join('') : '<div class="activity-empty">Your CBT score history will appear after your first attempt.</div>'}
-              </div>
-            </article>
-          </div>
-        </section>`;
-
-      app.querySelectorAll('[data-bookmark-key]').forEach(button => {
-        button.addEventListener('click', () => {
-          const next = aetLocalRead(AET_LOCAL_KEYS.bookmarks, []).filter(item => item.key !== button.dataset.bookmarkKey);
-          aetLocalWrite(AET_LOCAL_KEYS.bookmarks, next);
-          aetRenderActivity();
-          afterAppRender();
-        });
-      });
-    }
-
     // RESOURCE DATA MODEL
     const catalog = {
       100: [
@@ -2947,8 +2617,6 @@
         renderCourse(parts[1], parts[2], parts[3]);
       } else if (route === 'resource') {
         renderResource(parts[1], parts[2], parts[3], parts[4]);
-      } else if (route === 'activity') {
-        aetRenderActivity();
       } else {
         app.innerHTML = `
           <section class="section">
@@ -3008,7 +2676,6 @@
         heading.setAttribute('tabindex', '-1');
         heading.focus({ preventScroll: true });
       }
-      aetWireResourceActions();
     }
 
     function renderLoading() {
@@ -3256,11 +2923,6 @@
     // Resource List View
     // One resource card
     function aetResourceCard(resource, isPastQuestions) {
-      const section = isPastQuestions ? 'past-questions' : 'materials';
-      const level = String(location.hash.match(/^#(?:course|resource)\/([^/]+)/)?.[1] || '');
-      const code = String(location.hash.match(/^#(?:course|resource)\/[^/]+\/([^/]+)/)?.[1] || '');
-      const activity = aetActivityItem(level, code, section, resource);
-      const saved = aetIsBookmarked(activity.key);
       return `
         <div class="academic-resource-card">
           <div class="academic-resource-info">
@@ -3272,7 +2934,6 @@
           </div>
           ${resource.fileUrl ? `
             <div class="academic-resource-buttons">
-              <button type="button" class="resource-save-button${saved ? ' is-saved' : ''}" data-resource-bookmark="${esc(JSON.stringify(activity))}" aria-label="${saved ? 'Remove from' : 'Save'} ${esc(resource.title)} ${saved ? 'bookmarks' : 'for later'}">${saved ? '★' : '☆'}</button>
               <a class="rp-btn rp-btn-primary" href="${esc(resource.fileUrl)}" target="_blank" rel="noopener" data-track="open-pdf">Open PDF</a>
               <a class="rp-btn rp-btn-secondary" href="${esc(resource.downloadUrl || resource.fileUrl)}" download data-track="download-pdf">Download</a>
             </div>` : '<div class="academic-resource-action">File not available</div>'}
@@ -3308,19 +2969,6 @@
             <div class="topic-body">${g.items.map(r => aetResourceCard(r, isPastQuestions)).join('')}</div>
           </details>`;
       }).join('');
-    }
-
-    function aetWireResourceActions() {
-      app.querySelectorAll('[data-resource-bookmark]').forEach(button => {
-        button.addEventListener('click', () => {
-          let item;
-          try { item = JSON.parse(button.dataset.resourceBookmark); } catch (_) { return; }
-          const saved = aetToggleBookmark(item);
-          button.classList.toggle('is-saved', saved);
-          button.textContent = saved ? '★' : '☆';
-          button.setAttribute('aria-label', `${saved ? 'Remove from' : 'Save'} ${item.title} ${saved ? 'bookmarks' : 'for later'}`);
-        });
-      });
     }
 
     function renderResourcesList(level, course, section) {
@@ -3430,9 +3078,6 @@
       const fileUrl = resource.fileUrl || '';
       const hasFile = !!fileUrl;
       const base = `#course/${level}/${course.code}`;
-      const activity = aetActivityItem(level, course.code, section, resource);
-      const progressState = aetLocalRead(AET_LOCAL_KEYS.progress, {})[activity.key] || {};
-      aetRememberResource(level, course.code, section, resource);
 
       app.innerHTML = `
         <section class="section">
@@ -3454,7 +3099,6 @@
               </div>
             </div>
             <div class="rp-actions">
-              <button type="button" class="rp-btn rp-btn-secondary" id="resource-save">${aetIsBookmarked(activity.key) ? '★ Saved' : '☆ Save for later'}</button>
               ${hasFile ? `
                 <a href="${esc(fileUrl)}" target="_blank" rel="noopener" class="rp-btn rp-btn-primary">Open PDF ↗</a>
                 <a href="${esc(fileUrl)}" download class="rp-btn rp-btn-secondary">Download ↓</a>
@@ -3465,9 +3109,6 @@
           </div>
 
           ${hasFile ? '<p class="preview-hint">If the preview does not load on your phone, tap "Open PDF" above.</p>' : ''}
-          <div class="resource-preview-save">
-            <button type="button" class="empty-link" id="resource-complete">${progressState.completed ? '✓ Marked as studied' : 'Mark as studied'}</button>
-          </div>
 
           <div class="pdf-preview-container">
             ${hasFile ? `
@@ -3487,16 +3128,6 @@
           </div>
         </section>
       `;
-
-      app.querySelector('#resource-save').addEventListener('click', event => {
-        const saved = aetToggleBookmark(activity);
-        event.currentTarget.textContent = saved ? '★ Saved' : '☆ Save for later';
-      });
-      app.querySelector('#resource-complete').addEventListener('click', event => {
-        aetUpdateProgress(activity.key, true);
-        event.currentTarget.textContent = '✓ Marked as studied';
-        if (typeof window.aetTrack === 'function') window.aetTrack('resource-completed');
-      });
     }
 
     // ============================================================
@@ -3851,7 +3482,6 @@
       function showResults(data) {
         const letters = ['A', 'B', 'C', 'D'];
         const percent = Math.round(Number(data.percentage) || 0);
-        aetRecordQuizResult(course, data);
 
         const review = data.results.map((item, itemIndex) => {
           const selected = Number.isInteger(item.selected_option) ? item.selected_option : null;
@@ -3915,57 +3545,29 @@
 
     const mobileMenuButton = document.querySelector('.mobile-menu-toggle');
     const mobileNav = document.getElementById('mobile-nav');
-    const sideNavBackdrop = document.getElementById('side-nav-backdrop');
-    const sideNavClose = mobileNav.querySelector('.side-nav-close');
-    let sideNavCloseTimer = null;
 
     function closeMobileMenu() {
       mobileNav.classList.remove('is-open');
-      sideNavBackdrop.classList.remove('is-open');
       mobileMenuButton.setAttribute('aria-expanded', 'false');
       mobileMenuButton.setAttribute('aria-label', 'Open navigation menu');
       mobileMenuButton.querySelector('span').textContent = '☰';
-      document.body.style.overflow = '';
-      clearTimeout(sideNavCloseTimer);
-      sideNavCloseTimer = setTimeout(() => {
-        mobileNav.hidden = true;
-        sideNavBackdrop.hidden = true;
-      }, 280);
     }
 
     function toggleMobileMenu() {
-      const isOpen = !mobileNav.classList.contains('is-open');
-      clearTimeout(sideNavCloseTimer);
-      mobileNav.hidden = false;
-      sideNavBackdrop.hidden = false;
-      requestAnimationFrame(() => {
-        mobileNav.classList.toggle('is-open', isOpen);
-        sideNavBackdrop.classList.toggle('is-open', isOpen);
-      });
+      const isOpen = mobileNav.classList.toggle('is-open');
       mobileMenuButton.setAttribute('aria-expanded', String(isOpen));
       mobileMenuButton.setAttribute(
         'aria-label',
         isOpen ? 'Close navigation menu' : 'Open navigation menu'
       );
       mobileMenuButton.querySelector('span').textContent = isOpen ? '×' : '☰';
-      document.body.style.overflow = isOpen ? 'hidden' : '';
     }
 
     mobileMenuButton.addEventListener('click', toggleMobileMenu);
-    sideNavClose.addEventListener('click', closeMobileMenu);
-    sideNavBackdrop.addEventListener('click', closeMobileMenu);
 
     mobileNav.querySelectorAll('a').forEach(link => {
       link.addEventListener('click', closeMobileMenu);
     });
-
-    function updateSideNavActive() {
-      const current = location.hash.replace(/^#\/?/, '').split('/')[0] || 'home';
-      mobileNav.querySelectorAll('a[href^="#"]').forEach(link => {
-        const target = link.getAttribute('href').replace(/^#\/?/, '').split('/')[0] || 'home';
-        link.classList.toggle('is-active', target === current || (current === 'level' && target === 'courses'));
-      });
-    }
 
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape') closeMobileMenu();
@@ -3990,11 +3592,8 @@
       }
 
       closeMobileMenu();
-      updateSideNavActive();
       render();
     });
-
-    updateSideNavActive();
 
     // SUPABASE INTEGRATION START
     // Initialize the app cleanly
