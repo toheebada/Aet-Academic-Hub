@@ -155,13 +155,14 @@
     '.axt-past a{color:#1d5a42;font-weight:800}',
     '@media(max-width:420px){.axt-fly{width:78px}.axt-card{padding:8px}}',
     /* ---- join group strip ---- */
-    '.axg{margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#e8f6ec;border:1px solid #cfe8d8;border-radius:16px;padding:12px 14px}',
-    '.axg-ic{flex:none;display:grid;place-items:center}',
-    '.axg-t{flex:1;min-width:180px;display:flex;flex-direction:column;gap:2px}',
-    '.axg-t b{font-size:15px;color:#1d3f30}.axg-t span{font-size:12.5px;color:#3d5a4b;line-height:1.4}',
-    '.axg-btn{display:inline-flex;align-items:center;gap:8px;background:#1d5a42;color:#fff;font-weight:800;font-size:14px;padding:11px 18px;border-radius:99px;text-decoration:none;box-shadow:0 6px 14px rgba(29,90,66,.25)}',
-    '.axg-wa{display:grid;place-items:center}',
-    '@media(max-width:480px){.axg-btn{width:100%;justify-content:center}}',
+    '.axg{margin-top:10px;display:flex;align-items:center;gap:10px;background:#e8f6ec;border:1px solid #cfe8d8;border-radius:14px;padding:9px 10px 9px 12px}',
+    '.axg-ic{flex:none;display:grid;place-items:center}.axg-ic svg{width:30px;height:30px}',
+    '.axg-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}',
+    '.axg-t b{font-size:14px;line-height:1.25;color:#1d3f30}.axg-t span{font-size:12px;color:#3d5a4b;line-height:1.35}',
+    '.axg-btn{flex:none;display:inline-flex;align-items:center;gap:6px;background:#1d5a42;color:#fff;font-weight:800;font-size:13.5px;padding:9px 14px;border-radius:99px;text-decoration:none;white-space:nowrap}',
+    '.axg-btn:focus-visible{outline:3px solid #ffd21c;outline-offset:2px}',
+    '.axg-wa{display:grid;place-items:center}.axg-wa svg{width:16px;height:16px}',
+    '@media(max-width:380px){.axg-t span{display:none}.axg-btn{padding:9px 12px}}',
     /* ---- material request banner ---- */
     '.ax-req.axr{display:flex;align-items:center;gap:12px;background:#e8f6ec;border:1px solid #cfe8d8;border-radius:14px;padding:10px 14px;margin:14px 0 6px}',
     '.axr-ic{flex:none;display:grid;place-items:center}',
@@ -197,7 +198,7 @@
   function publicUrl(path) { return notesUrl(path); }
   function svg(markup, cls) { var s = h('span', { class: cls || 'axi', 'aria-hidden': 'true' }); s.innerHTML = markup; return s; }
   var WA_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" focusable="false"><path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.85 9.85 0 0 0 12.04 2zm0 18.15h-.01a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.23 8.24-8.23 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.83c0 4.54-3.7 8.22-8.23 8.22zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.78.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.42h-.48c-.17 0-.43.06-.66.31-.23.25-.87.85-.87 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.23-.16-.48-.29z"/></svg>';
-  var PEOPLE_ICON = '<svg viewBox="0 0 48 48" width="40" height="40" focusable="false"><g fill="#1d5a42"><circle cx="24" cy="15" r="7"/><path d="M10 38c0-7.7 6.3-13 14-13s14 5.3 14 13v3H10z"/><circle cx="10.5" cy="20" r="4.5"/><circle cx="37.5" cy="20" r="4.5"/></g></svg>';
+  var PEOPLE_ICON = '<svg viewBox="0 0 48 48" width="30" height="30" focusable="false"><g fill="#1d5a42"><circle cx="18" cy="16" r="6.5"/><path d="M4 39c0-7.600 6.200-12 14-12s14 4.400 14 12z"/><g opacity=".55"><circle cx="34" cy="18" r="5"/><path d="M34 27.500c6.200 0 10.500 3.500 10.500 11.500H35c0-4.200-1.400-7.800-4-9.800 1-.9 1.900-1.700 3-1.700z"/></g></g></svg>';
   var HEADSET_ICON = '<svg viewBox="0 0 64 64" width="64" height="64" focusable="false"><g fill="#1d5a42"><path d="M32 6C19.3 6 10 15.4 10 27v7h5v-7c0-9.4 7.2-17 17-17s17 7.6 17 17v7h5v-7C54 15.4 44.7 6 32 6z"/><rect x="6" y="26" width="9" height="16" rx="4.5"/><rect x="49" y="26" width="9" height="16" rx="4.5"/><circle cx="32" cy="27" r="9"/><path d="M12 58c0-9.9 8.1-16 20-16s20 6.100 20 16z"/><path d="M52 40c0 6-4 9-10 9h-3v-4h3c4 0 6-1.800 6-5z"/></g><circle cx="32" cy="27" r="9" fill="#e3f5e8"/><circle cx="32" cy="27" r="9" fill="none" stroke="#1d5a42" stroke-width="3"/></svg>';
 
   function timeAgo(iso) {
@@ -343,8 +344,8 @@
     if (live.groupLink) {
       wrapT.appendChild(h('div', { class: 'axg', id: 'aet-group-strip' },
         svg(PEOPLE_ICON, 'axg-ic'),
-        h('div', { class: 'axg-t' }, h('b', { text: 'Need help with a course?' }), h('span', { text: 'Join the AET Tutorial WhatsApp group for updates and support.' })),
-        h('a', { class: 'axg-btn', href: live.groupLink, target: '_blank', rel: 'noopener noreferrer' }, svg(WA_ICON, 'axg-wa'), 'Join Group ', h('span', { 'aria-hidden': 'true', text: '→' }))));
+        h('div', { class: 'axg-t' }, h('b', { text: 'Need help with a course?' }), h('span', { text: 'Join the AET Tutorial WhatsApp group.' })),
+        h('a', { class: 'axg-btn', href: live.groupLink, target: '_blank', rel: 'noopener noreferrer' }, svg(WA_ICON, 'axg-wa'), 'Join Group')));
     }
     box.appendChild(wrapT);
     if (homeBox && homeBox.parentNode) homeBox.parentNode.replaceChild(box, homeBox);
