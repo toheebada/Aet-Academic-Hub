@@ -842,7 +842,7 @@
     function noticePanel() {
       var edit = state.editNotice;
       var title = h('input', { class: 'ax-in', type: 'text', maxlength: '120', value: edit ? edit.title : '' });
-      var details = h('textarea', { class: 'ax-in', maxlength: '400' }); details.value = edit && edit.details ? edit.details : '';
+      var details = h('textarea', { class: 'ax-in', maxlength: '2000', rows: '6' }); details.value = edit && edit.details ? edit.details : '';
       var source = h('input', { class: 'ax-in', type: 'text', maxlength: '200', placeholder: 'A link (https://...) or a name, e.g. School portal', value: edit ? edit.source : '' });
       var ends = h('input', { class: 'ax-in', type: 'date', value: edit ? lagosParts(edit.ends_at).date : '' });
       var from = h('input', { class: 'ax-in', type: 'date', value: edit ? lagosParts(edit.shows_from).date : '' });
@@ -855,6 +855,9 @@
         imgPrev.appendChild(h('img', { src: notesUrl(edit.image_path), alt: 'Current picture', style: 'width:56px;height:56px;object-fit:cover;border-radius:10px;display:block;margin-bottom:6px' }));
         imgPrev.appendChild(h('button', { type: 'button', class: 'ax-link', style: 'color:#b91c1c', text: 'Remove picture', onclick: function () { dropImg = true; imgPrev.textContent = 'The picture will be removed when you save.'; } }));
       }
+      var detailsNote = h('div', { class: 'ax-fine' });
+      function countDetails() { detailsNote.textContent = details.value.length + ' / 2000 characters. Line breaks are kept; the home page shows the first line, and the full text opens when a student taps the notice.'; }
+      details.addEventListener('input', countDetails); countDetails();
       var msg = h('div', { class: 'axa-msg', hidden: true });
       var save = h('button', { type: 'button', class: 'ax-btn n', text: edit ? 'Save changes' : 'Publish notice', onclick: async function () {
         msg.hidden = true;
@@ -883,7 +886,7 @@
       var panel = h('div', { class: 'axa-panel' },
         h('h3', { text: edit ? 'Edit notice' : 'Add a notice' }),
         h('p', { class: 'ax-sub', text: 'Every notice needs a source and an end date, so old information never looks current.' }),
-        field('Title', title), field('Details', details, true), field('Source', source),
+        field('Title', title), field('Details', details, true), detailsNote, field('Source', source),
         h('div', { class: 'axa-g2' }, field('Starts on', from, true), field('Disappears on', ends)),
         field('Tag', tag, true),
         field('Picture', imgIn, true),
