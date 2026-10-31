@@ -138,11 +138,7 @@
     }
 
     .nav-links {
-      display: flex;
-      gap: 25px;
-      align-items: center;
-      font-size: 14px;
-      font-weight: 600;
+      display: none;
     }
 
     .nav-links a:hover {
@@ -876,13 +872,13 @@
     .quiz-review-options .tag { font-size: 11px; font-weight: 800; text-transform: uppercase; white-space: nowrap; }
     .quiz-explain { margin-top: 12px; font-size: 14px; line-height: 1.55; color: var(--text); background: #f9fafe; border-radius: 10px; padding: 12px 14px; }
 
-    /* MOBILE NAVIGATION */
+    /* SIDE NAVIGATION */
 
     .mobile-menu-toggle {
-      display: none;
+      display: flex;
       width: 42px;
       height: 42px;
-      border: 1px solid var(--border);
+      border: 1px solid #dfe3f0;
       border-radius: 10px;
       background: white;
       color: var(--navy);
@@ -900,42 +896,119 @@
       outline-offset: 2px;
     }
 
+    .side-nav-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 109;
+      background: rgba(5, 7, 24, 0.62);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .side-nav-backdrop.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
     .mobile-nav {
-      display: none;
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 0 22px 16px;
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 110;
+      display: flex;
+      width: min(430px, 88vw);
+      padding: 30px 34px 28px;
+      flex-direction: column;
+      background: #17191f;
+      color: #fff;
+      box-shadow: -18px 0 45px rgba(0, 0, 0, 0.24);
+      transform: translateX(100%);
+      transition: transform 0.28s ease;
+      overflow-y: auto;
+    }
+
+    .mobile-nav.is-open {
+      transform: translateX(0);
+    }
+
+    .side-nav-close {
+      align-self: flex-start;
+      width: 44px;
+      height: 44px;
+      margin-bottom: 42px;
+      border: 0;
+      background: transparent;
+      color: #d3d5dc;
+      font-size: 38px;
+      font-weight: 300;
+      line-height: 1;
     }
 
     .mobile-nav a {
-      display: block;
-      padding: 12px 14px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 19px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.28);
+      color: #b7bac3;
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .mobile-nav a::after {
+      content: "›";
+      color: #858994;
+      font-size: 27px;
+      font-weight: 300;
     }
 
     .mobile-nav a:hover,
-    .mobile-nav a:focus-visible {
-      background: #f4f5ff;
-      color: var(--navy);
+    .mobile-nav a:focus-visible,
+    .mobile-nav a.is-active {
+      color: #fff;
       outline: none;
     }
 
     .mobile-nav .mobile-nav-button {
-      margin-top: 4px;
-      background: var(--navy);
-      color: white;
-      text-align: center;
+      margin-top: 0;
+      background: transparent;
+      color: var(--yellow);
+    }
+
+    .mobile-nav .mobile-nav-button::after {
+      color: var(--yellow);
+    }
+
+    .side-nav-contact {
+      margin-top: auto;
+      padding-top: 42px;
+    }
+
+    .side-nav-contact a {
+      justify-content: center;
+      border: 0;
+      border-radius: 999px;
+      background: var(--yellow);
+      color: #17191f;
+      font-size: 14px;
+      text-transform: none;
+      letter-spacing: 0;
+      box-shadow: 0 9px 22px rgba(0, 0, 0, 0.2);
+    }
+
+    .side-nav-contact a::after {
+      content: "↗";
+      color: #17191f;
     }
 
     /* MOBILE Breakpoints */
 
     @media (max-width: 850px) {
-
-      .mobile-menu-toggle {
-        display: flex;
-      }
 
       .nav-links {
         display: none;
@@ -968,11 +1041,6 @@
 
       .footer-inner {
         flex-direction: column;
-      }
-
-      .mobile-nav.is-open {
-        display: grid;
-        gap: 4px;
       }
 
       .course-grid, .search-results-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1373,12 +1441,17 @@
 
     </div>
 
-    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation">
+    <div class="side-nav-backdrop" id="side-nav-backdrop" hidden></div>
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Primary navigation">
+      <button class="side-nav-close" type="button" aria-label="Close navigation menu">×</button>
       <a href="#courses">Courses</a>
       <a href="#courses">Past Questions</a>
       <a href="#activity">My activity</a>
       <a href="#courses" data-cbt hidden>CBT</a>
       <a href="#courses" class="mobile-nav-button" data-cbt hidden>Practice Now</a>
+      <div class="side-nav-contact">
+        <a href="https://wa.me/2348050804036?text=Hello%20AET%2C%20I%20need%20help%20with%20the%20Learning%20Hub." target="_blank" rel="noopener">Contact AET</a>
+      </div>
     </nav>
   </header>
 
@@ -3803,29 +3876,57 @@
 
     const mobileMenuButton = document.querySelector('.mobile-menu-toggle');
     const mobileNav = document.getElementById('mobile-nav');
+    const sideNavBackdrop = document.getElementById('side-nav-backdrop');
+    const sideNavClose = mobileNav.querySelector('.side-nav-close');
+    let sideNavCloseTimer = null;
 
     function closeMobileMenu() {
       mobileNav.classList.remove('is-open');
+      sideNavBackdrop.classList.remove('is-open');
       mobileMenuButton.setAttribute('aria-expanded', 'false');
       mobileMenuButton.setAttribute('aria-label', 'Open navigation menu');
       mobileMenuButton.querySelector('span').textContent = '☰';
+      document.body.style.overflow = '';
+      clearTimeout(sideNavCloseTimer);
+      sideNavCloseTimer = setTimeout(() => {
+        mobileNav.hidden = true;
+        sideNavBackdrop.hidden = true;
+      }, 280);
     }
 
     function toggleMobileMenu() {
-      const isOpen = mobileNav.classList.toggle('is-open');
+      const isOpen = !mobileNav.classList.contains('is-open');
+      clearTimeout(sideNavCloseTimer);
+      mobileNav.hidden = false;
+      sideNavBackdrop.hidden = false;
+      requestAnimationFrame(() => {
+        mobileNav.classList.toggle('is-open', isOpen);
+        sideNavBackdrop.classList.toggle('is-open', isOpen);
+      });
       mobileMenuButton.setAttribute('aria-expanded', String(isOpen));
       mobileMenuButton.setAttribute(
         'aria-label',
         isOpen ? 'Close navigation menu' : 'Open navigation menu'
       );
       mobileMenuButton.querySelector('span').textContent = isOpen ? '×' : '☰';
+      document.body.style.overflow = isOpen ? 'hidden' : '';
     }
 
     mobileMenuButton.addEventListener('click', toggleMobileMenu);
+    sideNavClose.addEventListener('click', closeMobileMenu);
+    sideNavBackdrop.addEventListener('click', closeMobileMenu);
 
     mobileNav.querySelectorAll('a').forEach(link => {
       link.addEventListener('click', closeMobileMenu);
     });
+
+    function updateSideNavActive() {
+      const current = location.hash.replace(/^#\/?/, '').split('/')[0] || 'home';
+      mobileNav.querySelectorAll('a[href^="#"]').forEach(link => {
+        const target = link.getAttribute('href').replace(/^#\/?/, '').split('/')[0] || 'home';
+        link.classList.toggle('is-active', target === current || (current === 'level' && target === 'courses'));
+      });
+    }
 
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape') closeMobileMenu();
@@ -3850,8 +3951,11 @@
       }
 
       closeMobileMenu();
+      updateSideNavActive();
       render();
     });
+
+    updateSideNavActive();
 
     // SUPABASE INTEGRATION START
     // Initialize the app cleanly
