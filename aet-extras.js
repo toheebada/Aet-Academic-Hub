@@ -174,7 +174,7 @@
       n.details ? h('div', { class: 'ax-nbody', text: n.details }) : null,
       h('div', { class: 'ax-nmeta' },
         h('span', { text: 'Posted ' + fmtDay(n.shows_from) + ' · until ' + fmtDay(n.ends_at) }),
-        n.tag && labels[n.tag] ? h('span', { class: 'ax-chip ' + n.tag, text: labels[n.tag] }) : src)
+        h('span', {}, n.tag && labels[n.tag] ? h('span', { class: 'ax-chip ' + n.tag, text: labels[n.tag] }) : null, n.tag && labels[n.tag] && src ? ' ' : null, src))
     );
   }
 
@@ -960,4 +960,205 @@
       p.appendChild(span); p.appendChild(b); res.insertBefore(p, res.firstChild);
     }, 30);
   }, true);
+})();
+
+
+/* ============================================================
+   AET Learning Hub: polish (tighter CBT screen, submit pop-up,
+   smaller gap above the footer, easier course ordering in admin)
+   Remove this whole block to go back to how it was.
+   ============================================================ */
+(function () {
+  'use strict';
+  if (window.__aetPolish) return;
+  window.__aetPolish = true;
+
+  // ---------- styles ----------
+  var css = [
+    /* less empty space above the footer */
+    'body.app-mode #app-view{padding-bottom:12px!important;min-height:0!important}',
+    'body.app-mode #app-view .section{padding-bottom:22px}',
+    '#courses.section{padding-bottom:26px}',
+    '#cbt .section{padding-top:22px;padding-bottom:22px}',
+    /* CBT: tighter */
+    '.cbt-header-box{margin-bottom:16px}',
+    '#quiz-stage .quiz-card{padding:18px}',
+    '#quiz-stage .quiz-title{font-size:19px;margin-bottom:10px}',
+    '#quiz-stage .quiz-rules{margin:0 0 14px 18px;gap:6px;font-size:14px;line-height:1.45}',
+    '#quiz-stage .quiz-topbar{margin-bottom:8px}',
+    '#quiz-stage .quiz-progress{margin-bottom:14px}',
+    '#quiz-stage .quiz-card h3{font-size:17px;line-height:1.4;margin-bottom:14px}',
+    '#quiz-stage .quiz-options{gap:8px}',
+    '#quiz-stage .quiz-options button{padding:12px 14px;font-size:14.5px;border-radius:10px;gap:10px}',
+    '#quiz-stage .quiz-nav-row{margin-top:16px}',
+    '#quiz-stage .quiz-clear{margin-top:8px}',
+    '#quiz-stage .quiz-grid{margin-top:16px;padding-top:14px;gap:6px;grid-template-columns:repeat(auto-fill,minmax(36px,1fr))}',
+    '#quiz-stage .quiz-grid button{padding:6px 0}',
+    '#quiz-stage .quiz-score{padding:4px 0 14px}',
+    /* submit confirmation as a pop-up in the middle of the screen */
+    '#quiz-stage .quiz-confirm{position:fixed;z-index:10000;left:50%;top:50%;transform:translate(-50%,-50%);width:min(92vw,400px);margin:0;padding:20px;background:#fff;border:0;border-radius:16px;box-shadow:0 0 0 100vmax rgba(5,7,71,.55),0 20px 50px rgba(0,0,0,.3)}',
+    '#quiz-stage .quiz-confirm p{font-size:15px;margin-bottom:16px}',
+    '#quiz-stage .quiz-confirm .quiz-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}',
+    '#quiz-stage .quiz-confirm .rp-btn{width:100%;text-align:center;justify-content:center}',
+    /* admin: compact, draggable course cards */
+    '#admin-course-list.axc-on>div[data-axc]{display:flex!important;align-items:center;gap:8px;padding:7px 10px 7px 4px!important;margin-bottom:6px!important;background:#fff!important;border:1px solid #e5e7eb!important;border-radius:12px!important}',
+    '#admin-course-list.axc-on>div[data-axc]>div:nth-child(2){flex:1;min-width:0}',
+    '#admin-course-list.axc-on>div[data-axc]>div:nth-child(2)>div:nth-child(2){margin-top:1px!important;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '#admin-course-list.axc-on>div[data-axc]>div:nth-child(2)>div:nth-child(3){display:none}',
+    '#admin-course-list.axc-on>div[data-axc]>div:nth-child(3){margin-top:0!important;flex-wrap:nowrap!important;gap:6px!important;flex:none}',
+    '#admin-course-list.axc-on .admin-move-up,#admin-course-list.axc-on .admin-move-down{display:none!important}',
+    '#admin-course-list.axc-on .admin-edit-course,#admin-course-list.axc-on .admin-delete-course{padding:6px 10px!important;font-size:13px}',
+    '.axc-grip{flex:none;width:28px;align-self:stretch;min-height:38px;display:grid;place-items:center;color:#9aa0b8;font-size:20px;line-height:1;letter-spacing:-3px;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}',
+    '.axc-grip:active{cursor:grabbing}',
+    '#admin-course-list>div.axc-drag{box-shadow:0 10px 24px rgba(8,11,99,.22)!important;border-color:#080b63!important;background:#f4f5ff!important;position:relative;z-index:5}'
+  ].join('\n');
+  var styleEl = document.createElement('style'); styleEl.id = 'aet-polish-css'; styleEl.textContent = css;
+  document.head.appendChild(styleEl);
+
+  // ---------- quiz: result and error screens always start at the top ----------
+  var lastCard = null;
+  new MutationObserver(function () {
+    var card = document.querySelector('#quiz-stage .quiz-card');
+    if (!card || card === lastCard) return;
+    lastCard = card;
+    if (card.querySelector('.quiz-options') || card.querySelector('#quiz-start')) return; // normal question or intro: leave scroll alone
+    try { card.scrollIntoView({ block: 'start', behavior: 'auto' }); window.scrollBy(0, -70); } catch (e) {}
+  }).observe(document.body, { childList: true, subtree: true });
+
+  // ---------- admin: drag to reorder courses ----------
+  var cache = null, cacheAt = 0;
+  function loadMap() {
+    var sb = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
+    if (!sb) return Promise.resolve(null);
+    if (cache && Date.now() - cacheAt < 4000) return Promise.resolve(cache);
+    return Promise.all([sb.from('courses').select('id,code,level_id,sort_order'), sb.from('levels').select('id,name')]).then(function (r) {
+      if (r[0].error || r[1].error) return null;
+      var lv = {}; (r[1].data || []).forEach(function (l) { lv[String(l.id)] = l.name; });
+      var map = {};
+      (r[0].data || []).forEach(function (c) { map[(lv[String(c.level_id)] || 'Unknown Level') + '|' + String(c.code || '').trim()] = c; });
+      cache = map; cacheAt = Date.now(); return map;
+    }).catch(function () { return null; });
+  }
+
+  function groupOf(list, it) {
+    return [].filter.call(list.children, function (el) { return el.dataset && el.dataset.axc && el.dataset.axlevel === it.dataset.axlevel; });
+  }
+
+  function enhance(list) {
+    var level = '', any = false;
+    [].forEach.call(list.children, function (el) {
+      var h4 = el.querySelector && el.querySelector('h4');
+      if (h4) {
+        level = h4.textContent.replace(/\s*\(\d+\)\s*$/, '').trim();
+        var p = el.querySelector('p'); if (p) p.textContent = 'Hold the ⋮⋮ handle and drag a course up or down. It saves by itself.';
+        return;
+      }
+      if (!el.querySelector || !el.querySelector('.admin-move-up')) return;
+      el.dataset.axlevel = level;
+      if (!el.dataset.axc) {
+        el.dataset.axc = '1';
+        var grip = document.createElement('span');
+        grip.className = 'axc-grip'; grip.textContent = '⋮⋮'; grip.setAttribute('role', 'button'); grip.setAttribute('aria-label', 'Drag to reorder');
+        el.insertBefore(grip, el.firstChild);
+        grip.addEventListener('pointerdown', function (e) { if (e.button > 0) return; e.preventDefault(); startDrag(list, el, grip, e); });
+      }
+      any = true;
+    });
+    if (any) list.classList.add('axc-on');
+  }
+
+  function startDrag(list, it, grip, e) {
+    var group = groupOf(list, it), before = group.slice();
+    if (group.length < 2) return;
+    it.classList.add('axc-drag');
+    var scrollTimer = null, lastY = e.clientY;
+    function place(y) {
+      var others = groupOf(list, it).filter(function (o) { return o !== it; }), target = null;
+      for (var i = 0; i < others.length; i++) {
+        var r = others[i].getBoundingClientRect();
+        if (y < r.top + r.height / 2) { target = others[i]; break; }
+      }
+      if (target) { if (it.nextElementSibling !== target) list.insertBefore(it, target); }
+      else { var last = others[others.length - 1]; if (last && last.nextElementSibling !== it) list.insertBefore(it, last.nextElementSibling); }
+    }
+    function move(ev) {
+      lastY = ev.clientY; place(lastY);
+      clearInterval(scrollTimer); scrollTimer = null;
+      if (lastY < 90 || lastY > window.innerHeight - 90) {
+        scrollTimer = setInterval(function () { window.scrollBy(0, lastY < 90 ? -14 : 14); place(lastY); }, 16);
+      }
+    }
+    function end() {
+      clearInterval(scrollTimer);
+      document.removeEventListener('pointermove', move); document.removeEventListener('pointerup', end); document.removeEventListener('pointercancel', end);
+      it.classList.remove('axc-drag');
+      var after = groupOf(list, it);
+      if (after.every(function (el, i) { return el === before[i]; })) return;
+      save(list, before, after);
+    }
+    document.addEventListener('pointermove', move); document.addEventListener('pointerup', end); document.addEventListener('pointercancel', end);
+  }
+
+  function restore(list, before) {
+    var anchor = before[before.length - 1].nextElementSibling;
+    before.forEach(function (el) { list.insertBefore(el, anchor); });
+  }
+
+  function say(text, bad) {
+    var t = document.getElementById('axm-order-note');
+    if (!t) {
+      t = document.createElement('div'); t.id = 'axm-order-note';
+      t.style.cssText = 'position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:10001;padding:10px 16px;border-radius:12px;font:700 14px Arial,sans-serif;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.25)';
+      document.body.appendChild(t);
+    }
+    t.style.background = bad ? '#b91c1c' : '#080b63'; t.textContent = text; t.style.display = 'block';
+    clearTimeout(say.timer); say.timer = setTimeout(function () { t.style.display = 'none'; }, 2600);
+  }
+
+  function save(list, before, after) {
+    var sb = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
+    list.style.opacity = '.6'; list.style.pointerEvents = 'none';
+    loadMap().then(function (map) {
+      if (!sb || !map) throw new Error('no map');
+      var rows = after.map(function (el) {
+        var code = (el.querySelector('strong') || {}).textContent; code = String(code || '').trim();
+        return map[el.dataset.axlevel + '|' + code];
+      });
+      if (rows.some(function (r) { return !r; })) throw new Error('unknown course');
+      var chain = Promise.resolve();
+      rows.forEach(function (row, position) {
+        if (row.sort_order !== null && row.sort_order !== undefined && Number(row.sort_order) === position) return;
+        chain = chain.then(function () {
+          return sb.from('courses').update({ sort_order: position }).eq('id', row.id).select('id').then(function (r) {
+            if (r.error || !r.data || !r.data.length) throw new Error('save failed');
+            row.sort_order = position;
+          });
+        });
+      });
+      return chain;
+    }).then(function () {
+      cacheAt = 0;
+      say('Order saved.');
+      try { if (typeof refreshPublicCatalog === 'function') refreshPublicCatalog(); } catch (e) {}
+    }).catch(function (err) {
+      console.error('aet-polish order:', err);
+      restore(list, before); cacheAt = 0;
+      say('Could not save the new order. Nothing was lost.', true);
+    }).then(function () { list.style.opacity = ''; list.style.pointerEvents = ''; });
+  }
+
+  // wait for the admin course list, then keep it enhanced after every redraw
+  var watched = null, timer = null;
+  setInterval(function () {
+    var list = document.getElementById('admin-course-list');
+    if (!list) return;
+    if (list !== watched) {
+      watched = list;
+      new MutationObserver(function () {
+        clearTimeout(timer);
+        timer = setTimeout(function () { try { enhance(list); } catch (e) { console.error('aet-polish:', e); } }, 60);
+      }).observe(list, { childList: true });
+    }
+    if (!list.classList.contains('axc-on') && list.querySelector('.admin-move-up')) { try { enhance(list); } catch (e) {} }
+  }, 800);
 })();
