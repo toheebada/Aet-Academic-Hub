@@ -121,6 +121,11 @@
     '.axn-head:focus-visible{outline:3px solid #ffd21c;outline-offset:2px;border-radius:10px}',
     '.axn-av{flex:none;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:17px}',
     '.axn-main{flex:1;min-width:0}',
+    '.axn-img,.axn-ic{flex:none;width:42px;height:42px;border-radius:12px;overflow:hidden;display:grid;place-items:center}',
+    '.axn-img{background:#eef0f7;border:1px solid #e1e4f0}.axn-img img{width:100%;height:100%;object-fit:cover;display:block}',
+    '.axn-ic{font-size:20px;background:#eef0ff}',
+    '.axn-ic.urgent{background:#fde4e4}.axn-ic.closing_soon{background:#fff3cf}.axn-ic.closed{background:#eef0f7}.axn-ic.open{background:#e3f6e8}',
+    '.ax-nc .ax-notice.is-urgent{background:linear-gradient(90deg,#fff5f5,#fff);border-radius:12px;box-shadow:inset 3px 0 0 #d64545;padding-left:8px;border-top-color:transparent}',
     '.axn-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}',
     '.axn-src{font-size:10px;letter-spacing:.06em;color:#6d7185;font-weight:700;text-transform:uppercase;overflow-wrap:anywhere}',
     '.axn-main .ax-ntitle{margin:3px 0 2px;font-size:14.5px;line-height:1.3}',
@@ -217,6 +222,17 @@
     var c = AV[sum % AV.length];
     return h('span', { class: 'axn-av', style: 'background:' + c[0] + ';color:' + c[1], 'aria-hidden': 'true', text: ch });
   }
+  var TAG_ICON = { urgent: '🚨', closing_soon: '⏳', closed: '🔒', open: '✅' };
+  function noticeThumb(n, host) {
+    var icon = h('span', { class: 'axn-ic ' + (n.tag || 'plain'), 'aria-hidden': 'true', text: TAG_ICON[n.tag] || '📢' });
+    var url = n.image_path ? notesUrl(n.image_path) : '';
+    if (!url) return icon;
+    var wrap = h('span', { class: 'axn-img', 'aria-hidden': 'true' });
+    var img = h('img', { src: url, alt: '', loading: 'lazy', decoding: 'async' });
+    img.addEventListener('error', function () { if (wrap.parentNode) wrap.parentNode.replaceChild(icon, wrap); });
+    wrap.appendChild(img);
+    return wrap;
+  }
   function dayKey(t) { return new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date(t)); }
   function tutStatus(s) {
     var now = Date.now(), st = new Date(s.starts_at).getTime();
@@ -276,7 +292,7 @@
       h('div', { class: 'axn-meta' }, h('span', { text: 'Posted ' + fmtDay(n.shows_from) + ' · until ' + fmtDay(n.ends_at) }), src ? h('span', null, ' · ', src) : h('span', { text: ' · Source: ' + n.source })));
     var chev = h('span', { class: 'axn-chev', 'aria-hidden': 'true', text: '›' });
     var head = h('div', { class: 'axn-head', role: 'button', tabindex: '0', 'aria-expanded': 'false' },
-      avatar(host),
+      noticeThumb(n, host),
       h('div', { class: 'axn-main' },
         h('div', { class: 'axn-top' }, h('span', { class: 'axn-src', text: host }), tag),
         h('div', { class: 'ax-ntitle', text: n.title }),
@@ -289,7 +305,7 @@
     }
     head.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('a')) return; toggle(); });
     head.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
-    return h('div', { class: 'ax-notice' }, head, more);
+    return h('div', { class: 'ax-notice' + (n.tag === 'urgent' ? ' is-urgent' : '') }, head, more);
   }
 
   function noticeSort(a, b) {
@@ -765,6 +781,22 @@
         renderNt();
       } catch (e) { ntView.textContent = ''; ntView.appendChild(h('div', { class: 'axa-msg bad', text: e.message })); }
     }
+    function squashImg(f, max) {
+      return new Promise(function (resolve, reject) {
+        var u = URL.createObjectURL(f), im = new Image();
+        im.onload = function () {
+          var w = im.naturalWidth, hh = im.naturalHeight, k = Math.min(1, max / Math.max(w, hh));
+          var c = document.createElement('canvas'); c.width = Math.round(w * k); c.height = Math.round(hh * k);
+          c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(u);
+          c.toBlob(function (b) {
+            if (b && b.type === 'image/webp') return resolve({ blob: b, ext: 'webp', type: 'image/webp' });
+            c.toBlob(function (j) { j ? resolve({ blob: j, ext: 'jpg', type: 'image/jpeg' }) : reject(new Error('Could not read that image.')); }, 'image/jpeg', 0.85);
+          }, 'image/webp', 0.82);
+        };
+        im.onerror = function () { URL.revokeObjectURL(u); reject(new Error('That file is not a picture the browser can read.')); };
+        im.src = u;
+      });
+    }
     function field(label, input, optional) {
       return h('div', null, h('label', null, label, optional ? h('span', { class: 'ax-opt', text: ' (optional)' }) : null), input);
     }
@@ -816,15 +848,36 @@
       var from = h('input', { class: 'ax-in', type: 'date', value: edit ? lagosParts(edit.shows_from).date : '' });
       var tag = h('select', { class: 'ax-in' }, [['', 'No tag'], ['open', 'Open'], ['closing_soon', 'Closing soon'], ['closed', 'Closed'], ['urgent', 'Urgent']].map(function (o) { return h('option', { value: o[0], text: o[1] }); }));
       tag.value = edit && edit.tag ? edit.tag : '';
+      var imgIn = h('input', { class: 'ax-in', type: 'file', accept: 'image/*' });
+      var dropImg = false;
+      var imgPrev = h('div', { class: 'ax-fine' });
+      if (edit && edit.image_path && notesUrl(edit.image_path)) {
+        imgPrev.appendChild(h('img', { src: notesUrl(edit.image_path), alt: 'Current picture', style: 'width:56px;height:56px;object-fit:cover;border-radius:10px;display:block;margin-bottom:6px' }));
+        imgPrev.appendChild(h('button', { type: 'button', class: 'ax-link', style: 'color:#b91c1c', text: 'Remove picture', onclick: function () { dropImg = true; imgPrev.textContent = 'The picture will be removed when you save.'; } }));
+      }
       var msg = h('div', { class: 'axa-msg', hidden: true });
       var save = h('button', { type: 'button', class: 'ax-btn n', text: edit ? 'Save changes' : 'Publish notice', onclick: async function () {
         msg.hidden = true;
         if (!ends.value) { msg.className = 'axa-msg bad'; msg.textContent = 'Choose the date the notice disappears.'; msg.hidden = false; return; }
         var body = { action: 'notice_save', title: title.value, details: details.value, source: source.value, tag: tag.value || null, ends_at: lagosISO(ends.value, '23:59') };
         if (from.value) body.shows_from = lagosISO(from.value, '00:00');
-        if (edit) body.id = edit.id;
+        if (edit) { body.id = edit.id; body.image_path = dropImg ? null : (edit.image_path || null); }
         save.disabled = true;
-        try { await api(body); state.editNotice = null; await loadNt(); say(edit ? 'Notice updated.' : 'Notice published.'); }
+        try {
+          var im = imgIn.files && imgIn.files[0], newImg = null;
+          if (im) {
+            if (!/^image\//.test(im.type || '')) throw new Error('The picture must be a JPG, PNG or WebP image.');
+            var sq = await squashImg(im, 400);
+            var nm = im.name.replace(/\.[^.]*$/, '').replace(/[^A-Za-z0-9_-]+/g, '-').slice(0, 40) || 'notice';
+            newImg = 'notice-images/' + Date.now() + '-' + nm + '.' + sq.ext;
+            var up = await sb.storage.from(NOTES_BUCKET).upload(newImg, sq.blob, { contentType: sq.type, upsert: false });
+            if (up.error) throw new Error('Could not upload the picture: ' + up.error.message);
+            body.image_path = newImg;
+          }
+          await api(body);
+          if (edit && edit.image_path && (newImg || dropImg)) { try { await sb.storage.from(NOTES_BUCKET).remove([edit.image_path]); } catch (e) {} }
+          state.editNotice = null; await loadNt(); say(edit ? 'Notice updated.' : 'Notice published.');
+        }
         catch (e) { msg.className = 'axa-msg bad'; msg.textContent = e.message; msg.hidden = false; save.disabled = false; }
       } });
       var panel = h('div', { class: 'axa-panel' },
@@ -832,7 +885,10 @@
         h('p', { class: 'ax-sub', text: 'Every notice needs a source and an end date, so old information never looks current.' }),
         field('Title', title), field('Details', details, true), field('Source', source),
         h('div', { class: 'axa-g2' }, field('Starts on', from, true), field('Disappears on', ends)),
-        field('Tag', tag, true), msg,
+        field('Tag', tag, true),
+        field('Picture', imgIn, true),
+        h('div', { class: 'ax-fine', text: 'Optional, for example a logo. It is shrunk automatically. Without one, a small icon shows.' }),
+        imgPrev, msg,
         h('div', { style: 'margin-top:14px;display:flex;gap:8px' }, save, edit ? h('button', { type: 'button', class: 'ax-btn g', text: 'Cancel', onclick: function () { state.editNotice = null; renderNt(); } }) : null));
       var labels = { open: 'OPEN', closing_soon: 'CLOSING SOON', closed: 'CLOSED', urgent: 'URGENT' };
       if (!state.notices.length) panel.appendChild(h('div', { class: 'axa-empty', style: 'margin-top:14px', text: 'No notices posted. Nothing shows on the home page.' }));
@@ -844,10 +900,10 @@
           h('button', { type: 'button', class: 'ax-link', text: 'Edit', onclick: function () { state.editNotice = n; renderNt(); } }),
           h('button', { type: 'button', class: 'ax-link', style: 'color:#b91c1c', text: 'Remove', onclick: async function () {
             try {
-              await api({ action: 'notice_delete', id: n.id });
+              await api({ action: 'notice_delete', id: n.id, keep_file: true });
               await loadNt();
               say('Notice removed.', async function () {
-                await api({ action: 'notice_save', title: n.title, details: n.details, source: n.source, tag: n.tag, shows_from: n.shows_from, ends_at: n.ends_at });
+                await api({ action: 'notice_save', title: n.title, details: n.details, source: n.source, tag: n.tag, image_path: n.image_path || null, shows_from: n.shows_from, ends_at: n.ends_at });
                 await loadNt();
               });
             } catch (e) { say(e.message); }
