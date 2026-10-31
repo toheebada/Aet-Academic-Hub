@@ -113,7 +113,64 @@
     '.ax-hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}',
     '.ax-ok{width:56px;height:56px;border-radius:50%;background:#e3f8ea;color:#12733a;display:grid;place-items:center;font-size:28px;font-weight:800;margin:6px auto 10px}',
     '.ax-center{text-align:center}',
-    '.ax-fine{font-size:11.5px;color:#6d7185;margin-top:5px;line-height:1.4}'
+    '.ax-fine{font-size:11.5px;color:#6d7185;margin-top:5px;line-height:1.4}',
+    /* ---- notice rows ---- */
+    '.ax-nc .ax-notice{padding:0;margin-top:0;border:0;border-top:1px solid #e7e9f1;border-radius:0;background:none;box-shadow:none}',
+    '.ax-nc .ax-notice:first-of-type{margin-top:8px}',
+    '.axn-head{display:flex;gap:12px;align-items:center;padding:12px 2px;cursor:pointer;text-align:left}',
+    '.axn-head:focus-visible{outline:3px solid #ffd21c;outline-offset:2px;border-radius:10px}',
+    '.axn-av{flex:none;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:17px}',
+    '.axn-main{flex:1;min-width:0}',
+    '.axn-top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}',
+    '.axn-src{font-size:10px;letter-spacing:.06em;color:#6d7185;font-weight:700;text-transform:uppercase;overflow-wrap:anywhere}',
+    '.axn-main .ax-ntitle{margin:3px 0 2px;font-size:14.5px;line-height:1.3}',
+    '.axn-prev{font-size:12.5px;color:#6d7185;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '.axn-time{font-size:11.5px;color:#8a8fa6;margin-top:3px}',
+    '.axn-chev{flex:none;color:#8a8fa6;font-size:24px;line-height:1;transition:transform .15s}',
+    '.axn-head.open .axn-chev{transform:rotate(90deg)}',
+    '.axn-more{padding:0 2px 12px 54px}',
+    '.axn-more[hidden]{display:none}',
+    '.axn-full{font-size:13.5px;color:#454a63;line-height:1.5;margin-bottom:6px;white-space:pre-line}',
+    '.axn-meta{font-size:12px;color:#6d7185}.axn-meta a{color:#080b63;font-weight:700;text-decoration:underline}',
+    '.axn-warn{margin-top:6px;padding:10px 12px;border-radius:10px;background:#f4f6fc;color:#5b6078;font-size:12px;line-height:1.4}',
+    '.ax-chip.urgent{background:#fde4e4;color:#a83232}',
+    /* ---- tutorial announcements ---- */
+    '.axt-wrap{background:#fff;border:1px solid #e7e9f1;border-radius:20px;padding:18px;box-shadow:0 12px 35px rgba(8,11,99,.06)}',
+    '.axt-h{font-size:20px;margin:0 0 2px;color:#080b63}',
+    '.axt-wrap .ax-lead{font-size:13px;margin:0 0 14px}',
+    '.axt-list{display:grid;gap:12px}',
+    '.axt-card{display:flex;gap:12px;align-items:stretch;border:1px solid #e7e9f1;border-radius:16px;padding:10px;background:#fff}',
+    '.axt-fly{flex:none;width:96px;border-radius:12px;overflow:hidden;background:#eef0f7;align-self:flex-start;line-height:0}',
+    '.axt-fly img{width:100%;height:auto;display:block}',
+    '.axt-body{flex:1;min-width:0;padding:2px 2px 2px 0}',
+    '.axt-chips{display:flex;gap:6px;align-items:center;flex-wrap:wrap}',
+    '.axt-st{font-size:11.5px;font-weight:800;padding:3px 10px;border-radius:99px}',
+    '.axt-st.upcoming{background:#e3f6e8;color:#17703a}.axt-st.today{background:#fff3cf;color:#8a6200}.axt-st.ongoing{background:#fde4e4;color:#a83232}.axt-st.notes{background:#e5e8ff;color:#080b63}',
+    '.axt-mode{font-size:11.5px;font-weight:700;color:#6d7185}',
+    '.axt-body h3{font-size:16.5px;line-height:1.3;margin:6px 0 6px;color:#11152b}',
+    '.axt-meta{display:flex;gap:6px 16px;flex-wrap:wrap;font-size:13px;color:#454a63;line-height:1.4}',
+    '.axt-note{font-size:13px;color:#6d7185;margin:6px 0 0;line-height:1.45}',
+    '.axt-btn{display:inline-block;margin-top:10px;padding:9px 16px;border-radius:12px;border:1.5px solid #1d5a42;color:#1d5a42;font-weight:800;font-size:14px;text-decoration:none;background:#fff}',
+    '.axt-past{margin-top:10px;padding-top:8px;border-top:1px solid #e7e9f1;font-size:12.5px;color:#6d7185}',
+    '.axt-past a{color:#1d5a42;font-weight:800}',
+    '@media(max-width:420px){.axt-fly{width:78px}.axt-card{padding:8px}}',
+    /* ---- join group strip ---- */
+    '.axg{margin-top:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:#e8f6ec;border:1px solid #cfe8d8;border-radius:16px;padding:12px 14px}',
+    '.axg-ic{flex:none;display:grid;place-items:center}',
+    '.axg-t{flex:1;min-width:180px;display:flex;flex-direction:column;gap:2px}',
+    '.axg-t b{font-size:15px;color:#1d3f30}.axg-t span{font-size:12.5px;color:#3d5a4b;line-height:1.4}',
+    '.axg-btn{display:inline-flex;align-items:center;gap:8px;background:#1d5a42;color:#fff;font-weight:800;font-size:14px;padding:11px 18px;border-radius:99px;text-decoration:none;box-shadow:0 6px 14px rgba(29,90,66,.25)}',
+    '.axg-wa{display:grid;place-items:center}',
+    '@media(max-width:480px){.axg-btn{width:100%;justify-content:center}}',
+    /* ---- material request banner ---- */
+    '.ax-req.axr{display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:#e8f6ec;border:1px solid #cfe8d8;border-radius:22px;padding:18px 20px;margin:18px 0 8px}',
+    '.axr-ic{flex:none;display:grid;place-items:center}',
+    '.axr-t{flex:1;min-width:200px}',
+    '.axr-t b{display:block;font-size:24px;line-height:1.15;color:#1d5a42;font-weight:800}',
+    '.axr-t p{margin:6px 0 0;font-size:15px;line-height:1.4;color:#1d3f30}',
+    '.axr-btn{flex:none;border:0;cursor:pointer;background:#1d5a42;color:#fff;font-weight:800;font-size:17px;line-height:1.2;font-family:inherit;padding:16px 26px;border-radius:99px;box-shadow:0 8px 18px rgba(29,90,66,.25)}',
+    '.axr-btn:focus-visible{outline:3px solid #ffd21c;outline-offset:2px}',
+    '@media(max-width:560px){.axr-btn{width:100%}.axr-t b{font-size:21px}.axr-ic svg{width:52px;height:52px}}'
   ].join('\n');
   document.head.appendChild(h('style', { id: 'ax-style', text: css }));
 
@@ -126,56 +183,118 @@
   async function loadLive() {
     try {
       var r = await Promise.all([
-        sb.from('hub_notices').select('*').order('ends_at', { ascending: true }),
-        sb.from('hub_sessions').select('*').order('starts_at', { ascending: true })
+        sb.from('hub_notices').select('*').order('shows_from', { ascending: false }),
+        sb.from('hub_sessions').select('*').order('starts_at', { ascending: true }),
+        sb.from('hub_settings').select('key,value').eq('key', 'group_link')
       ]);
       live.notices = (r[0] && !r[0].error && r[0].data) || [];
       live.sessions = (r[1] && !r[1].error && r[1].data) || [];
-    } catch (e) { live.notices = []; live.sessions = []; }
+      var g = (r[2] && !r[2].error && r[2].data && r[2].data[0]) || null;
+      live.groupLink = g && isHttps(g.value) ? g.value : '';
+    } catch (e) { live.notices = []; live.sessions = []; live.groupLink = ''; }
+  }
+
+  function publicUrl(path) { return notesUrl(path); }
+  function svg(markup, cls) { var s = h('span', { class: cls || 'axi', 'aria-hidden': 'true' }); s.innerHTML = markup; return s; }
+  var WA_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" focusable="false"><path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.85 9.85 0 0 0 12.04 2zm0 18.15h-.01a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.38c0-4.54 3.7-8.23 8.24-8.23 2.2 0 4.27.86 5.82 2.42a8.18 8.18 0 0 1 2.41 5.83c0 4.54-3.7 8.22-8.23 8.22zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.78.97-.14.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.14.17-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.42h-.48c-.17 0-.43.06-.66.31-.23.25-.87.85-.87 2.07 0 1.22.89 2.4 1.01 2.56.12.17 1.75 2.67 4.23 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.23-.16-.48-.29z"/></svg>';
+  var PEOPLE_ICON = '<svg viewBox="0 0 48 48" width="40" height="40" focusable="false"><g fill="#1d5a42"><circle cx="24" cy="15" r="7"/><path d="M10 38c0-7.7 6.3-13 14-13s14 5.3 14 13v3H10z"/><circle cx="10.5" cy="20" r="4.5"/><circle cx="37.5" cy="20" r="4.5"/></g></svg>';
+  var HEADSET_ICON = '<svg viewBox="0 0 64 64" width="64" height="64" focusable="false"><g fill="#1d5a42"><path d="M32 6C19.3 6 10 15.4 10 27v7h5v-7c0-9.4 7.2-17 17-17s17 7.6 17 17v7h5v-7C54 15.4 44.7 6 32 6z"/><rect x="6" y="26" width="9" height="16" rx="4.5"/><rect x="49" y="26" width="9" height="16" rx="4.5"/><circle cx="32" cy="27" r="9"/><path d="M12 58c0-9.9 8.1-16 20-16s20 6.100 20 16z"/><path d="M52 40c0 6-4 9-10 9h-3v-4h3c4 0 6-1.800 6-5z"/></g><circle cx="32" cy="27" r="9" fill="#e3f5e8"/><circle cx="32" cy="27" r="9" fill="none" stroke="#1d5a42" stroke-width="3"/></svg>';
+
+  function timeAgo(iso) {
+    var s = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 1000));
+    if (s < 90) return 'Just now';
+    var m = Math.round(s / 60); if (m < 60) return m + ' minutes ago';
+    var hr = Math.round(m / 60); if (hr < 24) return hr + (hr === 1 ? ' hour ago' : ' hours ago');
+    var d = Math.round(hr / 24); if (d === 1) return 'Yesterday'; if (d < 8) return d + ' days ago';
+    return fmtDay(iso);
+  }
+  var AV = [['#e3f6e8', '#17703a'], ['#e1ecfb', '#1a4f9c'], ['#ece6fb', '#5a3aa8'], ['#fdeedd', '#a45a0a'], ['#fde4e4', '#a83232'], ['#e0f4f4', '#136a6a']];
+  function avatar(label) {
+    var t = String(label || '?').replace(/^https?:\/\/(www\.)?/i, '').trim();
+    var ch = (t.match(/[A-Za-z0-9]/) || ['?'])[0].toUpperCase();
+    var sum = 0; for (var i = 0; i < t.length; i++) sum += t.charCodeAt(i);
+    var c = AV[sum % AV.length];
+    return h('span', { class: 'axn-av', style: 'background:' + c[0] + ';color:' + c[1], 'aria-hidden': 'true', text: ch });
+  }
+  function dayKey(t) { return new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date(t)); }
+  function tutStatus(s) {
+    var now = Date.now(), st = new Date(s.starts_at).getTime();
+    if (now >= st) return ['ongoing', 'Ongoing'];
+    return dayKey(now) === dayKey(st) ? ['today', 'Today'] : ['upcoming', 'Upcoming'];
+  }
+
+  function flyerBox(s) {
+    if (!s.flyer_path) return null;
+    var url = publicUrl(s.flyer_path);
+    if (!url) return null;
+    var img = h('img', { src: url, alt: 'Flyer for ' + s.title, loading: 'lazy', decoding: 'async' });
+    var a = h('a', { class: 'axt-fly', href: url, target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Open the flyer' }, img);
+    img.addEventListener('error', function () { if (a.parentNode) a.parentNode.removeChild(a); });
+    return a;
   }
 
   function tutorialCard(s, notesSession) {
-    var card = h('div', { class: 'ax-tut' },
-      h('div', { class: 'ax-k', text: 'AET Tutorial · ' + (s.mode === 'physical' ? 'Physical' : 'Online') }),
+    var st = tutStatus(s);
+    var body = h('div', { class: 'axt-body' },
+      h('div', { class: 'axt-chips' },
+        h('span', { class: 'axt-st ' + st[0], text: st[1] }),
+        h('span', { class: 'axt-mode', text: s.mode === 'physical' ? 'Physical' : 'Online' })),
       h('h3', { text: s.title }),
-      h('div', { class: 'ax-when', text: fmtWhen(s.starts_at) }),
-      h('div', { class: 'ax-where', text: s.mode === 'physical' ? '📍 Venue: ' + (s.venue || '') : 'Held online' })
-    );
-    if (s.note) card.appendChild(h('p', { class: 'ax-note', text: s.note }));
+      h('div', { class: 'axt-meta' },
+        h('span', { text: '📅 ' + fmtWhen(s.starts_at) }),
+        h('span', { text: s.mode === 'physical' ? '📍 ' + (s.venue || '') : '🌐 Held online' })));
+    if (s.note) body.appendChild(h('p', { class: 'axt-note', text: s.note }));
     if (s.mode === 'online' && isHttps(s.join_link)) {
-      card.appendChild(h('a', { class: 'ax-btn y', href: s.join_link, target: '_blank', rel: 'noopener noreferrer', text: 'Join the class' }));
+      body.appendChild(h('a', { class: 'axt-btn', href: s.join_link, target: '_blank', rel: 'noopener noreferrer', text: 'Join the class' }));
     }
-    var own = s.notes_path ? s : null;
-    if (own) {
-      card.appendChild(h('div', { class: 'ax-past' }, 'Notes for this session: ', h('a', { href: notesUrl(own.notes_path), target: '_blank', rel: 'noopener noreferrer', text: 'Download (PDF) →' })));
+    if (s.notes_path) {
+      body.appendChild(h('div', { class: 'axt-past' }, 'Notes for this session: ', h('a', { href: notesUrl(s.notes_path), target: '_blank', rel: 'noopener noreferrer', text: 'Download (PDF) →' })));
     } else if (notesSession) {
-      card.appendChild(h('div', { class: 'ax-past' }, 'Last session notes: ', h('a', { href: notesUrl(notesSession.notes_path), target: '_blank', rel: 'noopener noreferrer', text: notesSession.title + ' (PDF) →' })));
+      body.appendChild(h('div', { class: 'axt-past' }, 'Last session notes: ', h('a', { href: notesUrl(notesSession.notes_path), target: '_blank', rel: 'noopener noreferrer', text: notesSession.title + ' (PDF) →' })));
     }
-    return card;
+    return h('div', { class: 'axt-card' }, flyerBox(s), body);
   }
 
   function notesOnlyCard(s) {
-    return h('div', { class: 'ax-tut' },
-      h('div', { class: 'ax-k', text: 'AET Tutorial · Notes' }),
-      h('h3', { text: s.title }),
-      h('div', { class: 'ax-where', text: 'Notes from the ' + fmtDay(s.starts_at) + ' session' }),
-      h('a', { class: 'ax-btn y', href: notesUrl(s.notes_path), target: '_blank', rel: 'noopener noreferrer', text: 'Download notes (PDF)' })
-    );
+    return h('div', { class: 'axt-card' }, flyerBox(s),
+      h('div', { class: 'axt-body' },
+        h('div', { class: 'axt-chips' }, h('span', { class: 'axt-st notes', text: 'Notes' }), h('span', { class: 'axt-mode', text: 'AET Tutorial' })),
+        h('h3', { text: s.title }),
+        h('div', { class: 'axt-meta' }, h('span', { text: 'Notes from the ' + fmtDay(s.starts_at) + ' session' })),
+        h('a', { class: 'axt-btn', href: notesUrl(s.notes_path), target: '_blank', rel: 'noopener noreferrer', text: 'Download notes (PDF)' })));
   }
 
+  var NOTICE_LABELS = { open: 'OPEN', closing_soon: 'CLOSING SOON', closed: 'CLOSED', urgent: 'URGENT' };
   function noticeCard(n) {
-    var labels = { open: 'OPEN', closing_soon: 'CLOSING SOON', closed: 'CLOSED' };
     var host = n.source;
     if (isHttps(n.source)) { try { host = new URL(n.source).hostname.replace(/^www\./, ''); } catch (e) {} }
     var src = isHttps(n.source) ? h('a', { href: n.source, target: '_blank', rel: 'noopener noreferrer', text: 'Source ↗' }) : null;
-    return h('div', { class: 'ax-notice' },
-      h('div', { class: 'ax-nsrc', text: host }),
-      h('div', { class: 'ax-ntitle', text: n.title }),
-      n.details ? h('div', { class: 'ax-nbody', text: n.details }) : null,
-      h('div', { class: 'ax-nmeta' },
-        h('span', { text: 'Posted ' + fmtDay(n.shows_from) + ' · until ' + fmtDay(n.ends_at) }),
-        h('span', {}, n.tag && labels[n.tag] ? h('span', { class: 'ax-chip ' + n.tag, text: labels[n.tag] }) : null, n.tag && labels[n.tag] && src ? ' ' : null, src))
-    );
+    var tag = n.tag && NOTICE_LABELS[n.tag] ? h('span', { class: 'ax-chip ' + n.tag, text: NOTICE_LABELS[n.tag] }) : null;
+    var more = h('div', { class: 'axn-more', hidden: true },
+      n.details ? h('div', { class: 'axn-full', text: n.details }) : null,
+      h('div', { class: 'axn-meta' }, h('span', { text: 'Posted ' + fmtDay(n.shows_from) + ' · until ' + fmtDay(n.ends_at) }), src ? h('span', null, ' · ', src) : h('span', { text: ' · Source: ' + n.source })));
+    var chev = h('span', { class: 'axn-chev', 'aria-hidden': 'true', text: '›' });
+    var head = h('div', { class: 'axn-head', role: 'button', tabindex: '0', 'aria-expanded': 'false' },
+      avatar(host),
+      h('div', { class: 'axn-main' },
+        h('div', { class: 'axn-top' }, h('span', { class: 'axn-src', text: host }), tag),
+        h('div', { class: 'ax-ntitle', text: n.title }),
+        n.details ? h('div', { class: 'axn-prev', text: n.details }) : null,
+        h('div', { class: 'axn-time', text: timeAgo(n.shows_from) })),
+      chev);
+    function toggle() {
+      var open = more.hidden; more.hidden = !open;
+      head.setAttribute('aria-expanded', open ? 'true' : 'false'); head.classList.toggle('open', open);
+    }
+    head.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('a')) return; toggle(); });
+    head.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+    return h('div', { class: 'ax-notice' }, head, more);
+  }
+
+  function noticeSort(a, b) {
+    var ua = a.tag === 'urgent' ? 0 : 1, ub = b.tag === 'urgent' ? 0 : 1;
+    if (ua !== ub) return ua - ub;
+    return new Date(b.shows_from) - new Date(a.shows_from);
   }
 
   // notices: side column next to the hero when the new hero is installed, else a block above the search
@@ -188,9 +307,10 @@
     if (wrap) wrap.classList.toggle('has-side', !!notices.length);
     if (!notices.length) return;
     var card = h('div', { class: 'ax-nc', id: 'aet-notices' },
-      h('h2', { class: 'ax-nh', text: '🔔 Latest notices' }),
-      h('p', { class: 'ax-lead', text: 'Posted by AET. Always check the source.' }));
+      h('h2', { class: 'ax-nh', text: '🔔 Notice Center' }),
+      h('p', { class: 'ax-lead', text: 'Latest updates and important notices from AET.' }));
     notices.forEach(function (n) { card.appendChild(noticeCard(n)); });
+    card.appendChild(h('div', { class: 'axn-warn' }, 'ⓘ Not sure if it\'s real? Always confirm important information from official sources.'));
     if (side) side.appendChild(card);
     else { var a = document.getElementById('search-section'); if (a && a.parentNode) { var w = h('section', { class: 'ax-home' }, card); a.parentNode.insertBefore(w, a); sideBox = w; return; } }
     sideBox = card;
@@ -200,8 +320,7 @@
     var anchor = document.getElementById('search-section');
     if (!anchor || !anchor.parentNode) return;
     var now = Date.now();
-    var notices = live.notices.filter(function (n) { return new Date(n.shows_from).getTime() <= now && new Date(n.ends_at).getTime() > now; })
-      .sort(function (a, b) { return new Date(a.ends_at) - new Date(b.ends_at); });
+    var notices = live.notices.filter(function (n) { return new Date(n.shows_from).getTime() <= now && new Date(n.ends_at).getTime() > now; }).sort(noticeSort);
     var upcoming = live.sessions.filter(function (s) { return new Date(s.hide_after).getTime() > now; })
       .sort(function (a, b) { return new Date(a.starts_at) - new Date(b.starts_at); }).slice(0, 3);
     var withNotes = live.sessions.filter(function (s) { return s.notes_path && new Date(s.hide_after).getTime() <= now; })
@@ -213,14 +332,21 @@
       homeBox = null;
       return;
     }
-    var box = h('section', { class: 'ax-home', id: 'aet-home-extras', 'aria-label': 'Tutorials and notices' });
-    if (upcoming.length) {
-      var grid = h('div', { class: 'ax-tuts' });
-      upcoming.forEach(function (s, i) { grid.appendChild(tutorialCard(s, i === 0 ? withNotes : null)); });
-      box.appendChild(grid);
-    } else if (withNotes) {
-      box.appendChild(h('div', { class: 'ax-tuts' }, notesOnlyCard(withNotes)));
+    var box = h('section', { class: 'ax-home', id: 'aet-home-extras', 'aria-label': 'Tutorials' });
+    var wrapT = h('div', { class: 'axt-wrap' },
+      h('h2', { class: 'axt-h', text: '🎓 Tutorial Announcements' }),
+      h('p', { class: 'ax-lead', text: 'Upcoming and ongoing tutorial sessions from AET. Join, learn and grow.' }));
+    var grid = h('div', { class: 'axt-list' });
+    if (upcoming.length) upcoming.forEach(function (s, i) { grid.appendChild(tutorialCard(s, i === 0 ? withNotes : null)); });
+    else grid.appendChild(notesOnlyCard(withNotes));
+    wrapT.appendChild(grid);
+    if (live.groupLink) {
+      wrapT.appendChild(h('div', { class: 'axg', id: 'aet-group-strip' },
+        svg(PEOPLE_ICON, 'axg-ic'),
+        h('div', { class: 'axg-t' }, h('b', { text: 'Need help with a course?' }), h('span', { text: 'Join the AET Tutorial WhatsApp group for updates and support.' })),
+        h('a', { class: 'axg-btn', href: live.groupLink, target: '_blank', rel: 'noopener noreferrer' }, svg(WA_ICON, 'axg-wa'), 'Join Group ', h('span', { 'aria-hidden': 'true', text: '→' }))));
     }
+    box.appendChild(wrapT);
     if (homeBox && homeBox.parentNode) homeBox.parentNode.replaceChild(box, homeBox);
     else anchor.parentNode.insertBefore(box, anchor);
     homeBox = box;
@@ -373,10 +499,10 @@
     if (existing) existing.remove();
     var title = '';
     var tEl = section.querySelector('.view-sub'); if (tEl) title = tEl.textContent.trim();
-    var box = h('div', { class: 'ax-req', id: 'ax-req-box', 'data-code': code },
-      h('b', { text: "Can't find what you need?" }),
-      h('p', { text: 'Tell us what is missing and we will try to add it.' }),
-      h('button', { type: 'button', class: 'ax-btn n', style: 'width:100%', text: 'Request a material', onclick: async function () {
+    var box = h('div', { class: 'ax-req axr', id: 'ax-req-box', 'data-code': code },
+      svg(HEADSET_ICON, 'axr-ic'),
+      h('div', { class: 'axr-t' }, h('b', { text: 'Material Request' }), h('p', { text: "Need specific study materials? Request them here and we'll get back to you." })),
+      h('button', { type: 'button', class: 'axr-btn', text: 'Request Materials →', onclick: async function () {
         var c = await courseByCode(code);
         openRequest({ courseCode: code, courseTitle: (c && c.title) || title, courseId: c ? c.id : null });
       } }));
@@ -632,8 +758,10 @@
     // ============ NOTICES + TUTORIALS VIEW ============
     async function loadNt() {
       try {
-        var r = await Promise.all([api({ action: 'notices_list' }), api({ action: 'sessions_list' })]);
-        state.notices = r[0].notices; state.sessions = r[1].sessions; renderNt();
+        var r = await Promise.all([api({ action: 'notices_list' }), api({ action: 'sessions_list' }), sb.from('hub_settings').select('key,value').eq('key', 'group_link')]);
+        state.notices = r[0].notices; state.sessions = r[1].sessions;
+        state.groupLink = (r[2] && !r[2].error && r[2].data && r[2].data[0] && r[2].data[0].value) || '';
+        renderNt();
       } catch (e) { ntView.textContent = ''; ntView.appendChild(h('div', { class: 'axa-msg bad', text: e.message })); }
     }
     function field(label, input, optional) {
@@ -649,7 +777,32 @@
       ntView.textContent = '';
       ntView.appendChild(h('h2', { text: 'Notices and tutorials' }));
       ntView.appendChild(h('p', { class: 'ax-sub', text: 'Both show on the home page only while something is posted. Remove an entry and the section disappears.' }));
+      ntView.appendChild(groupPanel());
       ntView.appendChild(h('div', { class: 'axa-two' }, tutorialPanel(), noticePanel()));
+    }
+
+    // ---- tutorial group link (optional)
+    function groupPanel() {
+      var inp = h('input', { class: 'ax-in', type: 'url', maxlength: '300', placeholder: 'https://chat.whatsapp.com/...', value: state.groupLink || '' });
+      var msg = h('div', { class: 'axa-msg', hidden: true });
+      function bad(t) { msg.className = 'axa-msg bad'; msg.textContent = t; msg.hidden = false; }
+      async function put(v, done) {
+        msg.hidden = true;
+        try { await api({ action: 'setting_save', key: 'group_link', value: v }); state.groupLink = v; renderNt(); say(done); }
+        catch (e) { bad(e.message); }
+      }
+      return h('div', { class: 'axa-panel', style: 'margin-bottom:14px' },
+        h('h3', { text: 'Tutorial group link' }),
+        h('p', { class: 'ax-sub', text: 'Optional. When a link is saved, a "Join Group" strip shows under the Tutorial Announcements card on the home page. Leave it empty and no strip shows.' }),
+        field('WhatsApp group link', inp, true), msg,
+        h('div', { style: 'margin-top:12px;display:flex;gap:8px' },
+          h('button', { type: 'button', class: 'ax-btn n', text: 'Save link', onclick: function () {
+            var v = inp.value.trim();
+            if (!v) return bad('Paste a link first, or use Remove link.');
+            if (!/^https:\/\/\S+$/i.test(v)) return bad('The link must start with https://');
+            put(v, 'Group link saved.');
+          } }),
+          state.groupLink ? h('button', { type: 'button', class: 'ax-btn g', text: 'Remove link', onclick: function () { put('', 'Group link removed.'); } }) : null));
     }
 
     // ---- notices
@@ -660,7 +813,7 @@
       var source = h('input', { class: 'ax-in', type: 'text', maxlength: '200', placeholder: 'A link (https://...) or a name, e.g. School portal', value: edit ? edit.source : '' });
       var ends = h('input', { class: 'ax-in', type: 'date', value: edit ? lagosParts(edit.ends_at).date : '' });
       var from = h('input', { class: 'ax-in', type: 'date', value: edit ? lagosParts(edit.shows_from).date : '' });
-      var tag = h('select', { class: 'ax-in' }, [['', 'No tag'], ['open', 'Open'], ['closing_soon', 'Closing soon'], ['closed', 'Closed']].map(function (o) { return h('option', { value: o[0], text: o[1] }); }));
+      var tag = h('select', { class: 'ax-in' }, [['', 'No tag'], ['open', 'Open'], ['closing_soon', 'Closing soon'], ['closed', 'Closed'], ['urgent', 'Urgent']].map(function (o) { return h('option', { value: o[0], text: o[1] }); }));
       tag.value = edit && edit.tag ? edit.tag : '';
       var msg = h('div', { class: 'axa-msg', hidden: true });
       var save = h('button', { type: 'button', class: 'ax-btn n', text: edit ? 'Save changes' : 'Publish notice', onclick: async function () {
@@ -680,7 +833,7 @@
         h('div', { class: 'axa-g2' }, field('Starts on', from, true), field('Disappears on', ends)),
         field('Tag', tag, true), msg,
         h('div', { style: 'margin-top:14px;display:flex;gap:8px' }, save, edit ? h('button', { type: 'button', class: 'ax-btn g', text: 'Cancel', onclick: function () { state.editNotice = null; renderNt(); } }) : null));
-      var labels = { open: 'OPEN', closing_soon: 'CLOSING SOON', closed: 'CLOSED' };
+      var labels = { open: 'OPEN', closing_soon: 'CLOSING SOON', closed: 'CLOSED', urgent: 'URGENT' };
       if (!state.notices.length) panel.appendChild(h('div', { class: 'axa-empty', style: 'margin-top:14px', text: 'No notices posted. Nothing shows on the home page.' }));
       state.notices.forEach(function (n) {
         var live = new Date(n.ends_at).getTime() > Date.now() && new Date(n.shows_from).getTime() <= Date.now();
@@ -717,6 +870,29 @@
       var hp = edit ? lagosParts(edit.hide_after) : { date: '', time: '' };
       var hideAt = h('input', { class: 'ax-in', type: 'datetime-local', value: edit ? hp.date + 'T' + hp.time : '' });
       var file = h('input', { class: 'ax-in', type: 'file', accept: 'application/pdf,.pdf' });
+      var flyerIn = h('input', { class: 'ax-in', type: 'file', accept: 'image/*' });
+      var dropFlyer = false;
+      var flyerPrev = h('div', { class: 'ax-fine' });
+      if (edit && edit.flyer_path && notesUrl(edit.flyer_path)) {
+        flyerPrev.appendChild(h('img', { src: notesUrl(edit.flyer_path), alt: 'Current flyer', style: 'width:72px;border-radius:8px;display:block;margin-bottom:6px' }));
+        flyerPrev.appendChild(h('button', { type: 'button', class: 'ax-link', style: 'color:#b91c1c', text: 'Remove flyer', onclick: function () { dropFlyer = true; flyerPrev.textContent = 'The flyer will be removed when you save.'; } }));
+      }
+      function squash(f) {
+        return new Promise(function (resolve, reject) {
+          var u = URL.createObjectURL(f), im = new Image();
+          im.onload = function () {
+            var w = im.naturalWidth, hh = im.naturalHeight, k = Math.min(1, 800 / w);
+            var c = document.createElement('canvas'); c.width = Math.round(w * k); c.height = Math.round(hh * k);
+            c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(u);
+            c.toBlob(function (b) {
+              if (b && b.type === 'image/webp') return resolve({ blob: b, ext: 'webp', type: 'image/webp' });
+              c.toBlob(function (j) { j ? resolve({ blob: j, ext: 'jpg', type: 'image/jpeg' }) : reject(new Error('Could not read that image.')); }, 'image/jpeg', 0.85);
+            }, 'image/webp', 0.82);
+          };
+          im.onerror = function () { URL.revokeObjectURL(u); reject(new Error('That file is not a picture the browser can read.')); };
+          im.src = u;
+        });
+      }
       var msg = h('div', { class: 'axa-msg', hidden: true });
       function bad(t) { msg.className = 'axa-msg bad'; msg.textContent = t; msg.hidden = false; }
       var save = h('button', { type: 'button', class: 'ax-btn n', text: edit ? 'Save changes' : 'Publish session', onclick: async function () {
@@ -725,7 +901,7 @@
         var body = { action: 'session_save', mode: mode, title: title.value, starts_at: lagosISO(date.value, time.value), note: note.value };
         if (mode === 'physical') body.venue = venue.value; else body.join_link = link.value;
         if (hideAt.value) body.hide_after = lagosISO(hideAt.value.slice(0, 10), hideAt.value.slice(11, 16));
-        if (edit) { body.id = edit.id; body.notes_path = edit.notes_path || null; }
+        if (edit) { body.id = edit.id; body.notes_path = edit.notes_path || null; body.flyer_path = dropFlyer ? null : (edit.flyer_path || null); }
         save.disabled = true;
         try {
           var f = file.files && file.files[0];
@@ -739,8 +915,19 @@
             if (up.error) throw new Error('Could not upload the notes: ' + up.error.message);
             body.notes_path = uploaded;
           }
+          var fl = flyerIn.files && flyerIn.files[0], newFly = null;
+          if (fl) {
+            if (!/^image\//.test(fl.type || '')) throw new Error('The flyer must be a picture (JPG, PNG or WebP).');
+            var sq = await squash(fl);
+            var fs = fl.name.replace(/\.[^.]*$/, '').replace(/[^A-Za-z0-9_-]+/g, '-').slice(0, 40) || 'flyer';
+            newFly = 'tutorial-flyers/' + Date.now() + '-' + fs + '.' + sq.ext;
+            var fu = await sb.storage.from(NOTES_BUCKET).upload(newFly, sq.blob, { contentType: sq.type, upsert: false });
+            if (fu.error) throw new Error('Could not upload the flyer: ' + fu.error.message);
+            body.flyer_path = newFly;
+          }
           await api(body);
           if (uploaded && edit && edit.notes_path) { try { await sb.storage.from(NOTES_BUCKET).remove([edit.notes_path]); } catch (e) {} }
+          if (edit && edit.flyer_path && (newFly || dropFlyer)) { try { await sb.storage.from(NOTES_BUCKET).remove([edit.flyer_path]); } catch (e) {} }
           state.editSession = null; await loadNt(); say(edit ? 'Session updated.' : 'Session published.');
         } catch (e) { bad(e.message); save.disabled = false; }
       } });
@@ -757,6 +944,9 @@
         mode === 'online' ? h('div', { class: 'ax-fine', style: 'margin-top:-2px', text: 'No link: the card shows the schedule and says "Held online".' }) : null,
         h('div', { class: 'axa-g2' }, field('Date', date), field('Time', time)),
         field('Extra note', note, true),
+        field('Flyer picture', flyerIn, true),
+        h('div', { class: 'ax-fine', text: 'Optional. Shown beside the card. It is shrunk automatically before upload.' }),
+        flyerPrev,
         field('Notes after class (PDF)', file, true),
         edit && edit.notes_path ? h('div', { class: 'ax-fine', text: 'This session already has notes. Choose a new PDF only if you want to replace them.' }) : null,
         field('Hide the card after', hideAt, true),
@@ -775,7 +965,7 @@
               await api({ action: 'session_delete', id: s.id, keep_file: true });
               await loadNt();
               say('Session removed.', async function () {
-                await api({ action: 'session_save', mode: s.mode, title: s.title, starts_at: s.starts_at, venue: s.venue, join_link: s.join_link, note: s.note, notes_path: s.notes_path, hide_after: s.hide_after });
+                await api({ action: 'session_save', mode: s.mode, title: s.title, starts_at: s.starts_at, venue: s.venue, join_link: s.join_link, note: s.note, notes_path: s.notes_path, flyer_path: s.flyer_path || null, hide_after: s.hide_after });
                 await loadNt();
               });
             } catch (e) { say(e.message); }
