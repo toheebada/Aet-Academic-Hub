@@ -1,5 +1,56 @@
-// Minimal service worker. It saves nothing and changes nothing, so students
-// always get the newest version of the site. Offline mode can be added later.
-self.addEventListener('install', () => self.skipWaiting());
-self.addEventListener('activate', event => event.waitUntil(self.clients.claim()));
-self.addEventListener('fetch', () => {});
+const CACHE_NAME = 'aet-hub-shell-v2';
+const SHELL = [
+  './',
+  './index.html',
+  './aet-extras.js',
+  './manifest.webmanifest',
+  './favicon.png',
+  './icon-192.png',
+  './icon-512.png'
+];
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(SHELL))
+      .then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))))
+      .then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+
+  event.respondWith(
+    fetch(event.request)
+      .then(response => {
+        if (response && response.ok && new URL(event.request.url).origin === self.location.origin) {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+        }
+        return response;
+      })
+      .catch(() => caches.match(event.request).then(cached => cached || caches.match('./index.html')))
+  );
+});
+
+self.addEventListener('message', event => {
+  const data = event.data || {};
+  if (data.type !== 'cache-resource' || typeof data.url !== 'string') return;
+
+  event.waitUntil(
+    fetch(data.url, { mode: 'cors' })
+      .then(response => {
+        if (!response.ok) throw new Error('resource unavailable');
+        return caches.open(CACHE_NAME).then(cache => cache.put(data.url, response));
+      })
+      .catch(() => {})
+  );
+});
