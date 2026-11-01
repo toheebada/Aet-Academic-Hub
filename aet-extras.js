@@ -1197,6 +1197,10 @@
       if (!tp.length) grView.appendChild(h('div', { class: 'axa-empty', text: 'Nothing yet for this period.' }));
       else grView.appendChild(h('div', { class: 'agr-list' }, tp.map(function (t) { return h('div', { class: 'agr-row' }, h('span', { text: prettyPath(t.path, t.title) }), h('b', { text: nf(t.count) })); })));
       if (d.partial) grView.appendChild(h('div', { class: 'aa-note', style: 'background:#fff9dc;border:1px solid #f1e3a0;color:#5b4a00;border-radius:12px;padding:10px 14px;font-size:13.5px;margin-top:14px', text: 'Some numbers are still missing because GoatCounter asked us to slow down. Wait a minute, then press Refresh once.' }));
+      if (c.debug) {
+        var dbg = h('details', { class: 'agr-note' }, h('summary', { text: 'Troubleshooting details (send this to Claude if a number looks wrong)' }), h('pre', { style: 'white-space:pre-wrap;font-size:12px;background:#f4f6fc;border-radius:10px;padding:10px;overflow:auto', text: JSON.stringify({ range: d.range, visits: c.visits, events: c.events, goatcounter: c.debug }, null, 2) }));
+        grView.appendChild(dbg);
+      }
       grView.appendChild(h('p', { class: 'agr-note', text: 'Counts come from GoatCounter and start around 14 Oct 2026. "Page views" are pages opened, not separate people. Your own admin visits are not counted. Updated ' + new Date(d.generatedAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) + '.' }));
     }
   }
