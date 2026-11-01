@@ -2232,17 +2232,8 @@
 
     const app = document.getElementById('app-view');
 
-        // Matches a course code from the page address even if it has spaces, odd symbols or different capitals
-    const aetCodeKey = value => {
-      let text = String(value == null ? '' : value);
-      try { text = decodeURIComponent(text); } catch (_) {}
-      return text.replace(/\s+/g, '').toUpperCase();
-    };
-    
-        const findCourse = (level, code) => {
-      const want = aetCodeKey(code);
-      return (catalog[level] || []).find(course => aetCodeKey(course.code) === want);
-    };
+    const findCourse = (level, code) =>
+      (catalog[level] || []).find(course => course.code === code);
 
     const esc = value =>
       String(value).replace(/[&<>"']/g, character => ({
