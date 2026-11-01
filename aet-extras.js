@@ -262,7 +262,7 @@
         h('span', { text: s.mode === 'physical' ? '📍 ' + (s.venue || '') : '🌐 Held online' })));
     if (s.note) body.appendChild(h('p', { class: 'axt-note', text: s.note }));
     if (s.mode === 'online' && isHttps(s.join_link)) {
-      body.appendChild(h('a', { class: 'axt-btn', href: s.join_link, target: '_blank', rel: 'noopener noreferrer', 'data-track': 'join-class', text: 'Join the class' }));
+      body.appendChild(h('a', { class: 'axt-btn', href: s.join_link, target: '_blank', rel: 'noopener noreferrer', text: 'Join the class' }));
     }
     if (s.notes_path) {
       body.appendChild(h('div', { class: 'axt-past' }, 'Notes for this session: ', h('a', { href: notesUrl(s.notes_path), target: '_blank', rel: 'noopener noreferrer', text: 'Download (PDF) →' })));
@@ -301,7 +301,6 @@
       chev);
     function toggle() {
       var open = more.hidden; more.hidden = !open;
-      if (open) { try { if (typeof window.aetTrack === 'function') window.aetTrack('notice-open'); } catch (e) {} }
       head.setAttribute('aria-expanded', open ? 'true' : 'false'); head.classList.toggle('open', open);
     }
     head.addEventListener('click', function (e) { if (e.target.closest && e.target.closest('a')) return; toggle(); });
@@ -362,7 +361,7 @@
       wrapT.appendChild(h('div', { class: 'axg', id: 'aet-group-strip' },
         svg(PEOPLE_ICON, 'axg-ic'),
         h('div', { class: 'axg-t' }, h('b', { text: 'Need help with a course?' }), h('span', { text: 'Join the AET Tutorial WhatsApp group.' })),
-        h('a', { class: 'axg-btn', href: live.groupLink, target: '_blank', rel: 'noopener noreferrer', 'data-track': 'join-group' }, svg(WA_ICON, 'axg-wa'), 'Join Group')));
+        h('a', { class: 'axg-btn', href: live.groupLink, target: '_blank', rel: 'noopener noreferrer' }, svg(WA_ICON, 'axg-wa'), 'Join Group')));
     }
     box.appendChild(wrapT);
     if (homeBox && homeBox.parentNode) homeBox.parentNode.replaceChild(box, homeBox);
@@ -481,7 +480,6 @@
         var res = await fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
         var data = null; try { data = await res.json(); } catch (x) {}
         if (!res.ok) throw new Error((data && data.error) || 'Something went wrong. Please try again.');
-        try { if (typeof window.aetTrack === 'function') window.aetTrack('request-sent'); } catch (e) {}
         showDone(data || {});
       } catch (x) {
         showErr(x && x.message ? (x.message === 'Failed to fetch' ? 'Could not reach the server. Check your internet connection.' : x.message) : 'Something went wrong.');
@@ -575,10 +573,6 @@
       '.agr-bd{background:#fff;border:1px solid #e7e9f1;border-radius:14px;padding:12px 6px;text-align:center;font-size:12px;font-weight:700}.agr-bd em{display:block;font-size:26px;font-style:normal;margin-bottom:4px}.agr-bd small{display:block;color:#6d7185;font-weight:600;margin-top:2px}.agr-bd.off{opacity:.5;filter:grayscale(1)}',
       '.agr-list{background:#fff;border:1px solid #e7e9f1;border-radius:14px;padding:4px 14px}.agr-row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid #eef0f7;font-size:14px}.agr-row:first-child{border-top:0}.agr-row b{color:#080b63}',
       '.agr-note{font-size:12.5px;color:#6d7185;margin-top:14px;line-height:1.5}',
-      '.agr-since{font-size:12.5px;color:#6d7185;margin:-4px 0 12px;line-height:1.5}',
-      '.agr-chartwrap{background:#fff;border:1px solid #e7e9f1;border-radius:14px;padding:12px 14px;margin-top:10px}',
-      '.agr-chart{display:flex;align-items:flex-end;gap:2px;height:84px;margin-top:8px}.agr-bar1{flex:1;min-width:2px;background:#1d5a42;border-radius:3px 3px 0 0}.agr-bar1:last-child{background:#ffd21c}',
-      '.agr-axis{display:flex;justify-content:space-between;font-size:11.5px;color:#6d7185;margin-top:4px}',
       'html[data-axtabs][data-atab="req"] #aet-admin-upload,html[data-axtabs][data-atab="req"] #aet-admin-cbt,html[data-axtabs][data-atab="req"] #aet-admin-contrib,',
       'html[data-axtabs][data-atab="nt"] #aet-admin-upload,html[data-axtabs][data-atab="nt"] #aet-admin-cbt,html[data-axtabs][data-atab="nt"] #aet-admin-contrib{display:none!important}',
       'html[data-axtabs][data-atab="req"] #aet-admin-extras [data-view="nt"],html[data-axtabs][data-atab="nt"] #aet-admin-extras [data-view="req"]{display:none}',
@@ -1058,7 +1052,7 @@
     }
 
     // ============ GROWTH VIEW ============
-    var gr = { range: '7d', data: null, editing: null, adding: false, loading: false, more: null };
+    var gr = { range: '7d', data: null, editing: null, adding: false, loading: false };
     var RANGES = [['today', 'Today'], ['7d', '7 days'], ['30d', '30 days'], ['all', 'All time']];
     var METRICS = { visits: 'Page views', pdf_opens: 'PDFs opened', pdf_downloads: 'PDFs downloaded', cbt_started: 'CBT attempts started', materials: 'Course materials uploaded' };
     var PERIODS = { week: 'in the last 7 days', month: 'in the last 30 days', all: 'in total' };
@@ -1093,92 +1087,6 @@
         grView.appendChild(h('div', { class: 'axa-msg bad', text: e.message }));
         grView.appendChild(h('button', { type: 'button', class: 'ax-btn n', style: 'margin-top:10px', text: 'Try again', onclick: function () { loadGrowth(); } }));
       } finally { gr.loading = false; }
-    }
-
-    function sinceText(iso) {
-      var d = new Date(iso);
-      return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) + ', ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-    }
-    async function setStart(value, done, undoTo) {
-      try {
-        await api({ action: 'setting_save', key: 'stats_start', value: value });
-        gr.data = null; gr.more = null; gr.force = true; await loadGrowth();
-        say(done, async function () { await api({ action: 'setting_save', key: 'stats_start', value: undoTo === '' ? '' : (undoTo || '') }); gr.data = null; gr.more = null; gr.force = true; await loadGrowth(); });
-      } catch (e) { say(e.message); }
-    }
-    function restartCount(d) {
-      if (!window.confirm('Restart the count from now?\n\nPage views, clicks, goals and achievements will start again from zero. Nothing is deleted in GoatCounter, and you can undo this.')) return;
-      var prev = d.sinceCustom ? d.since : '';
-      setStart(new Date().toISOString(), 'Count restarted from now.', prev);
-    }
-    function dailyChart(rows, range) {
-      if (range === 'today' || !rows || rows.length < 2) return null;
-      var max = Math.max.apply(null, rows.map(function (r) { return r.count; })) || 1;
-      var wrap = h('div', { class: 'agr-chartwrap' },
-        h('div', { class: 'agr-k', text: 'Page views per day' }));
-      var bars = h('div', { class: 'agr-chart', role: 'img', 'aria-label': 'Bar chart of page views per day. Highest day: ' + nf(max) });
-      rows.forEach(function (r) {
-        var pc = Math.max(3, Math.round(r.count / max * 100));
-        bars.appendChild(h('div', { class: 'agr-bar1', title: r.day + ': ' + nf(r.count), style: 'height:' + pc + '%' }));
-      });
-      wrap.appendChild(bars);
-      wrap.appendChild(h('div', { class: 'agr-axis' }, h('span', { text: rows[0].day.slice(5) }), h('span', { text: 'Highest day: ' + nf(max) }), h('span', { text: rows[rows.length - 1].day.slice(5) })));
-      return wrap;
-    }
-    async function loadMore(btn, box, range) {
-      btn.disabled = true; btn.textContent = 'Loading…';
-      try { var m = await api({ action: 'growth_more', range: range }); m.range = range; gr.more = m; box.textContent = ''; box.appendChild(moreView(m)); }
-      catch (e) { box.textContent = ''; box.appendChild(h('div', { class: 'axa-msg bad', text: e.message })); }
-    }
-    function moreView(m) {
-      var sizes = m.sizes || [], locs = m.locations || [];
-      var tot = sizes.reduce(function (a, x) { return a + x.count; }, 0);
-      var phones = sizes.filter(function (x) { return /phone/i.test(x.name); }).reduce(function (a, x) { return a + x.count; }, 0);
-      var box = h('div', { class: 'agr-list' });
-      if (tot) box.appendChild(h('div', { class: 'agr-row' }, h('span', { text: 'Visitors on phones' }), h('b', { text: Math.round(phones / tot * 100) + '%' })));
-      locs.slice(0, 5).forEach(function (l) { box.appendChild(h('div', { class: 'agr-row' }, h('span', { text: l.name }), h('b', { text: nf(l.count) }))); });
-      if (!tot && !locs.length) box.appendChild(h('div', { class: 'agr-row' }, h('span', { text: 'Nothing to show for this period yet.' })));
-      return box;
-    }
-    var RANGE_NAME = { today: 'today', '7d': 'the last 7 days', '30d': 'the last 30 days', all: 'since ' };
-    function reportText(d) {
-      var c = d.current, p = d.previous, e = c.events;
-      var chg = function (a, b) { if (!b) return ''; var x = Math.round((a - b) / b * 100); return ' (' + (x >= 0 ? 'up ' : 'down ') + Math.abs(x) + '%)'; };
-      var when = d.range === 'all' ? 'since ' + new Date(d.since).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : RANGE_NAME[d.range];
-      var lines = ['AET Learning Hub update, ' + when,
-        'Page views: ' + nf(c.visits) + (p ? chg(c.visits, p.visits) : ''),
-        'PDFs opened: ' + nf(e.open_pdf) + ', downloaded: ' + nf(e.download_pdf),
-        'CBT attempts: ' + nf(e.cbt_start) + ', finished: ' + nf(e.cbt_result),
-        'Shared on WhatsApp: ' + nf(e.share)];
-      var tp = (c.top || []).slice(0, 3).map(function (t) { return prettyPath(t.path, t.title) + ' (' + nf(t.count) + ')'; });
-      if (tp.length) lines.push('Most opened: ' + tp.join(', '));
-      (d.goals || []).forEach(function (g) { if (g.value != null) lines.push('Goal, ' + g.title + ': ' + nf(g.value) + ' of ' + nf(g.target) + (g.value >= g.target ? ' (reached)' : '')); });
-      lines.push('aetlearninghub.app');
-      return lines.join('\n');
-    }
-    async function copyReport(d) {
-      var t = reportText(d), ok = false;
-      try { await navigator.clipboard.writeText(t); ok = true; } catch (e) {}
-      if (!ok) {
-        try { var ta = document.createElement('textarea'); ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); ok = document.execCommand('copy'); ta.remove(); } catch (e) {}
-      }
-      say(ok ? 'Report copied. Paste it in WhatsApp.' : 'Could not copy. Select the text in the Troubleshooting box instead.');
-    }
-    function csvCell(v) { var s = String(v == null ? '' : v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
-    function downloadCsv(d) {
-      var rows = [['Measure', 'This period', 'Earlier period']], c = d.current, p = d.previous, e = c.events, pe = p ? p.events : {};
-      [['Page views', c.visits, p && p.visits], ['PDFs opened', e.open_pdf, pe.open_pdf], ['PDFs downloaded', e.download_pdf, pe.download_pdf], ['CBT started', e.cbt_start, pe.cbt_start], ['CBT finished', e.cbt_result, pe.cbt_result],
-        ['Shared on WhatsApp', e.share, pe.share], ['Files saved', e.bookmark, pe.bookmark], ['Join the class taps', e.join_class, pe.join_class], ['Join Group taps', e.join_group, pe.join_group],
-        ['Notices opened', e.notice_open, pe.notice_open], ['Material requests sent', e.request_sent, pe.request_sent]].forEach(function (r) { rows.push(r); });
-      rows.push([]); rows.push(['Day', 'Page views']);
-      (c.daily || []).forEach(function (r) { rows.push([r.day, r.count]); });
-      rows.push([]); rows.push(['Goal', 'Now', 'Target']);
-      (d.goals || []).forEach(function (g) { rows.push([g.title, g.value, g.target]); });
-      var csv = rows.map(function (r) { return r.map(csvCell).join(','); }).join('\n');
-      var url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-      var a = document.createElement('a'); a.href = url; a.download = 'aet-growth-' + d.range + '-' + new Date().toISOString().slice(0, 10) + '.csv';
-      document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
-      say('CSV downloaded.');
     }
     function statCard(label, cur, prev) {
       var d = pct(cur, prev);
@@ -1231,14 +1139,8 @@
         seg.appendChild(h('button', { type: 'button', class: gr.range === r[0] ? 'on' : '', 'aria-pressed': gr.range === r[0] ? 'true' : 'false', text: r[1], onclick: function () { gr.range = r[0]; gr.data = null; loadGrowth(); } }));
       });
       top.appendChild(seg);
-      top.appendChild(h('button', { type: 'button', class: 'ax-btn g', style: 'margin:0 6px 12px 0', text: 'Refresh', onclick: function () { gr.force = true; loadGrowth(); } }));
-      top.appendChild(h('button', { type: 'button', class: 'ax-btn g', style: 'margin:0 6px 12px 0', text: 'Copy report', onclick: function () { copyReport(d); } }));
-      top.appendChild(h('button', { type: 'button', class: 'ax-btn g', style: 'margin:0 0 12px 0', text: 'Download CSV', onclick: function () { downloadCsv(d); } }));
+      top.appendChild(h('button', { type: 'button', class: 'ax-btn g', style: 'margin-bottom:12px', text: 'Refresh', onclick: function () { gr.force = true; loadGrowth(); } }));
       grView.appendChild(top);
-      grView.appendChild(h('div', { class: 'agr-since' },
-        h('span', { text: 'Counting since ' + sinceText(d.since) + (d.sinceCustom ? '' : ' (when tracking began)') + '. ' }),
-        h('button', { type: 'button', class: 'ax-link', text: 'Restart count from now', onclick: function () { restartCount(d); } }),
-        d.sinceCustom ? h('span', null, ' · ', h('button', { type: 'button', class: 'ax-link', text: 'Use the original start', onclick: function () { setStart('', 'Original start restored.', d.since); } })) : null));
       var c = d.current, p = d.previous, pe = p ? p.events : {};
       grView.appendChild(h('div', { class: 'agr-grid' },
         statCard('Page views', c.visits, p ? p.visits : null),
@@ -1248,14 +1150,6 @@
         statCard('CBT finished', c.events.cbt_result, p ? pe.cbt_result : null),
         statCard('Shared on WhatsApp', c.events.share, p ? pe.share : null),
         statCard('Files saved (⭐)', c.events.bookmark, p ? pe.bookmark : null)));
-      var chart = dailyChart(c.daily || [], d.range);
-      if (chart) grView.appendChild(chart);
-      grView.appendChild(h('h3', { class: 'agr-h', text: 'Tutorials, notices and requests' }));
-      grView.appendChild(h('div', { class: 'agr-grid' },
-        statCard('Join the class taps', c.events.join_class, p ? pe.join_class : null),
-        statCard('Join Group taps', c.events.join_group, p ? pe.join_group : null),
-        statCard('Notices opened', c.events.notice_open, p ? pe.notice_open : null),
-        statCard('Material requests sent', c.events.request_sent, p ? pe.request_sent : null)));
 
       // goals
       grView.appendChild(h('h3', { class: 'agr-h', text: 'Goals' }));
@@ -1303,11 +1197,6 @@
       if (!tp.length) grView.appendChild(h('div', { class: 'axa-empty', text: 'Nothing yet for this period.' }));
       else grView.appendChild(h('div', { class: 'agr-list' }, tp.map(function (t) { return h('div', { class: 'agr-row' }, h('span', { text: prettyPath(t.path, t.title) }), h('b', { text: nf(t.count) })); })));
       if (d.partial) grView.appendChild(h('div', { class: 'aa-note', style: 'background:#fff9dc;border:1px solid #f1e3a0;color:#5b4a00;border-radius:12px;padding:10px 14px;font-size:13.5px;margin-top:14px', text: 'Some numbers are still missing because GoatCounter asked us to slow down. Wait a minute, then press Refresh once.' }));
-      grView.appendChild(h('h3', { class: 'agr-h', text: 'Devices and places' }));
-      var moreBox = h('div');
-      if (gr.more && gr.more.range === d.range) moreBox.appendChild(moreView(gr.more));
-      else moreBox.appendChild(h('button', { type: 'button', class: 'ax-btn g', text: 'Show devices and locations', onclick: function (e) { loadMore(e.target, moreBox, d.range); } }));
-      grView.appendChild(moreBox);
       if (c.debug) {
         var dbg = h('details', { class: 'agr-note' }, h('summary', { text: 'Troubleshooting details (send this to Claude if a number looks wrong)' }), h('pre', { style: 'white-space:pre-wrap;font-size:12px;background:#f4f6fc;border-radius:10px;padding:10px;overflow:auto', text: JSON.stringify({ range: d.range, visits: c.visits, events: c.events, goatcounter: c.debug }, null, 2) }));
         grView.appendChild(dbg);
