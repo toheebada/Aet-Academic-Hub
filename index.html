@@ -2238,6 +2238,11 @@
       try { text = decodeURIComponent(text); } catch (_) {}
       return text.replace(/\s+/g, '').toUpperCase();
     };
+    
+        const findCourse = (level, code) => {
+      const want = aetCodeKey(code);
+      return (catalog[level] || []).find(course => aetCodeKey(course.code) === want);
+    };
 
     const esc = value =>
       String(value).replace(/[&<>"']/g, character => ({
