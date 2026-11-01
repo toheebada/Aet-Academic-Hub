@@ -1080,7 +1080,7 @@
     async function loadGrowth() {
       if (gr.loading) return;
       gr.loading = true;
-      if (!gr.data) { grView.textContent = ''; grView.appendChild(h('div', { class: 'axa-empty', text: 'Loading the numbers. The first time can take up to 20 seconds, please wait and do not press anything.' })); }
+      if (!gr.data) { grView.textContent = ''; grView.appendChild(h('div', { class: 'axa-empty', text: 'Loading the numbers. The first time can take up to 30 seconds, please wait and do not press anything.' })); }
       try { gr.data = await api({ action: 'growth', range: gr.range, refresh: !!gr.force }); gr.force = false; renderGrowth(); }
       catch (e) {
         grView.textContent = '';
