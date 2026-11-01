@@ -1080,8 +1080,8 @@
     async function loadGrowth() {
       if (gr.loading) return;
       gr.loading = true;
-      if (!gr.data) { grView.textContent = ''; grView.appendChild(h('div', { class: 'axa-empty', text: 'Loading the numbers…' })); }
-      try { gr.data = await api({ action: 'growth', range: gr.range }); renderGrowth(); }
+      if (!gr.data) { grView.textContent = ''; grView.appendChild(h('div', { class: 'axa-empty', text: 'Loading the numbers. The first time can take up to 20 seconds, please wait and do not press anything.' })); }
+      try { gr.data = await api({ action: 'growth', range: gr.range, refresh: !!gr.force }); gr.force = false; renderGrowth(); }
       catch (e) {
         grView.textContent = '';
         grView.appendChild(h('div', { class: 'axa-msg bad', text: e.message }));
@@ -1139,7 +1139,7 @@
         seg.appendChild(h('button', { type: 'button', class: gr.range === r[0] ? 'on' : '', 'aria-pressed': gr.range === r[0] ? 'true' : 'false', text: r[1], onclick: function () { gr.range = r[0]; gr.data = null; loadGrowth(); } }));
       });
       top.appendChild(seg);
-      top.appendChild(h('button', { type: 'button', class: 'ax-btn g', style: 'margin-bottom:12px', text: 'Refresh', onclick: function () { loadGrowth(); } }));
+      top.appendChild(h('button', { type: 'button', class: 'ax-btn g', style: 'margin-bottom:12px', text: 'Refresh', onclick: function () { gr.force = true; loadGrowth(); } }));
       grView.appendChild(top);
       var c = d.current, p = d.previous, pe = p ? p.events : {};
       grView.appendChild(h('div', { class: 'agr-grid' },
@@ -1156,9 +1156,9 @@
       if (!d.goals.length) grView.appendChild(h('div', { class: 'axa-empty', text: 'No goals yet. Add one to see how close you are.' }));
       d.goals.forEach(function (g) {
         if (gr.editing && gr.editing.id === g.id) { grView.appendChild(goalForm()); return; }
-        var done = g.value >= g.target, w = Math.min(100, Math.round(g.value / g.target * 100));
+        var known = g.value != null, done = known && g.value >= g.target, w = known ? Math.min(100, Math.round(g.value / g.target * 100)) : 0;
         grView.appendChild(h('div', { class: 'agr-goal' + (done ? ' done' : '') },
-          h('div', { class: 'top' }, h('b', { text: g.title }), h('span', { class: 'n', text: nf(g.value) + ' / ' + nf(g.target) + (done ? ' ✓ reached' : '') })),
+          h('div', { class: 'top' }, h('b', { text: g.title }), h('span', { class: 'n', text: (known ? nf(g.value) : '…') + ' / ' + nf(g.target) + (done ? ' ✓ reached' : '') })),
           h('div', { class: 'axa-meta', text: METRICS[g.metric] + ' ' + PERIODS[g.period] }),
           h('div', { class: 'agr-bar', role: 'progressbar', 'aria-valuenow': String(w), 'aria-valuemin': '0', 'aria-valuemax': '100', 'aria-label': g.title }, h('i', { style: 'width:' + w + '%' })),
           h('div', { class: 'acts' },
@@ -1175,7 +1175,10 @@
 
       // achievements (all-time numbers)
       grView.appendChild(h('h3', { class: 'agr-h', text: 'Achievements' }));
-      var all = d.all, vals = { visits: all.visits, open_pdf: all.events.open_pdf, download_pdf: all.events.download_pdf, cbt_start: all.events.cbt_start, share: all.events.share, materials: d.materials };
+      var all = d.all;
+      if (!all) { grView.appendChild(h('div', { class: 'axa-empty', text: 'Achievements need the all-time numbers. They will appear after you press Refresh in a minute.' })); }
+      else {
+      var vals = { visits: all.visits, open_pdf: all.events.open_pdf, download_pdf: all.events.download_pdf, cbt_start: all.events.cbt_start, share: all.events.share, materials: d.materials };
       var bw = h('div', { class: 'agr-badges' });
       BADGES.forEach(function (b) {
         var v = vals[b[2]] || 0, shownNext = false;
@@ -1186,12 +1189,14 @@
         });
       });
       grView.appendChild(bw);
+      }
 
       // most used
       grView.appendChild(h('h3', { class: 'agr-h', text: 'What students open most' }));
       var tp = c.top || [];
       if (!tp.length) grView.appendChild(h('div', { class: 'axa-empty', text: 'Nothing yet for this period.' }));
       else grView.appendChild(h('div', { class: 'agr-list' }, tp.map(function (t) { return h('div', { class: 'agr-row' }, h('span', { text: prettyPath(t.path, t.title) }), h('b', { text: nf(t.count) })); })));
+      if (d.partial) grView.appendChild(h('div', { class: 'aa-note', style: 'background:#fff9dc;border:1px solid #f1e3a0;color:#5b4a00;border-radius:12px;padding:10px 14px;font-size:13.5px;margin-top:14px', text: 'Some numbers are still missing because GoatCounter asked us to slow down. Wait a minute, then press Refresh once.' }));
       grView.appendChild(h('p', { class: 'agr-note', text: 'Counts come from GoatCounter and start around 14 Oct 2026. "Page views" are pages opened, not separate people. Your own admin visits are not counted. Updated ' + new Date(d.generatedAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) + '.' }));
     }
   }
