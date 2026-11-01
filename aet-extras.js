@@ -557,6 +557,22 @@
       'html.admin-mode[data-axlog]:not([data-axtabs]) body > #aet-admin-extras#aet-admin-extras#aet-admin-extras#aet-admin-extras#aet-admin-extras{display:block!important}',
       'html.admin-mode[data-axlog][data-axtabs][data-atab="req"] body > #aet-admin-extras#aet-admin-extras#aet-admin-extras#aet-admin-extras#aet-admin-extras,',
       'html.admin-mode[data-axlog][data-axtabs][data-atab="nt"] body > #aet-admin-extras#aet-admin-extras#aet-admin-extras#aet-admin-extras#aet-admin-extras{display:block!important}',
+      'html.admin-mode[data-axlog][data-axtabs][data-atab="gr"] body > #aet-admin-extras#aet-admin-extras#aet-admin-extras#aet-admin-extras#aet-admin-extras{display:block!important}',
+      'html[data-axtabs][data-atab="gr"] #aet-admin-upload,html[data-axtabs][data-atab="gr"] #aet-admin-cbt,html[data-axtabs][data-atab="gr"] #aet-admin-contrib{display:none!important}',
+      '#aet-admin-extras [data-view="gr"]{display:none}',
+      'html[data-axtabs][data-atab="gr"] #aet-admin-extras [data-view="gr"]{display:block}',
+      'html[data-axtabs][data-atab="gr"] #aet-admin-extras [data-view="req"],html[data-axtabs][data-atab="gr"] #aet-admin-extras [data-view="nt"]{display:none}',
+      '.agr-seg{display:inline-flex;background:#fff;border:1px solid #e1e4f0;border-radius:99px;padding:3px;margin:0 8px 12px 0}.agr-seg button{border:0;background:none;padding:7px 14px;border-radius:99px;font:inherit;font-size:13px;font-weight:800;color:#6d7185;cursor:pointer}.agr-seg button.on{background:#ffd21c;color:#080b63}',
+      '.agr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}',
+      '.agr-card{background:#fff;border:1px solid #e7e9f1;border-radius:14px;padding:12px 14px}.agr-k{font-size:12px;color:#6d7185;font-weight:700}.agr-v{font-size:26px;font-weight:800;color:#080b63;margin-top:2px}.agr-d{font-size:12px;font-weight:700;color:#6d7185}.agr-d.up{color:#17703a}.agr-d.down{color:#b91c1c}',
+      '#aet-admin-extras h3.agr-h{margin:22px 0 8px;font-size:17px;color:#080b63}',
+      '.agr-goal{background:#fff;border:1px solid #e7e9f1;border-radius:14px;padding:12px 14px;margin-bottom:8px}.agr-goal .top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}.agr-goal b{font-size:14.5px}.agr-goal .n{font-size:13px;font-weight:800;color:#6d7185}',
+      '.agr-bar{height:9px;background:#eef0f7;border-radius:9px;margin-top:8px;overflow:hidden}.agr-bar i{display:block;height:100%;background:#1d5a42;border-radius:9px}.agr-goal.done .agr-bar i{background:#e6b800}.agr-goal.done .n{color:#8a6200}',
+      '.agr-goal .acts{margin-top:8px;display:flex;gap:12px}',
+      '.agr-badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}',
+      '.agr-bd{background:#fff;border:1px solid #e7e9f1;border-radius:14px;padding:12px 6px;text-align:center;font-size:12px;font-weight:700}.agr-bd em{display:block;font-size:26px;font-style:normal;margin-bottom:4px}.agr-bd small{display:block;color:#6d7185;font-weight:600;margin-top:2px}.agr-bd.off{opacity:.5;filter:grayscale(1)}',
+      '.agr-list{background:#fff;border:1px solid #e7e9f1;border-radius:14px;padding:4px 14px}.agr-row{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-top:1px solid #eef0f7;font-size:14px}.agr-row:first-child{border-top:0}.agr-row b{color:#080b63}',
+      '.agr-note{font-size:12.5px;color:#6d7185;margin-top:14px;line-height:1.5}',
       'html[data-axtabs][data-atab="req"] #aet-admin-upload,html[data-axtabs][data-atab="req"] #aet-admin-cbt,html[data-axtabs][data-atab="req"] #aet-admin-contrib,',
       'html[data-axtabs][data-atab="nt"] #aet-admin-upload,html[data-axtabs][data-atab="nt"] #aet-admin-cbt,html[data-axtabs][data-atab="nt"] #aet-admin-contrib{display:none!important}',
       'html[data-axtabs][data-atab="req"] #aet-admin-extras [data-view="nt"],html[data-axtabs][data-atab="nt"] #aet-admin-extras [data-view="req"]{display:none}',
@@ -598,7 +614,8 @@
     var panel = h('section', { id: 'aet-admin-extras', 'aria-label': 'Requests, notices and tutorials' });
     var reqView = h('div', { 'data-view': 'req' });
     var ntView = h('div', { 'data-view': 'nt' });
-    panel.appendChild(reqView); panel.appendChild(ntView);
+    var grView = h('div', { 'data-view': 'gr' });
+    panel.appendChild(reqView); panel.appendChild(ntView); panel.appendChild(grView);
     document.body.appendChild(panel);
 
     // ---- server calls
@@ -637,7 +654,7 @@
       if (inner.querySelector('[data-tab="req"]')) return true;
       document.documentElement.setAttribute('data-axtabs', '');
       var out = inner.querySelector('.at-out');
-      [['req', 'Requests'], ['nt', 'Notices + Tutorials']].forEach(function (t) {
+      [['req', 'Requests'], ['nt', 'Notices + Tutorials'], ['gr', 'Growth']].forEach(function (t) {
         var b = h('button', { type: 'button', role: 'tab', 'data-tab': t[0] }, t[1]);
         if (t[0] === 'req') { var badge = h('span', { class: 'at-badge ax-b', hidden: true }); b.appendChild(badge); }
         b.addEventListener('click', function () { document.documentElement.setAttribute('data-atab', t[0]); window.scrollTo(0, 0); });
@@ -651,7 +668,7 @@
       var cur = document.documentElement.getAttribute('data-atab');
       var all = document.querySelectorAll('#aet-admin-tabs [data-tab]');
       Array.prototype.forEach.call(all, function (b) { var on = b.dataset.tab === cur; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
-      if (cur === 'req') loadRequests(); else if (cur === 'nt') loadNt();
+      if (cur === 'req') loadRequests(); else if (cur === 'nt') loadNt(); else if (cur === 'gr') loadGrowth();
     }
     function setBadge(n) {
       var b = tabBtns.req && tabBtns.req.querySelector('.at-badge');
@@ -1032,6 +1049,150 @@
           } })));
       });
       return panel;
+    }
+
+    // ============ GROWTH VIEW ============
+    var gr = { range: '7d', data: null, editing: null, adding: false, loading: false };
+    var RANGES = [['today', 'Today'], ['7d', '7 days'], ['30d', '30 days'], ['all', 'All time']];
+    var METRICS = { visits: 'Page views', pdf_opens: 'PDFs opened', pdf_downloads: 'PDFs downloaded', cbt_started: 'CBT attempts started', materials: 'Course materials uploaded' };
+    var PERIODS = { week: 'in the last 7 days', month: 'in the last 30 days', all: 'in total' };
+    var BADGES = [
+      ['🚀', 'page views', 'visits', [100, 1000, 5000, 20000]],
+      ['📚', 'PDFs opened', 'open_pdf', [100, 1000, 5000]],
+      ['⬇️', 'downloads', 'download_pdf', [100, 500, 2000]],
+      ['🧠', 'CBT attempts', 'cbt_start', [100, 500, 2000]],
+      ['💬', 'WhatsApp shares', 'share', [25, 100, 500]],
+      ['🗂️', 'materials uploaded', 'materials', [50, 100, 250]]
+    ];
+    function pct(cur, prev) {
+      if (prev == null) return null;
+      if (!prev) return cur ? { t: 'new', c: 'up' } : null;
+      var d = Math.round((cur - prev) / prev * 100);
+      return { t: (d >= 0 ? '▲ ' : '▼ ') + Math.abs(d) + '% vs before', c: d >= 0 ? 'up' : 'down' };
+    }
+    function nf(n) { return Number(n || 0).toLocaleString('en-US'); }
+    function prettyPath(p, title) {
+      var m = String(p).match(/^course\/(\d+)\/([^/]+)(?:\/([^/]+))?/);
+      if (m) return decodeURIComponent(m[2]) + ' · ' + ({ materials: 'Study Materials', 'past-questions': 'Past Questions', cbt: 'CBT' }[m[3]] || 'Course page');
+      m = String(p).match(/^level\/(\d+)/); if (m) return m[1] + 'L courses';
+      return title || p;
+    }
+    async function loadGrowth() {
+      if (gr.loading) return;
+      gr.loading = true;
+      if (!gr.data) { grView.textContent = ''; grView.appendChild(h('div', { class: 'axa-empty', text: 'Loading the numbers…' })); }
+      try { gr.data = await api({ action: 'growth', range: gr.range }); renderGrowth(); }
+      catch (e) {
+        grView.textContent = '';
+        grView.appendChild(h('div', { class: 'axa-msg bad', text: e.message }));
+        grView.appendChild(h('button', { type: 'button', class: 'ax-btn n', style: 'margin-top:10px', text: 'Try again', onclick: function () { loadGrowth(); } }));
+      } finally { gr.loading = false; }
+    }
+    function statCard(label, cur, prev) {
+      var d = pct(cur, prev);
+      return h('div', { class: 'agr-card' }, h('div', { class: 'agr-k', text: label }), h('div', { class: 'agr-v', text: nf(cur) }), d ? h('div', { class: 'agr-d ' + d.c, text: d.t }) : h('div', { class: 'agr-d', text: ' ' }));
+    }
+    function goalForm() {
+      var g = gr.editing || {};
+      var title = h('input', { class: 'ax-in', type: 'text', maxlength: '80', placeholder: 'e.g. 500 CBT attempts this month', value: g.title || '' });
+      var metric = h('select', { class: 'ax-in' }, Object.keys(METRICS).map(function (k) { return h('option', { value: k, text: METRICS[k] }); }));
+      metric.value = g.metric || 'visits';
+      var period = h('select', { class: 'ax-in' }, [['week', 'Last 7 days'], ['month', 'Last 30 days'], ['all', 'All time']].map(function (o) { return h('option', { value: o[0], text: o[1] }); }));
+      period.value = g.period || 'week';
+      var target = h('input', { class: 'ax-in', type: 'number', min: '1', step: '1', placeholder: '1000', value: g.target || '' });
+      var periodField = field('Time period', period);
+      function sync() { periodField.style.display = metric.value === 'materials' ? 'none' : ''; }
+      metric.addEventListener('change', sync); sync();
+      var msg = h('div', { class: 'axa-msg', hidden: true });
+      var save = h('button', { type: 'button', class: 'ax-btn n', text: g.id ? 'Save goal' : 'Add goal', onclick: async function () {
+        msg.hidden = true;
+        var body = { action: 'goal_save', title: title.value, metric: metric.value, period: period.value, target: Number(target.value) };
+        if (g.id) body.id = g.id;
+        save.disabled = true;
+        try { await api(body); gr.editing = null; gr.adding = false; await loadGrowth(); say(g.id ? 'Goal updated.' : 'Goal added.'); }
+        catch (e) { msg.className = 'axa-msg bad'; msg.textContent = e.message; msg.hidden = false; save.disabled = false; }
+      } });
+      return h('div', { class: 'axa-panel', style: 'margin:8px 0' },
+        h('h3', { text: g.id ? 'Edit goal' : 'Add a goal' }),
+        field('Goal name', title), field('What to count', metric), periodField, field('Target number', target), msg,
+        h('div', { style: 'margin-top:12px;display:flex;gap:8px' }, save, h('button', { type: 'button', class: 'ax-btn g', text: 'Cancel', onclick: function () { gr.editing = null; gr.adding = false; renderGrowth(); } })));
+    }
+    function renderGrowth() {
+      var d = gr.data; grView.textContent = '';
+      grView.appendChild(h('h2', { text: 'Growth' }));
+      grView.appendChild(h('p', { class: 'ax-sub', text: 'How the Hub is being used. Anonymous counts only: no names, no accounts.' }));
+      if (!d.configured) {
+        grView.appendChild(h('div', { class: 'axa-panel' },
+          h('h3', { text: 'One setup step is left' }),
+          h('p', { class: 'ax-sub', text: 'The Growth tab reads your counts from GoatCounter. Create a read-only token and add it to Supabase, then come back here.' }),
+          h('ol', { style: 'margin:0 0 10px 18px;padding:0;font-size:14px;line-height:1.7' },
+            h('li', { text: 'GoatCounter: sign in at aethub.goatcounter.com, then Settings > API > Create new token.' }),
+            h('li', { text: 'Tick only "Read statistics". Save, and copy the token.' }),
+            h('li', { text: 'Supabase: Edge Functions > Secrets > add GOATCOUNTER_TOKEN with that token. Save.' }),
+            h('li', { text: 'Come back and press Check again.' })),
+          h('button', { type: 'button', class: 'ax-btn n', text: 'Check again', onclick: function () { gr.data = null; loadGrowth(); } })));
+        return;
+      }
+      var top = h('div', { style: 'display:flex;flex-wrap:wrap;align-items:center' });
+      var seg = h('div', { class: 'agr-seg', role: 'tablist', 'aria-label': 'Time range' });
+      RANGES.forEach(function (r) {
+        seg.appendChild(h('button', { type: 'button', class: gr.range === r[0] ? 'on' : '', 'aria-pressed': gr.range === r[0] ? 'true' : 'false', text: r[1], onclick: function () { gr.range = r[0]; gr.data = null; loadGrowth(); } }));
+      });
+      top.appendChild(seg);
+      top.appendChild(h('button', { type: 'button', class: 'ax-btn g', style: 'margin-bottom:12px', text: 'Refresh', onclick: function () { loadGrowth(); } }));
+      grView.appendChild(top);
+      var c = d.current, p = d.previous, pe = p ? p.events : {};
+      grView.appendChild(h('div', { class: 'agr-grid' },
+        statCard('Page views', c.visits, p ? p.visits : null),
+        statCard('PDFs opened', c.events.open_pdf, p ? pe.open_pdf : null),
+        statCard('PDFs downloaded', c.events.download_pdf, p ? pe.download_pdf : null),
+        statCard('CBT started', c.events.cbt_start, p ? pe.cbt_start : null),
+        statCard('CBT finished', c.events.cbt_result, p ? pe.cbt_result : null),
+        statCard('Shared on WhatsApp', c.events.share, p ? pe.share : null),
+        statCard('Files saved (⭐)', c.events.bookmark, p ? pe.bookmark : null)));
+
+      // goals
+      grView.appendChild(h('h3', { class: 'agr-h', text: 'Goals' }));
+      if (!d.goals.length) grView.appendChild(h('div', { class: 'axa-empty', text: 'No goals yet. Add one to see how close you are.' }));
+      d.goals.forEach(function (g) {
+        if (gr.editing && gr.editing.id === g.id) { grView.appendChild(goalForm()); return; }
+        var done = g.value >= g.target, w = Math.min(100, Math.round(g.value / g.target * 100));
+        grView.appendChild(h('div', { class: 'agr-goal' + (done ? ' done' : '') },
+          h('div', { class: 'top' }, h('b', { text: g.title }), h('span', { class: 'n', text: nf(g.value) + ' / ' + nf(g.target) + (done ? ' ✓ reached' : '') })),
+          h('div', { class: 'axa-meta', text: METRICS[g.metric] + ' ' + PERIODS[g.period] }),
+          h('div', { class: 'agr-bar', role: 'progressbar', 'aria-valuenow': String(w), 'aria-valuemin': '0', 'aria-valuemax': '100', 'aria-label': g.title }, h('i', { style: 'width:' + w + '%' })),
+          h('div', { class: 'acts' },
+            h('button', { type: 'button', class: 'ax-link', text: 'Edit', onclick: function () { gr.editing = g; gr.adding = false; renderGrowth(); } }),
+            h('button', { type: 'button', class: 'ax-link', style: 'color:#b91c1c', text: 'Delete', onclick: async function () {
+              try {
+                await api({ action: 'goal_delete', id: g.id }); await loadGrowth();
+                say('Goal deleted.', async function () { await api({ action: 'goal_save', title: g.title, metric: g.metric, period: g.period, target: g.target }); await loadGrowth(); });
+              } catch (e) { say(e.message); }
+            } }))));
+      });
+      if (gr.adding) grView.appendChild(goalForm());
+      else if (!gr.editing) grView.appendChild(h('button', { type: 'button', class: 'ax-btn n', text: '+ Add a goal', onclick: function () { gr.adding = true; renderGrowth(); } }));
+
+      // achievements (all-time numbers)
+      grView.appendChild(h('h3', { class: 'agr-h', text: 'Achievements' }));
+      var all = d.all, vals = { visits: all.visits, open_pdf: all.events.open_pdf, download_pdf: all.events.download_pdf, cbt_start: all.events.cbt_start, share: all.events.share, materials: d.materials };
+      var bw = h('div', { class: 'agr-badges' });
+      BADGES.forEach(function (b) {
+        var v = vals[b[2]] || 0, shownNext = false;
+        b[3].forEach(function (t) {
+          var ok = v >= t;
+          if (!ok) { if (shownNext) return; shownNext = true; }
+          bw.appendChild(h('div', { class: 'agr-bd' + (ok ? '' : ' off') }, h('em', { 'aria-hidden': 'true', text: ok ? b[0] : '🔒' }), nf(t) + ' ' + b[1], h('small', { text: ok ? 'Unlocked' : nf(v) + ' so far' })));
+        });
+      });
+      grView.appendChild(bw);
+
+      // most used
+      grView.appendChild(h('h3', { class: 'agr-h', text: 'What students open most' }));
+      var tp = c.top || [];
+      if (!tp.length) grView.appendChild(h('div', { class: 'axa-empty', text: 'Nothing yet for this period.' }));
+      else grView.appendChild(h('div', { class: 'agr-list' }, tp.map(function (t) { return h('div', { class: 'agr-row' }, h('span', { text: prettyPath(t.path, t.title) }), h('b', { text: nf(t.count) })); })));
+      grView.appendChild(h('p', { class: 'agr-note', text: 'Counts come from GoatCounter and start around 14 Oct 2026. "Page views" are pages opened, not separate people. Your own admin visits are not counted. Updated ' + new Date(d.generatedAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) + '.' }));
     }
   }
 
