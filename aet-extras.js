@@ -1561,7 +1561,7 @@
   function loadMap() {
     var sb = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
     if (!sb) return Promise.resolve(null);
-    if (cache && Date.now() - cacheAt < 4000) return Promise.resolve(cache);
+    if (cache && Date.now() - cacheAt < 60000) return Promise.resolve(cache);
     return Promise.all([sb.from('courses').select('id,code,level_id,sort_order'), sb.from('levels').select('id,name')]).then(function (r) {
       if (r[0].error || r[1].error) return null;
       var lv = {}; (r[1].data || []).forEach(function (l) { lv[String(l.id)] = l.name; });
@@ -1576,6 +1576,7 @@
   }
 
   function enhance(list) {
+    loadMap();
     var level = '', any = false;
     [].forEach.call(list.children, function (el) {
       var h4 = el.querySelector && el.querySelector('h4');
@@ -1648,34 +1649,37 @@
 
   function save(list, before, after) {
     var sb = (typeof supabaseClient !== 'undefined') ? supabaseClient : null;
-    list.style.opacity = '.6'; list.style.pointerEvents = 'none';
+    function rowsFor(map) {
+      return after.map(function (el) {
+        var code = (el.querySelector('strong') || {}).textContent; code = String(code || '').trim();
+        return map && map[el.dataset.axlevel + '|' + code];
+      });
+    }
+    // the list stays usable while the save runs; all changed rows are sent together
     loadMap().then(function (map) {
       if (!sb || !map) throw new Error('no map');
-      var rows = after.map(function (el) {
-        var code = (el.querySelector('strong') || {}).textContent; code = String(code || '').trim();
-        return map[el.dataset.axlevel + '|' + code];
-      });
-      if (rows.some(function (r) { return !r; })) throw new Error('unknown course');
-      var chain = Promise.resolve();
-      rows.forEach(function (row, position) {
-        if (row.sort_order !== null && row.sort_order !== undefined && Number(row.sort_order) === position) return;
-        chain = chain.then(function () {
-          return sb.from('courses').update({ sort_order: position }).eq('id', row.id).select('id').then(function (r) {
-            if (r.error || !r.data || !r.data.length) throw new Error('save failed');
-            row.sort_order = position;
-          });
+      var rows = rowsFor(map);
+      if (rows.some(function (r) { return !r; })) {
+        cacheAt = 0;
+        return loadMap().then(function (fresh) { rows = rowsFor(fresh); if (rows.some(function (r) { return !r; })) throw new Error('unknown course'); return rows; });
+      }
+      return rows;
+    }).then(function (rows) {
+      return Promise.all(rows.map(function (row, position) {
+        return sb.from('courses').update({ sort_order: position }).eq('id', row.id).select('id').then(function (r) {
+          if (r.error || !r.data || !r.data.length) throw new Error('save failed');
+          row.sort_order = position;
         });
-      });
-      return chain;
+      }));
     }).then(function () {
-      cacheAt = 0;
       say('Order saved.');
-      try { if (typeof refreshPublicCatalog === 'function') refreshPublicCatalog(); } catch (e) {}
+      try { if (typeof window.aetReloadCourses === 'function') window.aetReloadCourses(); } catch (e) {}
+      try { if (typeof window.aetScheduleCatalogRefresh === 'function') window.aetScheduleCatalogRefresh(); else if (typeof refreshPublicCatalog === 'function') refreshPublicCatalog({ renderPage: false }); } catch (e) {}
     }).catch(function (err) {
       console.error('aet-polish order:', err);
       restore(list, before); cacheAt = 0;
       say('Could not save the new order. Nothing was lost.', true);
-    }).then(function () { list.style.opacity = ''; list.style.pointerEvents = ''; });
+    });
   }
 
   // wait for the admin course list, then keep it enhanced after every redraw
