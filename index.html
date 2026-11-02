@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6517565445502422"
-     crossorigin="anonymous"></script>
   
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6517565445502422"
+     crossorigin="anonymous"></script>
+    
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -19,21 +19,21 @@
   <link rel="shortcut icon" href="favicon.ico">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="canonical" href="https://aetlearninghub.app/">
+  <link rel="canonical" href="https://toheebada.github.io/Aet-Academic-Hub/">
 
   <!-- Link preview (WhatsApp, Telegram, X, etc.) -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="AET Learning Hub">
   <meta property="og:title" content="AET Learning Hub">
   <meta property="og:description" content="Your one-stop platform for past questions, lecture materials and CBT practice for better preparation.">
-  <meta property="og:url" content="https://aetlearninghub.app/">
-  <meta property="og:image" content="https://aetlearninghub.app/og-image.png">
+  <meta property="og:url" content="https://toheebada.github.io/Aet-Academic-Hub/">
+  <meta property="og:image" content="https://toheebada.github.io/Aet-Academic-Hub/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="AET Learning Hub">
   <meta name="twitter:description" content="Your one-stop platform for past questions, lecture materials and CBT practice for better preparation.">
-  <meta name="twitter:image" content="https://aetlearninghub.app/og-image.png">
+  <meta name="twitter:image" content="https://toheebada.github.io/Aet-Academic-Hub/og-image.png">
 
   <!-- SUPABASE INTEGRATION START -->
   <script>
@@ -2232,14 +2232,14 @@
 
     const app = document.getElementById('app-view');
 
-        // Matches a course code from the page address even if it has spaces, odd symbols or different capitals
+    // Matches a course code from the page address even if it has spaces, odd symbols or different capitals
     const aetCodeKey = value => {
       let text = String(value == null ? '' : value);
       try { text = decodeURIComponent(text); } catch (_) {}
       return text.replace(/\s+/g, '').toUpperCase();
     };
-    
-        const findCourse = (level, code) => {
+
+    const findCourse = (level, code) => {
       const want = aetCodeKey(code);
       return (catalog[level] || []).find(course => aetCodeKey(course.code) === want);
     };
@@ -5564,16 +5564,6 @@ await showAdminCourseManagement();
           </div>
           <div data-msg style="font-size:13px;color:#555;min-height:16px;"></div>
         `;
-
-      const arrowStyle = `
-        width:36px;
-        height:36px;
-        border:1px solid #ccc;
-        border-radius:7px;
-        background:white;
-        cursor:pointer;
-        font-size:15px;
-      `;
         const input = panel.querySelector('input');
         input.value = resource.title || '';
         const msg = panel.querySelector('[data-msg]');
@@ -5634,7 +5624,17 @@ await showAdminCourseManagement();
       });
       actions.appendChild(editButton);
       actions.appendChild(topicButton);
-      
+
+      const arrowStyle = `
+        width:36px;
+        height:36px;
+        border:1px solid #ccc;
+        border-radius:7px;
+        background:white;
+        cursor:pointer;
+        font-size:15px;
+      `;
+
       const upButton = document.createElement('button');
       upButton.textContent = '▲';
       upButton.setAttribute('aria-label', 'Move up');
@@ -7751,6 +7751,7 @@ initContribAdmin();
   setInterval(function () { sync(); syncBadge(); }, 1500);
 })();
 </script>
+
 <!-- ===== AET ADMIN: TITLE AUTO-FILL + UPLOAD MANY PDFs AT ONCE (admin page only) ===== -->
 <style>
   #aet-multi-note { margin: 8px 0 0; padding: 10px 12px; border-radius: 8px; background: #f3f6ff; border: 1px solid #dbe3ff; color: #1f2430; font-size: 13px; line-height: 1.5; }
@@ -7880,6 +7881,7 @@ initContribAdmin();
   }
 })();
 </script>
+
 <!-- ===== AET ADMIN: UNDO FOR CBT QUESTION CHANGES (admin page only) ===== -->
 <style>
   #aet-undo { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 400; display: flex; align-items: center; gap: 14px; max-width: calc(100vw - 24px); padding: 12px 14px 12px 18px; border-radius: 14px; background: #111827; color: #fff; font-size: 14px; font-weight: 600; box-shadow: 0 14px 34px rgba(0,0,0,.35); }
@@ -8013,7 +8015,6 @@ initContribAdmin();
   }
 })();
 </script>
-  <script src="aet-extras.js" defer></script>
-  <script src="aet-activity.js" defer></script>
+<script src="aet-extras.js" defer></script>
 </body>
 </html>
