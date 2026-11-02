@@ -2376,6 +2376,14 @@
       });
     }
 
+    // Admin changes: refresh what students see quietly a moment after the last change
+    let aetCatalogTimer = null;
+    function aetScheduleCatalogRefresh() {
+      clearTimeout(aetCatalogTimer);
+      aetCatalogTimer = setTimeout(() => { refreshPublicCatalog({ renderPage: false }).catch(() => {}); }, 1500);
+    }
+    window.aetScheduleCatalogRefresh = aetScheduleCatalogRefresh;
+
     async function refreshPublicCatalog({ renderPage = true } = {}) {
       Object.keys(catalog).forEach(level => {
         catalog[level] = [...(sampleCatalogByLevel[level] || [])];
@@ -3941,9 +3949,9 @@ async function initAdminPanel() {
     "'": '&#39;'
   })[character]);
 }
-    async function loadCourses() {
+    async function loadCourses(quiet) {
 
-    courseList.innerHTML = `
+    if (!quiet) courseList.innerHTML = `
       <p style="color:#888;">
         Loading courses...
       </p>
@@ -4004,6 +4012,24 @@ async function initAdminPanel() {
       return;
     }
 
+    renderCourseList(levels, courses);
+  }
+
+  window.aetReloadCourses = () => loadCourses(true);
+
+  function renderCourseList(levels, courses) {
+
+    const levelMap = {};
+
+    (levels || []).forEach(level => {
+
+      levelMap[String(level.id)] =
+        level.name ||
+        level.title ||
+        level.code ||
+        `${level.id} Level`;
+    });
+
 
     if (!courses || courses.length === 0) {
 
@@ -4044,44 +4070,44 @@ async function initAdminPanel() {
     `;
     courseList.appendChild(heading);
 
-    const moveCourse = async (index, direction) => {
+    // Redraw at once, save the changed rows together in the background
+    const applyCourseOrder = async (nextGroup) => {
+      const changed = [];
+      nextGroup.forEach((c, position) => {
+        if (c.sort_order === null || c.sort_order === undefined || Number(c.sort_order) !== position) changed.push([c, position]);
+      });
+      if (!changed.length) return;
+
+      changed.forEach(([c, position]) => { c.sort_order = position; });
+      renderCourseList(levels, courses);
+
+      const results = await Promise.all(changed.map(([c, position]) =>
+        supabaseClient.from('courses').update({ sort_order: position }).eq('id', c.id).select('id')
+      ));
+
+      if (results.some(r => r.error || !r.data || !r.data.length)) {
+        console.error('AET Admin: Could not save course order.', results);
+        alert('The new order could not be saved.\n\nThe database step for course ordering may not be done yet. Nothing was lost.');
+        await loadCourses(true);
+        return;
+      }
+
+      aetScheduleCatalogRefresh();
+    };
+
+    const moveCourse = (index, direction) => {
       const target = index + direction;
       if (target < 0 || target >= groupItems.length) return;
-
       const next = [...groupItems];
       [next[index], next[target]] = [next[target], next[index]];
+      return applyCourseOrder(next);
+    };
 
-      courseList.style.opacity = '0.55';
-      courseList.style.pointerEvents = 'none';
-
-      let failed = false;
-
-      for (let position = 0; position < next.length; position++) {
-        const current = next[position].sort_order;
-        if (current !== null && current !== undefined && Number(current) === position) continue;
-
-        const { data: saved, error: saveError } = await supabaseClient
-          .from('courses')
-          .update({ sort_order: position })
-          .eq('id', next[position].id)
-          .select('id');
-
-        if (saveError || !saved || !saved.length) {
-          console.error('AET Admin: Could not save course order.', saveError);
-          failed = true;
-          break;
-        }
-      }
-
-      if (failed) {
-        alert('The new order could not be saved.\n\nThe database step for course ordering may not be done yet. Nothing was lost.');
-      }
-
-      courseList.style.opacity = '';
-      courseList.style.pointerEvents = '';
-
-      await loadCourses();
-      await refreshPublicCatalog();
+    const placeCourse = (index, where) => {
+      const next = [...groupItems];
+      const [moved] = next.splice(index, 1);
+      if (where === 'top') next.unshift(moved); else next.push(moved);
+      return applyCourseOrder(next);
     };
 
     groupItems.forEach((course, groupIndex) => {
@@ -4145,6 +4171,20 @@ async function initAdminPanel() {
           >▼</button>
 
           <button
+            class="admin-move-top"
+            aria-label="Move to the top"
+            title="Move to the top"
+            style="width:36px;height:36px;border:1px solid #ccc;border-radius:7px;background:white;cursor:pointer;font-size:15px;"
+          >⤒</button>
+
+          <button
+            class="admin-move-bottom"
+            aria-label="Move to the bottom"
+            title="Move to the bottom"
+            style="width:36px;height:36px;border:1px solid #ccc;border-radius:7px;background:white;cursor:pointer;font-size:15px;"
+          >⤓</button>
+
+          <button
             class="admin-edit-course"
             style="
               padding:8px 12px;
@@ -4185,6 +4225,14 @@ async function initAdminPanel() {
       if (downButton.disabled) downButton.style.opacity = '0.35';
       upButton.addEventListener('click', () => moveCourse(groupIndex, -1));
       downButton.addEventListener('click', () => moveCourse(groupIndex, 1));
+      const topCourseButton = item.querySelector('.admin-move-top');
+      const bottomCourseButton = item.querySelector('.admin-move-bottom');
+      topCourseButton.disabled = groupIndex === 0;
+      bottomCourseButton.disabled = groupIndex === groupItems.length - 1;
+      if (topCourseButton.disabled) topCourseButton.style.opacity = '0.35';
+      if (bottomCourseButton.disabled) bottomCourseButton.style.opacity = '0.35';
+      topCourseButton.addEventListener('click', () => placeCourse(groupIndex, 'top'));
+      bottomCourseButton.addEventListener('click', () => placeCourse(groupIndex, 'bottom'));
 
 
       // ======================================
@@ -5234,9 +5282,9 @@ await showAdminCourseManagement();
   // LOAD EXISTING RESOURCES
   // ==========================================
 
-  async function loadAdminResources(courseId) {
+  async function loadAdminResources(courseId, preloaded) {
 
-    resourceList.innerHTML = `
+    if (!preloaded) resourceList.innerHTML = `
       <p style="color:#888;">
         Loading resources...
       </p>
@@ -5250,13 +5298,15 @@ await showAdminCourseManagement();
     const {
       data: resources,
       error
-    } = await supabaseClient
-      .from('resources')
-      .select('*')
-      .eq('course_id', courseId)
-      .order('created_at', {
-        ascending: true
-      });
+    } = preloaded
+      ? { data: preloaded, error: null }
+      : await supabaseClient
+        .from('resources')
+        .select('*')
+        .eq('course_id', courseId)
+        .order('created_at', {
+          ascending: true
+        });
 
     if (error) {
 
@@ -5324,50 +5374,67 @@ await showAdminCourseManagement();
     `;
     resourceList.appendChild(heading);
 
-    const moveResource = async (index, direction) => {
+    // Redraw at once, save the changed rows together in the background
+    const saveRows = async rows => {
+      const results = await Promise.all(rows.map(row =>
+        supabaseClient.from('resources').update(row.patch).eq('id', row.id).select('id')
+      ));
+      return !results.some(r => r.error || !r.data || !r.data.length);
+    };
+
+    const showMoved = id => {
+      const el = resourceList.querySelector('[data-rid="' + id + '"]');
+      if (!el) return;
+      try { el.scrollIntoView({ block: 'nearest' }); } catch (_) {}
+      el.style.transition = 'background .2s';
+      el.style.background = '#fff7d6';
+      setTimeout(() => { el.style.background = '#f9fafb'; }, 1400);
+    };
+
+    const applyResourceOrder = async (nextGroup, movedId) => {
+      const rows = [];
+      nextGroup.forEach((r, position) => {
+        if (r.sort_order === null || r.sort_order === undefined || Number(r.sort_order) !== position) {
+          r.sort_order = position;
+          rows.push({ id: r.id, patch: { sort_order: position } });
+        }
+      });
+      if (!rows.length) return;
+
+      await loadAdminResources(courseId, resources);
+      showMoved(movedId);
+
+      if (!(await saveRows(rows))) {
+        console.error('AET Admin: Could not save order.');
+        alert('The new order could not be saved.\n\nThe database step for ordering may not be done yet. Nothing was lost.');
+        await loadAdminResources(courseId);
+        return;
+      }
+
+      aetScheduleCatalogRefresh();
+    };
+
+    const moveResource = (index, direction) => {
       const target = index + direction;
       if (target < 0 || target >= groupItems.length) return;
-
       const next = [...groupItems];
       [next[index], next[target]] = [next[target], next[index]];
+      return applyResourceOrder(next, groupItems[index].id);
+    };
 
-      resourceList.style.opacity = '0.55';
-      resourceList.style.pointerEvents = 'none';
-
-      let failed = false;
-
-      for (let position = 0; position < next.length; position++) {
-        const current = next[position].sort_order;
-        if (current !== null && current !== undefined && Number(current) === position) continue;
-
-        const { data: saved, error: saveError } = await supabaseClient
-          .from('resources')
-          .update({ sort_order: position })
-          .eq('id', next[position].id)
-          .select('id');
-
-        if (saveError || !saved || !saved.length) {
-          console.error('AET Admin: Could not save order.', saveError);
-          failed = true;
-          break;
-        }
-      }
-
-      if (failed) {
-        alert('The new order could not be saved.\n\nThe database step for ordering may not be done yet. Nothing was lost.');
-      }
-
-      resourceList.style.opacity = '';
-      resourceList.style.pointerEvents = '';
-
-      await loadAdminResources(courseId);
-      await refreshPublicCatalog();
+    const placeResource = (index, where) => {
+      const next = [...groupItems];
+      const [moved] = next.splice(index, 1);
+      if (where === 'top') next.unshift(moved); else next.push(moved);
+      return applyResourceOrder(next, moved.id);
     };
 
     groupItems.forEach((resource, groupIndex) => {
 
       const item =
         document.createElement('div');
+
+      item.dataset.rid = resource.id;
 
       item.style.cssText = `
         display:flex;
@@ -5560,6 +5627,8 @@ await showAdminCourseManagement();
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <button type="button" data-act="save" style="padding:9px 14px;border:none;border-radius:7px;background:#080b63;color:#fff;font-weight:700;cursor:pointer;">Save name</button>
             <button type="button" data-act="move" style="padding:9px 14px;border:1px solid #ccc;border-radius:7px;background:#fff;font-weight:700;cursor:pointer;">Move to ${destLabel}</button>
+            <button type="button" data-act="top" style="padding:9px 14px;border:1px solid #ccc;border-radius:7px;background:#fff;font-weight:700;cursor:pointer;">Move to top</button>
+            <button type="button" data-act="bottom" style="padding:9px 14px;border:1px solid #ccc;border-radius:7px;background:#fff;font-weight:700;cursor:pointer;">Move to bottom</button>
             <button type="button" data-act="close" style="padding:9px 14px;border:none;background:none;color:#555;font-weight:600;cursor:pointer;">Close</button>
           </div>
           <div data-msg style="font-size:13px;color:#555;min-height:16px;"></div>
@@ -5571,6 +5640,13 @@ await showAdminCourseManagement();
         const busy = on => buttons.forEach(b => { b.disabled = on; });
 
         panel.querySelector('[data-act="close"]').addEventListener('click', () => { panel.remove(); editPanel = null; });
+
+        const topBtn = panel.querySelector('[data-act="top"]');
+        const bottomBtn = panel.querySelector('[data-act="bottom"]');
+        if (groupIndex === 0) topBtn.disabled = true;
+        if (groupIndex === groupItems.length - 1) bottomBtn.disabled = true;
+        topBtn.addEventListener('click', () => placeResource(groupIndex, 'top'));
+        bottomBtn.addEventListener('click', () => placeResource(groupIndex, 'bottom'));
 
         panel.querySelector('[data-act="save"]').addEventListener('click', async () => {
           const name = input.value.replace(/\s+/g, ' ').trim().slice(0, 120);
@@ -5584,34 +5660,35 @@ await showAdminCourseManagement();
             msg.style.color = '#b91c1c'; msg.textContent = 'Could not save the name. Nothing was changed.';
             busy(false); return;
           }
-          await loadAdminResources(courseId);
-          await refreshPublicCatalog();
+          resource.title = name;
+          await loadAdminResources(courseId, resources);
+          showMoved(resource.id);
+          aetScheduleCatalogRefresh();
         });
 
         panel.querySelector('[data-act="move"]').addEventListener('click', async () => {
           if (!confirm('Move "' + resource.title + '" to ' + destLabel + '?\n\nIt will show at the bottom of that list. You can move it back any time.')) return;
           busy(true); msg.style.color = '#555'; msg.textContent = 'Moving...';
           const target = ordered.filter(r => (r.type === 'past_question' ? 'past_question' : 'study_material') === destType);
-          let failed = false;
-          for (let position = 0; position < target.length; position++) {
-            const current = target[position].sort_order;
-            if (current !== null && current !== undefined && Number(current) === position) continue;
-            const { data: ok, error: orderError } = await supabaseClient
-              .from('resources').update({ sort_order: position }).eq('id', target[position].id).select('id');
-            if (orderError || !ok || !ok.length) { failed = true; break; }
-          }
-          if (!failed) {
-            const { data: moved, error: moveError } = await supabaseClient
-              .from('resources').update({ type: destType, sort_order: target.length }).eq('id', resource.id).select('id');
-            if (moveError || !moved || !moved.length) failed = true;
-          }
-          if (failed) {
+          const rows = [];
+          target.forEach((r, position) => {
+            if (r.sort_order === null || r.sort_order === undefined || Number(r.sort_order) !== position) {
+              r.sort_order = position;
+              rows.push({ id: r.id, patch: { sort_order: position } });
+            }
+          });
+          resource.type = destType;
+          resource.sort_order = target.length;
+          rows.push({ id: resource.id, patch: { type: destType, sort_order: target.length } });
+          await loadAdminResources(courseId, resources);
+          showMoved(resource.id);
+          if (!(await saveRows(rows))) {
             console.error('AET Admin: Could not move resource.');
-            msg.style.color = '#b91c1c'; msg.textContent = 'Could not move it. Nothing was lost.';
-            busy(false); return;
+            alert('Could not move it. Nothing was lost.');
+            await loadAdminResources(courseId);
+            return;
           }
-          await loadAdminResources(courseId);
-          await refreshPublicCatalog();
+          aetScheduleCatalogRefresh();
         });
         return panel;
       };
@@ -8016,5 +8093,6 @@ initContribAdmin();
 })();
 </script>
 <script src="aet-extras.js" defer></script>
+<script src="aet-activity.js" defer></script>
 </body>
 </html>
