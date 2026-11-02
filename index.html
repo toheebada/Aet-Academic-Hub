@@ -5374,6 +5374,7 @@ await showAdminCourseManagement();
         justify-content:space-between;
         align-items:center;
         gap:15px;
+        flex-wrap:wrap;
         padding:15px;
         margin-bottom:10px;
         border:1px solid #e5e7eb;
@@ -5540,7 +5541,29 @@ await showAdminCourseManagement();
         await loadAdminResources(courseId);
         await refreshPublicCatalog();
       });
-      actions.appendChild(topicButton);
+      // Edit: rename the file and move it between Study Materials and Past Questions
+      const editButton = document.createElement('button');
+      editButton.textContent = 'Edit';
+      editButton.style.cssText = topicButton.style.cssText;
+      let editPanel = null;
+
+      const buildEditPanel = () => {
+        const isPast = resource.type === 'past_question';
+        const destType = isPast ? 'study_material' : 'past_question';
+        const destLabel = isPast ? 'Study Materials' : 'Past Questions';
+        const panel = document.createElement('div');
+        panel.className = 'aet-edit-panel';
+        panel.style.cssText = 'flex-basis:100%;border-top:1px solid #e5e7eb;padding-top:12px;display:grid;gap:10px;';
+        panel.innerHTML = `
+          <label style="font-weight:600;font-size:13px;">Name (students see this and it is the name when they download)</label>
+          <input type="text" maxlength="120" style="width:100%;box-sizing:border-box;padding:11px;border:1px solid #ccc;border-radius:8px;font-size:15px;">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button type="button" data-act="save" style="padding:9px 14px;border:none;border-radius:7px;background:#080b63;color:#fff;font-weight:700;cursor:pointer;">Save name</button>
+            <button type="button" data-act="move" style="padding:9px 14px;border:1px solid #ccc;border-radius:7px;background:#fff;font-weight:700;cursor:pointer;">Move to ${destLabel}</button>
+            <button type="button" data-act="close" style="padding:9px 14px;border:none;background:none;color:#555;font-weight:600;cursor:pointer;">Close</button>
+          </div>
+          <div data-msg style="font-size:13px;color:#555;min-height:16px;"></div>
+        `;
 
       const arrowStyle = `
         width:36px;
@@ -5551,7 +5574,67 @@ await showAdminCourseManagement();
         cursor:pointer;
         font-size:15px;
       `;
+        const input = panel.querySelector('input');
+        input.value = resource.title || '';
+        const msg = panel.querySelector('[data-msg]');
+        const buttons = panel.querySelectorAll('button');
+        const busy = on => buttons.forEach(b => { b.disabled = on; });
 
+        panel.querySelector('[data-act="close"]').addEventListener('click', () => { panel.remove(); editPanel = null; });
+
+        panel.querySelector('[data-act="save"]').addEventListener('click', async () => {
+          const name = input.value.replace(/\s+/g, ' ').trim().slice(0, 120);
+          if (!name) { msg.textContent = 'Type a name first.'; msg.style.color = '#b91c1c'; return; }
+          if (name === resource.title) { msg.textContent = 'That is already the name.'; msg.style.color = '#555'; return; }
+          busy(true); msg.style.color = '#555'; msg.textContent = 'Saving...';
+          const { data: saved, error: saveError } = await supabaseClient
+            .from('resources').update({ title: name }).eq('id', resource.id).select('id');
+          if (saveError || !saved || !saved.length) {
+            console.error('AET Admin: Could not rename.', saveError);
+            msg.style.color = '#b91c1c'; msg.textContent = 'Could not save the name. Nothing was changed.';
+            busy(false); return;
+          }
+          await loadAdminResources(courseId);
+          await refreshPublicCatalog();
+        });
+
+        panel.querySelector('[data-act="move"]').addEventListener('click', async () => {
+          if (!confirm('Move "' + resource.title + '" to ' + destLabel + '?\n\nIt will show at the bottom of that list. You can move it back any time.')) return;
+          busy(true); msg.style.color = '#555'; msg.textContent = 'Moving...';
+          const target = ordered.filter(r => (r.type === 'past_question' ? 'past_question' : 'study_material') === destType);
+          let failed = false;
+          for (let position = 0; position < target.length; position++) {
+            const current = target[position].sort_order;
+            if (current !== null && current !== undefined && Number(current) === position) continue;
+            const { data: ok, error: orderError } = await supabaseClient
+              .from('resources').update({ sort_order: position }).eq('id', target[position].id).select('id');
+            if (orderError || !ok || !ok.length) { failed = true; break; }
+          }
+          if (!failed) {
+            const { data: moved, error: moveError } = await supabaseClient
+              .from('resources').update({ type: destType, sort_order: target.length }).eq('id', resource.id).select('id');
+            if (moveError || !moved || !moved.length) failed = true;
+          }
+          if (failed) {
+            console.error('AET Admin: Could not move resource.');
+            msg.style.color = '#b91c1c'; msg.textContent = 'Could not move it. Nothing was lost.';
+            busy(false); return;
+          }
+          await loadAdminResources(courseId);
+          await refreshPublicCatalog();
+        });
+        return panel;
+      };
+
+      editButton.addEventListener('click', () => {
+        if (editPanel) { editPanel.remove(); editPanel = null; return; }
+        editPanel = buildEditPanel();
+        item.appendChild(editPanel);
+        editPanel.querySelector('input').focus();
+      });
+      actions.appendChild(editButton);
+      actions.appendChild(topicButton);
+      
       const upButton = document.createElement('button');
       upButton.textContent = '▲';
       upButton.setAttribute('aria-label', 'Move up');
