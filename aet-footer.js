@@ -5,30 +5,36 @@
   window.__aetFooter = true;
 
   var CSS = [
-    '.af{max-width:1180px;margin:0 auto}',
-    '.af-grid{display:grid;grid-template-columns:1fr;gap:26px}',
-    '.af-brand{display:flex;flex-wrap:wrap;align-items:center;align-content:flex-start;gap:12px 14px}',
+    '.af{max-width:1180px;margin:0 auto;position:relative;padding-top:8px}',
+    '.af:before{content:"";position:absolute;left:0;right:0;top:0;height:1px;background:linear-gradient(90deg,rgba(255,255,255,0),rgba(255,255,255,.28),rgba(255,255,255,0))}',
+    '.af-grid{display:grid;grid-template-columns:1fr;gap:30px;align-items:start}',
+    '.af-brand{display:flex;flex-wrap:wrap;align-items:center;align-content:flex-start;gap:14px 16px}',
     '.af-logo{width:46px;height:46px;border-radius:50%;object-fit:cover;background:#fff;box-shadow:0 0 0 2px rgba(255,210,28,.55)}',
-    '.af-name{font-size:18px;font-weight:800;color:#fff;line-height:1.2}',
-    '.af-sub{display:block;font-size:13px;color:#aeb2d6;margin-top:2px;font-weight:500}',
-    '.af-tag{flex-basis:100%;margin:2px 0 0!important;color:#ffd21c!important;font-weight:800;font-size:13.5px!important}',
-    '.af-h{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:#8d92c4;font-weight:800;margin:0 0 10px}',
+    '.af-name{font-size:19px;font-weight:800;color:#fff;line-height:1.15}',
+    '.af-sub{display:block;font-size:13px;color:#b9bde0;margin-top:3px;font-weight:600}',
+    '.af-tag{flex-basis:100%;margin:4px 0 0!important;color:#ffd21c!important;font-weight:800;font-size:14px!important}',
+    '.af-h{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#b4b9eb;font-weight:900;margin:0 0 12px}',
     '.af-links{display:grid;grid-template-columns:1fr 1fr;gap:8px}',
-    '.af-links .footer-link,.af-links #install-wrap .footer-link{display:flex;align-items:center;gap:9px;min-height:44px;padding:9px 12px;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);color:#fff;text-decoration:none;font-weight:700;font-size:13.5px;line-height:1.2}',
-    '.af-links .footer-link:hover,.af-links .footer-link:focus-visible{background:rgba(255,255,255,.14);color:#fff}',
+    '.af-links .footer-link,.af-links #install-wrap .footer-link{display:flex;align-items:center;gap:9px;min-height:46px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.11);color:#fff;text-decoration:none;font-weight:700;font-size:14px;line-height:1.2;transition:background .22s ease,border-color .22s ease,transform .22s ease,color .22s ease,box-shadow .22s ease}',
+    '.af-links .footer-link:hover,.af-links .footer-link:focus-visible{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff;transform:translateY(-1px)}',
+    '.af-links .footer-link:focus-visible,.af-wa:focus-visible{outline:3px solid rgba(255,210,28,.75);outline-offset:2px}',
     '.af-links .footer-link svg{flex:none;width:18px;height:18px;color:#ffd21c}',
     '.af-links #install-wrap{display:contents}',
     '.af-links #install-wrap[hidden]{display:none!important}',
     '.af-links #install-link{order:1}.af-links #share-site-link{order:2}.af-links #ax-footer-req{order:3}.af-links #aa-footer-link{order:4}',
-    '.af-help p{margin:0 0 10px!important;font-size:13.5px!important;line-height:1.5}',
-    '.af-wa{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:rgba(37,211,102,.13);border:1px solid rgba(37,211,102,.55);color:#fff;text-decoration:none}',
-    '.af-wa:hover,.af-wa:focus-visible{background:rgba(37,211,102,.22);color:#fff}',
+    '.af-links #install-link{background:linear-gradient(180deg,rgba(255,210,28,.28),rgba(255,210,28,.15));border-color:rgba(255,210,28,.75);color:#fff;box-shadow:0 4px 16px rgba(255,210,28,.15)}',
+    '.af-links #install-link:hover,.af-links #install-link:focus-visible{background:linear-gradient(180deg,rgba(255,210,28,.36),rgba(255,210,28,.2));border-color:rgba(255,210,28,.95)}',
+    '.af-links a.footer-link:not(#install-link){opacity:.93}',
+    '.af-help p{margin:0 0 12px!important;font-size:14px!important;line-height:1.52;max-width:32ch;color:#c7cbeb}',
+    '.af-wa{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:rgba(37,211,102,.11);border:1px solid rgba(75,224,138,.52);color:#fff;text-decoration:none;transition:background .22s ease,border-color .22s ease,transform .22s ease,box-shadow .22s ease}',
+    '.af-wa:hover,.af-wa:focus-visible{background:rgba(37,211,102,.2);border-color:rgba(75,224,138,.8);color:#fff;transform:translateY(-1px);box-shadow:0 6px 18px rgba(37,211,102,.18)}',
     '.af-wa svg{flex:none;width:26px;height:26px;color:#4be08a}',
-    '.af-wa b{display:block;font-size:14.5px;line-height:1.25}.af-wa span{display:block;font-size:13px;color:#cfe9da;margin-top:1px}',
-    '.af-bar{margin-top:26px;padding-top:16px;border-top:1px solid rgba(255,255,255,.12);display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:space-between;font-size:12.5px;color:#8d92c4}',
-    '.af-bar p{flex-basis:100%;margin:0!important;font-size:12px!important}',
+    '.af-wa b{display:block;font-size:15px;line-height:1.25}.af-wa span{display:block;font-size:13.5px;color:#d6ecdf;margin-top:1px}',
+    '.af-bar{margin-top:30px;padding-top:18px;border-top:1px solid rgba(255,255,255,.16);display:flex;flex-wrap:wrap;gap:7px 16px;justify-content:space-between;font-size:12.8px;color:#a4a9d3}',
+    '.af-bar p{flex-basis:100%;margin:0!important;font-size:12.5px!important;color:#b7bce0}',
     'footer.af-on .footer-inner{display:none}',
-    '@media (min-width:820px){.af-grid{grid-template-columns:1.25fr 1fr 1fr;gap:48px}.af-links{grid-template-columns:1fr 1fr}.af-bar{margin-top:34px}}'
+    '@media (max-width:520px){.af-links{grid-template-columns:1fr}.af-links .footer-link,.af-links #install-wrap .footer-link{font-size:14.5px;padding:11px 13px}.af-help p{font-size:14.5px!important}}',
+    '@media (min-width:820px){.af-grid{grid-template-columns:1.18fr 1fr 1fr;gap:44px}.af-links{grid-template-columns:1fr 1fr}.af-bar{margin-top:36px}}'
   ].join('\n');
 
   var ICONS = {
@@ -63,7 +69,7 @@
           '<p class="af-tag">Learn Better. Prepare Better. Become Better.</p>' +
         '</div>' +
         '<nav class="af-col" aria-label="Quick links"><h4 class="af-h">Quick links</h4><div class="af-links"></div></nav>' +
-        '<div class="af-col af-help"><h4 class="af-h">Need help?</h4><p>Questions, or found a mistake? Message us on WhatsApp.</p>' +
+        '<div class="af-col af-help"><h4 class="af-h">Need help?</h4><p>Questions or spotted an error? Chat with us on WhatsApp.</p>' +
           '<a class="af-wa" target="_blank" rel="noopener" href="' + waHref + '">' + svg('<path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20.5l1.7-5A8.5 8.5 0 1 1 21 11.5z"/><path d="M9 8.5c0 3.5 2.5 6 6 6l1.2-1.4-2-1-.9.6c-.8-.3-1.6-1.1-1.9-1.9l.6-.9-1-2z"/>') + '<div><b>Chat with us</b><span>0805 080 4036</span></div></a>' +
         '</div>' +
       '</div>' +
