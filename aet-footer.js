@@ -5,28 +5,29 @@
   window.__aetFooter = true;
 
   var CSS = [
-    'footer.af-on{padding:24px 18px 18px}',
+    'footer.af-on{padding:22px 20px 16px;border-top:2px solid #ffd21c}',
     '.af{max-width:1180px;margin:0 auto}',
     '.af-grid{display:grid;grid-template-columns:1fr;gap:14px}',
     '.af-brand{display:flex;align-items:center;gap:11px}',
-    '.af-logo{flex:none;width:38px;height:38px;border-radius:50%;object-fit:cover;background:#fff;box-shadow:0 0 0 2px rgba(255,210,28,.55)}',
+    '.af-logo{flex:none;width:36px;height:36px;border-radius:50%;object-fit:cover;background:#fff}',
     '.af-name{display:block;font-size:16px;font-weight:800;color:#fff;line-height:1.2}',
-    '.af-tag{display:block;margin:2px 0 0;color:#ffd21c;font-weight:800;font-size:12.5px;line-height:1.3}',
-    '.af-links{display:grid;grid-template-columns:1fr 1fr;gap:7px}',
-    '.af-links .footer-link,.af-links #install-wrap .footer-link{display:flex;align-items:center;gap:7px;min-height:40px;padding:7px 9px;border-radius:11px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);color:#fff;text-decoration:none;font-weight:700;font-size:12.5px;line-height:1.15}',
-    '.af-links .footer-link:hover,.af-links .footer-link:focus-visible{background:rgba(255,255,255,.14);color:#fff}',
+    '.af-tag{display:block;margin:2px 0 0;color:#aeb2d6;font-weight:500;font-size:12.5px;line-height:1.3}',
+    '.af-links{display:grid;grid-template-columns:1fr 1fr;column-gap:14px;row-gap:0}',
+    '.af-links .footer-link,.af-links #install-wrap .footer-link{display:flex;align-items:center;gap:9px;min-height:38px;padding:0;border:0;background:none;color:#e4e6fb;text-decoration:none;font-weight:600;font-size:13.5px;line-height:1.2}',
+    '.af-links .footer-link:hover,.af-links .footer-link:focus-visible{color:#fff;text-decoration:underline;text-underline-offset:3px}',
     '.af-links .footer-link svg{flex:none;width:16px;height:16px;color:#ffd21c}',
     '.af-links #install-wrap{display:contents}',
     '.af-links #install-wrap[hidden]{display:none!important}',
     '.af-links #install-link{order:1}.af-links #share-site-link{order:2}.af-links #ax-footer-req{order:3}.af-links #aa-footer-link{order:4}',
-    '.af-wa{display:flex;align-items:center;gap:10px;min-height:44px;padding:8px 12px;border-radius:12px;background:rgba(37,211,102,.13);border:1px solid rgba(37,211,102,.55);color:#fff;text-decoration:none}',
-    '.af-wa:hover,.af-wa:focus-visible{background:rgba(37,211,102,.22);color:#fff}',
-    '.af-wa svg{flex:none;width:22px;height:22px;color:#4be08a}',
-    '.af-wa b{font-size:13.5px;line-height:1.25}.af-wa span{display:block;font-size:12.5px;color:#cfe9da;margin-top:1px}',
-    '.af-bar{margin-top:14px;padding-top:11px;border-top:1px solid rgba(255,255,255,.12);display:flex;flex-wrap:wrap;gap:2px 14px;justify-content:space-between;font-size:11.5px;color:#8d92c4;line-height:1.4}',
+    '.af-wa{display:flex;align-items:center;gap:9px;min-height:36px;color:#aeb2d6;text-decoration:none;font-size:13px;line-height:1.35}',
+    '.af-wa:hover b,.af-wa:focus-visible b{color:#fff;text-decoration:underline;text-underline-offset:3px}',
+    '.af-wa svg{flex:none;width:18px;height:18px;color:#4be08a}',
+    '.af-wa b{color:#ffd21c;font-weight:700;white-space:nowrap}',
+    '.af-bar{margin-top:12px;padding-top:11px;border-top:1px solid rgba(255,255,255,.1);display:flex;flex-wrap:wrap;gap:2px 8px;font-size:11.5px;color:#8d92c4;line-height:1.4}',
+    '.af-bar span+span::before{content:"\\00b7";margin-right:8px}',
     '.af-bar p{flex-basis:100%;margin:2px 0 0!important;font-size:11px!important}',
     'footer.af-on .footer-inner{display:none}',
-    '@media (min-width:820px){footer.af-on{padding:26px 22px 18px}.af-grid{grid-template-columns:1.2fr 1.5fr 1fr;gap:34px;align-items:center}.af-bar{margin-top:20px}}'
+    '@media (min-width:820px){footer.af-on{padding:24px 22px 16px}.af-grid{grid-template-columns:1.2fr 1.4fr 1.2fr;gap:30px;align-items:center}.af-wa{justify-content:flex-end}.af-bar{margin-top:16px}}'
   ].join('\n');
 
   var ICONS = {
@@ -60,7 +61,7 @@
           '<div><span class="af-name">AET Learning Hub</span><span class="af-tag">Learn Better. Prepare Better. Become Better.</span></div>' +
         '</div>' +
         '<nav class="af-col" aria-label="Quick links"><div class="af-links"></div></nav>' +
-        '<a class="af-wa" target="_blank" rel="noopener" href="' + waHref + '" aria-label="Questions or found a mistake? Chat with us on WhatsApp">' + svg('<path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20.5l1.7-5A8.5 8.5 0 1 1 21 11.5z"/><path d="M9 8.5c0 3.5 2.5 6 6 6l1.2-1.4-2-1-.9.6c-.8-.3-1.6-1.1-1.9-1.9l.6-.9-1-2z"/>') + '<div><b>Questions or found a mistake? Chat with us</b><span>0805 080 4036</span></div></a>' +
+        '<a class="af-wa" target="_blank" rel="noopener" href="' + waHref + '" aria-label="Questions or found a mistake? Chat with us on WhatsApp">' + svg('<path d="M21 11.5a8.5 8.5 0 0 1-12.6 7.4L3 20.5l1.7-5A8.5 8.5 0 1 1 21 11.5z"/><path d="M9 8.5c0 3.5 2.5 6 6 6l1.2-1.4-2-1-.9.6c-.8-.3-1.6-1.1-1.9-1.9l.6-.9-1-2z"/>') + '<span>Questions or mistakes? <b>WhatsApp 0805 080 4036</b></span></a>' +
       '</div>' +
       '<div class="af-bar"><span>© 2026 Academic Excellence Team</span><span>Built for FUTMinna students</span></div>';
 
