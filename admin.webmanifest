@@ -1,0 +1,16 @@
+{
+  "name": "AET Admin",
+  "short_name": "AET Admin",
+  "description": "Admin panel for the AET Learning Hub",
+  "id": "/admin.html",
+  "start_url": "/admin.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#080b63",
+  "theme_color": "#080b63",
+  "icons": [
+    { "src": "/favicon.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png" }
+  ]
+}
