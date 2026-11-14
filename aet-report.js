@@ -23,6 +23,7 @@
     '.ar-flag.done{color:#12733a;background:#eaf8ef;border-color:#bfe8cd}',
     '.ar-back{position:fixed;inset:0;z-index:9600;background:rgba(5,7,71,.55);display:flex;align-items:flex-end;justify-content:center}',
     '.ar-sheet{background:#fff;color:#11152b;width:100%;max-width:440px;border-radius:20px 20px 0 0;padding:16px 16px 20px;max-height:92vh;overflow:auto;box-shadow:0 -10px 40px rgba(0,0,0,.3);font-family:inherit;animation:arUp .18s ease-out}',
+    'html body.app-mode > .ar-back, html body > .ar-back{display:flex!important}',
     '@keyframes arUp{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}',
     '@media(min-width:600px){.ar-back{align-items:center}.ar-sheet{border-radius:20px}}',
     '.ar-sheet h3{margin:0 0 2px;font-size:18px}',
